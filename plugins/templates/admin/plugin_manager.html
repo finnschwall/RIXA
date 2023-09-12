@@ -1,0 +1,125 @@
+{% extends 'admin/change_list.html' %}
+
+{% block pagination %}{% endblock %}
+{% block filters %}{% endblock filters %}
+{% block object-tools %}{% endblock object-tools %}
+{% block search %}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a>
+  {% if page_name %} &rsaquo; {{ page_name }}{% endif %}
+</div>
+{% endblock %}
+
+{% block result_list %}
+    {{ info_table | safe }}
+    <h2 style="margin-top: 2em">Active and loaded plugins</h2>
+    {% for x in active_plugins %}
+        <button style="margin-right: 0.5em; margin-top: 0.5em">Restart</button>
+        <button style="margin-right: 0.5em;">Unload</button>
+        <a href="{% url 'admin:plugin' %}{{ x }}">{{ x }}</a> <br>
+    {% endfor %}
+    <h2 style="margin-top: 2em">Discovered plugins</h2>
+    {% for x in available_plugins %}
+        <button style="margin-right: 0.5em; margin-top: 0.5em">Load</button>
+        <a href="{% url 'admin:plugin' %}{{ x }}">{{ x }}</a> <br>
+    {% endfor %}
+
+    <style>
+    .ergebnis {
+    font-size: 2rem;
+    font-family: sans-serif;
+    padding: 2rem 0 2rem 2rem;
+    color: white;
+}
+
+.toggle {
+    margin:0 0 0 2rem;
+    position: relative;
+    display: inline-block;
+    width: 6rem;
+    height: 3.4rem;
+}
+
+.toggle input {
+    display: none;
+}
+
+.roundbutton {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    background-color: #33455e;
+    display: block;
+    transition: all 0.3s;
+    border-radius: 3.4rem;
+    cursor: pointer;
+}
+
+.roundbutton:before {
+    position: absolute;
+    content: "";
+    height: 2.4rem;
+    width: 2.5rem;
+    border-radius: 100%;
+    display: block;
+    left: 0.5rem;
+    bottom: 0.5rem;
+    background-color: white;
+    transition: all 0.3s;
+}
+
+input:checked + .roundbutton {
+    background-color: #FF6E48;
+}
+
+input:checked + .roundbutton:before  {
+    transform: translate(2.6rem, 0);
+}
+    </style>
+
+<div style="position: absolute; right: 0; bottom:0">
+<div style="font-size: 1.5em">Auto update
+</div>
+    <label class="toggle">
+      <input id="toggleswitch" type="checkbox">
+      <span class="roundbutton"></span>
+</label>
+</div>
+
+    <script>
+    let input = document.getElementById('toggleswitch');
+    let timeout = -1
+    function reloadPage(){
+        location.reload()
+    }
+        if(localStorage.getItem("autorefresh")==null){
+            localStorage.setItem("autorefresh", false.toString());
+        }
+        else{
+            let isChecked = localStorage.getItem("autorefresh") === "true"
+            input.checked = isChecked
+            if(isChecked){
+                timeout = setTimeout(reloadPage, 2000)
+            }
+        }
+
+
+
+        input.addEventListener('change',function(){
+            if(this.checked) {
+                localStorage.setItem("autorefresh", true.toString());
+                timeout = setTimeout(reloadPage, 2000)
+            } else {
+                localStorage.setItem("autorefresh", false.toString());
+                clearTimeout(timeout)
+            }
+        });
+
+    </script>
+
+{% endblock result_list %}

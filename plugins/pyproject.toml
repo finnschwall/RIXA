@@ -1,0 +1,25 @@
+[project]
+name = "rixa_plugins"
+version = "0.1.0.dev0"
+authors = [
+  { name="Finn Schwall", email="finn.schwall@isob.fraunhofer.de" },
+]
+description = "Plugin system package for RIXA"
+#readme = "README.md"
+requires-python = ">=3"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "Pyro5==5.14",
+]
+
+[project.urls]
+"Homepage" = "https://gitlab.cc-asp.fraunhofer.de/xai-hiwi/rixa/rixawebserver"
+
+[tool.setuptools.package-dir]
+rixa = ""
+"plugins" = ""

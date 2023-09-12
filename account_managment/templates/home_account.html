@@ -1,0 +1,61 @@
+{% extends "base_account.html" %}
+{% load static %}
+{% load i18n %}
+{% load bootstrap5 %}
+{% block title %}Account managment{% endblock %}
+{% block content %}
+
+<div class="container container-lg text-center">
+{#<h1><a class="h1" href="{%url 'game_home'%}">Home</a></h1>#}
+<h2>All available user info</h2>
+<div class="container container-md ">
+    {% for x,y  in user_info.items %}
+        <div>{{x}}: {{y}}</div>
+    {%endfor%}
+</div>
+    <h2>Current permissions</h2>
+    {% if request.user.is_superuser %}
+        <p>All (you are superuser)</p>
+    {%else%}
+        <p>{{perms.account_managment}}</p>
+    {%endif%}
+
+    <h2>Groups:</h2>
+    <p>
+        {%for x in user.groups.all%}
+            {{x}},
+        {%endfor%}
+    </p>
+
+{% if not request.user.is_active%}
+    <p class="text-bg-danger">Account not activated!.</p>
+{%endif%}
+
+<form action="" method="post" >
+    {% csrf_token %}
+        <h2>Feedback</h2>
+        <textarea class="form-control" name="feedback" id="feedback" required></textarea>
+    <input id="submit" type="submit" value="Send feedback" class="btn btn-primary mt-3" disabled>
+</form>
+
+<form action="{%url 'account_user_logout'%}" method="post" class="mt-3">
+    {% csrf_token %}
+    <input class="btn btn-primary" type="submit" value="Logout">
+</form>
+
+<img id="photo" style="width:100%; max-width:500px;">
+
+</div>
+<script>
+    function randomCat(){
+      var XHR = new XMLHttpRequest();
+      XHR.onreadystatechange = function() {
+        if (XHR.readyState == 4 && XHR.status == 200) {
+        $("#photo").attr("src",JSON.parse(XHR.responseText).file)
+        }
+      }
+      XHR.open("GET", "https://aws.random.cat/meow");
+      XHR.send();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,278 @@
+<!doctype html>
+{% load static %}
+{% load bootstrap5 %}
+{% load plots %}
+<head>
+    {#    meta stuff#}
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <title>{{ website_title }}</title>
+
+    {#    css#}
+    <link href="{% static 'favicon.ico' %}" rel="shortcut icon" type="image/png"/>
+    <link rel="stylesheet" id="stylesheet" href="{% static 'css/bootstrap.main.css' %}">
+    <link href="{% static 'css/font/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'dashboard/bot_gui/css/style.css' %}" rel="stylesheet" type="text/css"/>
+
+    {#scripts#}
+    {#    these could be fetched over public CDN#}
+    {% bootstrap_javascript %}
+    <script src="{% static 'js/jquery-3.6.3.min.js' %}"></script>
+    <script src="{% static 'js/showdown.min.js' %}"></script>
+    <script src="{% static 'js/plotly-2.20.0.min.js' %}" async charset="utf-8"></script>
+    {#<script type="text/javascript" src="https://www.maths.nottingham.ac.uk/plp/pmadw/LaTeXMathML.js"></script>#}
+    {#    own scripts#}
+    <script src="{% static 'js/LaTeXMathML.js' %}"></script>
+    <script src="{% static 'js/jshelpers.js' %}"></script>
+
+    <script src="{% static 'js/jquery.json-viewer.js' %}"></script>
+     <link href="{% static 'js/jquery.json-viewer.css' %}" rel="stylesheet">
+
+    <script>
+        function getPath(path) {
+            path = path.replace("./static/", "{% static 'dashboard/bot_gui/' %}")
+            return path
+        }
+
+        let themes = {
+            "standard": "{% static 'css/bootstrap.main.css' %}",
+            "materia": "{% static 'css/bootstrap.materia.css' %}",
+            "slate": "{% static 'css/bootstrap.slate.css' %}",
+            "morph": "https://bootswatch.com/5/morph/bootstrap.min.css",
+            "vapor": "https://bootswatch.com/5/vapor/bootstrap.min.css",
+            "cyborg": "https://bootswatch.com/5/cyborg/bootstrap.min.css"
+        }
+        $("#stylesheet").attr("href",themes["{{ theme }}"])
+    </script>
+</head>
+
+<body>
+
+
+<div class="toast-container  top-0 start-50 translate-middle-x mt-2">
+  <div id="liveToast" class="toast text-bg-info" id="toast_div" role="alert" aria-live="assertive"  aria-atomic="true" data-bs-autohide="false">
+    <div class="toast-header text-bg-info" id="toast_header_div">
+      <strong class="me-auto" id="toast_title">Bootstrap</strong>
+      <small>11 mins ago</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body" id="toast_text">
+      Hello, world! This is a toast message.
+    </div>
+  </div>
+</div>
+
+
+<script>
+    let container_count = 2
+</script>
+<div class="container-fluid" style="position:absolute; height: 100%; padding: 1em 1em 1em 2em" >
+    <div class="row" style="height: 100%; width: 100%" id ="main_content_container">
+        <div class="col-7" id ="server_content_displayer">
+
+{#            <div id="content_main_0" class="row"style="height: calc(100%); overflow-y: scroll">#}
+{##}
+{#            </div>#}
+
+            <div id="content_main_0" class="row"style="height: calc(50%); overflow-y: scroll">
+
+            </div>
+
+            <div id="content_main_1" class="row"style="height: calc(50%); overflow-y: scroll">
+
+            </div>
+        </div>
+
+{#<div style="position: absolute; right: 1%; top: 1%; z-index: 10"></div>#}
+        {% if chat_disabled == False %}
+        <div id="chat_container" class="col" style="height: 100%">
+            <div id="widget_container" class="widget shadow shadow-lg rounded-3 border-0">
+                <div id="chat_top_bar" class="container-fluid">
+                    <div class="row rounded-top" style="background: var(--bs-primary); height: 3rem">
+                        <div class="col" style="justify-content: center; display: flex; align-items: center">
+                             <button class="btn btn-info rounded-circle"  style="color: red; height: 2rem; width: 2rem" type="button" data-bs-toggle="offcanvas"
+                                    data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+                                <i class="bi bi-gear-fill" style="color: var(--bs-primary); position:relative; top: -.9rem; left: -0.75rem; font-size: 1.5rem"></i>
+                            </button>
+                        </div>
+                        <div class="col-8"
+                             style="justify-content: center; display: flex; align-items: center; font-size: 1.6rem">
+                            <span style="display: inline-flex; color:floralwhite">{{ chat_title }}</span>
+                        </div>
+
+                        <div class="col" style="justify-content: center; display: flex; align-items: center"
+                             id="close_shortcut">
+{#                            <button type="button" class="btn-close" ></button>#}
+                            <img src="{% static 'icons/delete-button.png' %}" style="width: 1.5rem;height:1.5rem">
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!--Chatbot contents goes here -->
+                <div class="chats" id="chats">
+                    <div class="clearfix"></div>
+                </div>
+
+
+                <div class="chat_input_container  border-top">
+                    <div id="textareaContainer" class="row" style="height: 100%">
+                        <div class="col-9" id="userInputDiv">
+                            <textarea class="form-control chat_input" id="userInput" placeholder="Type a message"
+                            ></textarea>
+                        </div>
+                        <div class="col" style="display: flex; align-items: center; justify-content: center">
+                            <div id="sendButtonDiv" class="btn btn-primary"
+                                 style="height: 2.5em; width: 2.5em; display: flex; align-items: center; justify-content: center">
+                                <i id="sendButton" class="bi bi-send-fill" style="font-size: 1.5em;"></i>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<img class="position-fixed bottom-0 end-0 shadow-lg rounded-circle mb-1 me-1 "
+                 id="profile_pic" src="{% static 'dashboard/bot_gui/img/botAvatar.png' %}"
+                 style="height: 10%; width: auto;display: none; z-index: 10">
+
+{#<div style="position: absolute; right: 1%; top: 1%; z-index: 10">#}
+{#    <button class="btn btn-primary rounded-circle" type="button" data-bs-toggle="offcanvas"#}
+{#            data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">#}
+{#        <i class="bi bi-gear-fill" style="color: var(--bs-info)"></i>#}
+{#    </button>#}
+{#</div>#}
+
+<script src="{% static 'dashboard/bot_gui/js/script.js' %}" type="text/javascript"></script>
+<script src="{% static 'dashboard/bot_gui/js/chat.js' %}" type="text/javascript"></script>
+<script src="{% static 'dashboard/bot_gui/js/serverCommunication.js' %}" type="text/javascript"></script>
+
+
+{% bootstrap_messages %}
+
+
+<div class="modal modal-lg top fade" id="messageCloseUp" tabindex="-1" style="height: 100%">
+    <div class="modal-dialog">
+        <div class="modal-content d-block text-start">
+
+            <div class="modal-body">
+                <h3>Metadata</h3>
+                <ul class="list-group" id="metadata_list">
+
+                </ul>
+
+
+                <h3 class="mt-3">Role</h3>
+                <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked="">
+                    <label class="btn btn-outline-primary" for="btnradio1">User</label>
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" checked="">
+                    <label class="btn btn-outline-primary" for="btnradio2">Assistant</label>
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" checked="">
+                    <label class="btn btn-outline-primary" for="btnradio3">System</label>
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio4" autocomplete="off" checked="">
+                    <label class="btn btn-outline-primary" for="btnradio4">Server</label>
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio5" autocomplete="off" checked="">
+                    <label class="btn btn-outline-primary" for="btnradio5">Special</label>
+                </div>
+
+                <div class="mt-3">
+                    <label for="messageCloseUpContent" class="form-label">Message content</label>
+                    <textarea class="form-control" id="messageCloseUpContent" rows="5" style="overflow-y: auto"></textarea>
+                </div>
+
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: space-evenly">
+                <button type="button" class="btn btn-info">
+                    Save
+                </button>
+
+                <button type="button" class="btn btn-danger" onclick="deleteMessage($(this))">
+                    Delete
+                </button>
+
+                <button type="button" class="btn btn-primary" onclick="$('#messageCloseUp').modal('toggle')">
+                    Close
+                </button>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .sidebarButton{
+        width: 100%;
+        margin-top: 1em;
+    }
+</style>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Settings</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+
+        <div class="form-check form-switch d-none d-lg-block pt-1">
+            <input class="form-check-input" type="checkbox" id="maximizeChat">
+            <label class="form-check-label" style="font-size: 1.5rem" for="maximizeChat">Maximize</label>
+        </div>
+
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle sidebarButton" type="button" id="switchTheme" data-bs-toggle="dropdown"
+                    aria-expanded="false" >
+                Switch theme
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" id="dark_mode">Dark</a></li>
+                <li><a class="dropdown-item" id="light_mode">Light</a></li>
+            </ul>
+        </div>
+
+
+        <button class="btn btn-danger sidebarButton"  onclick="clearConversations()">Delete convo tracker</button>
+
+        <select class="form-select sidebarButton" aria-label="Conversation ID">
+          <option selected>Conversation ID</option>
+          <option value="1">One</option>
+        </select>
+        {% if user.is_authenticated %}
+            <a class="btn btn-info sidebarButton"  href="{% url 'account_user_logout' %}?next={{ request.path }}">Logout</a>
+        {% else %}
+             <a class="btn btn-info sidebarButton" href="{% url 'account_user_login' %}?next={{ request.path }}">Login</a>
+        {% endif %}
+    </div>
+</div>
+
+
+
+<div class="position-fixed top-0 end-50 pt-3" style="z-index: 11">
+  <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <strong class="me-auto">System</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close" onclick="$('#liveToast').hide()"></button>
+    </div>
+    <div class="toast-body">
+       The message you clicked on is not part of the conversation tracker.
+    </div>
+  </div>
+</div>
+
+
+</body>
+{% if always_maximize_chat %}
+    <script>
+    toggleMaxChat()
+    </script>
+{% endif %}
+

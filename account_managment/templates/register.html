@@ -1,0 +1,77 @@
+{% extends "base_account.html" %}
+{% load static %}
+{% block title %}Register{% endblock %}
+{% block content %}
+{% load i18n %}
+{% load bootstrap5 %}
+
+<div class="container container-lg text-center">
+    <h1 style="font-size: 3em;">Register</h1>
+    <form action="" method="post" >
+        {% csrf_token %}
+        {% bootstrap_form form%}
+        <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" value="" id="email" class="form-control" placeholder="Optional">
+        </div>
+        <div class="mb-3">
+            <div style="width:15em;display: inline-block;position:relative; top: -1em">How did you find this?</div>
+            <textarea class="form-control" name="additional_info" id="additional_info"
+                  style="display: inline-block; width: 25.5em;min-height: 3em;" required
+                  placeholder="E.g. randomly stumbled upon the side, were annoyed by the dev to register, a friend showed you...."></textarea>
+        </div>
+        <div class="mb-3">
+            <div style="font-size: 0.8em; display: inline-block;position:relative; top: 0em">I accept the <a class="link-success" onclick="showDevNotice()">terms</a>.</div>
+            <input class="form-check-input" type="checkbox" id="flexCheckDefault" required>
+        </div>
+        <div class="mb-3">
+            <input id="submit" type="submit" value="Register" class="btn btn-primary">
+        </div>
+
+    </form>
+    <a href="{%url 'account_user_login'%}" class="link link-primary">Searching for login?</a>
+</div>
+
+<script>
+    function onAcceptTerms(val){
+        $("#submit").prop("disabled",!val.checked)
+    }
+    function closeDevNotice(){
+        $("#developer_notice").modal('toggle')
+    }
+
+    function showDevNotice(){
+        $("#developer_notice").modal('show')
+    }
+</script>
+
+
+<div class="modal modal-lg top fade" id="developer_notice" tabindex="-1"style="backdrop-filter: brightness(25%);font-family: 'Fira Code', serif">
+    <div class="modal-dialog">
+        <div class="modal-content d-block text-start" >
+            <div class="modal-header d-block " >
+                <h2 class="modal-title">Terms and conditions</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-check">
+                    <div class="form-check-label">
+                        
+                        <div class="text-info">Data and privacy</div>
+                        Sample text
+                        <div class="text-info">Access rights</div>
+                        sample text
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="closeDevNotice()">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base_account.html" %}
+{% load static %}
+{% load i18n %}
+{% load bootstrap5 %}
+{% block title %}Login{% endblock %}
+{% block content %}
+
+
+<div class="container container-sm text-center" >
+    <h1>Login</h1>
+    <form action="" method="post" class="row justify-content-sm-center">
+        <div class="col col-sm-4">
+            {% csrf_token %}
+            {% bootstrap_form form%}
+            <input type="submit" class="btn btn-primary" value="Submit">
+        </div>
+    </form>
+    {% get_current_language as CURRENT_LANGUAGE %}
+
+{#    <div class="mt-3">No account? No problem.</div>#}
+{#    <a href="/{{CURRENT_LANGUAGE}}/account_managment/signup" style="font-size: 2em"#}
+{#       class="link-secondary">Just click me to register!</a>#}
+</div>
+</div>
+
+
+{% endblock %}

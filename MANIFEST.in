@@ -1,0 +1,13 @@
+include *.html
+include *.js
+include *.css
+include *.ico
+include *.png
+include *.map
+include *.scss
+include *.woff
+include *.woff2
+recursive-include plugins *
+recursive-include dashboard *
+recursive-include static *
+recursive-include account_managment *

@@ -1,0 +1,58 @@
+{% load static %}
+{% load bootstrap5 %}
+<!DOCTYPE html>
+<html>
+<head>
+<script src="{% static 'js/jquery-3.6.3.min.js' %}"></script>
+    <script src="{% static 'js/jquery.json-viewer.js' %}"></script>
+     <link href="{% static 'js/jquery.json-viewer.css' %}" rel="stylesheet">
+
+    <link href="{% static 'favicon.ico' %}" rel="shortcut icon" type="image/png"/>
+
+{#  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn" crossorigin="anonymous">#}
+{#<script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js" integrity="sha384-cpW21h6RZv/phavutF+AuVYrr+dA8xD9zs6FwLpaCct6O9ctzYFfFr4dgmgccOTx" crossorigin="anonymous"></script>#}
+{#    <link rel="stylesheet" id="stylesheet" href="{% static 'css/bootstrap.main.css' %}">#}
+{#    <link href="{% static 'css/font/bootstrap-icons.css' %}" rel="stylesheet">#}
+{#    <link href="{% static 'dashboard/bot_gui/css/style.css' %}" rel="stylesheet" type="text/css"/>#}
+
+
+{#    <script src="{% static 'latex_compiler/latex.js' %}"></script>#}
+    <link type="text/css" rel="stylesheet" href="{% static 'latex_compiler/css/katex.css' %}">
+    <script src="{% static 'latex_compiler/js/base.js' %}"></script>
+{#    <script src="{% static 'latex_compiler/packages/index.js' %}"></script>#}
+
+</head>
+
+<div id="lol"></div>
+
+    <script type="module">
+    import { parse, HtmlGenerator } from "{% static 'latex_compiler/latex.mjs' %}"
+    {#import * as packages from "{% static 'latex_compiler/packages/index.js' %}"#}
+     let latex = `
+    \\usepackage{graphix}
+    \\usepackage{tikz-feynman}
+    \\feynmandiagram [horizontal=a to b] {
+  i1 -- [fermion] a -- [fermion] i2,
+  a -- [photon] b,
+  f1 -- [fermion] b -- [fermion] f2,
+};`
+    function compile(text){
+         let generator = new HtmlGenerator({ hyphenate: false })
+    generator = parse(text, { generator: generator })
+    document.body.appendChild(generator.domFragment())
+    }
+
+    fetch("{% static 'latex_compiler/feynman.tex' %}")
+  .then((res) => res.text())
+  .then((text) => {
+      compile(text)
+   })
+  .catch((e) => console.error(e));
+
+
+
+
+    </script>
+
+
+</html>

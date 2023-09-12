@@ -1,0 +1,85 @@
+[project]
+name = "RIXA"
+version = "0.1.0.dev0"
+authors = [
+  { name="Finn Schwall", email="finn.schwall@isob.fraunhofer.de" },
+]
+description = "Plugin system for distributed computing inside a webserver"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Framework :: Django",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "aiohttp==3.8.4",
+    "asgiref==3.6.0",
+    "channels==4.0.0",
+    "Django==4.1.5",
+    "user_agents==2.2.0",
+    "django-bootstrap-v5~=1.0.11",
+    "django-rosetta==0.9.8",
+    "plotly~=5.14.1",
+    "daphne==4.0.0",
+    "jsonfield",
+    "click~=8.1.3",
+    "Pyro5==5.14",
+    "python-decouple==3.8",
+    "psutil",
+    "numpy",
+    "pandas",
+]
+[project.optional-dependencies]
+standard = [
+    "openai",
+    "numpy",
+    "sympy"
+]
+
+dev = [
+    "openai",
+    "ipython",
+    "matplotlib",
+    "sympy"
+]
+
+doc = [
+    "python3-sphinx",
+    "sphinxawesome-theme",
+    "sphinxcontrib-mermaid",
+    "myst-parser"
+]
+
+
+
+
+[project.urls]
+"Homepage" = "https://gitlab.cc-asp.fraunhofer.de/xai-hiwi/rixa/rixawebserver"
+#
+#[tools.setuptools]
+#packages = ["rixawebserver", "rixawebserver.plugins"]
+
+#[tool.setuptools.packages.find]
+#
+#exclude = ["docs", "dashboard", "static"]
+
+#[tool.setuptools]
+#package-dir = {""=""}
+
+[tool.setuptools.package-dir]
+rixa = ""
+"rixa.plugins" = "plugins"
+"rixa.rixaserver" = "rixaserver"
+
+[project.scripts]
+#rixaserver = "rixawebserver.rixaserver:launch"
+rixaserver = "rixa.rixaserver:launch"
+
+#[tool.poetry.package]
+#include = ["/static/**", "/dashboard/templates/**", "/dashboard/static/**", "/plugins/example_wd/**"]
+
+#[tool.setuptools.packages.find]
+#where = ["static", "account_managment", "dashboard"]
