@@ -9,10 +9,15 @@ The underlying paper is **MISSING**.
 This readme aims to give a quick overview for getting started. All technical questions and advanced infos are in the
 docs **MISSING**.
 
-# Demo
-There is no demo currently :(
+
 
 # Quickstart
+## Demo
+There is no demo currently :(
+## Documentation
+[Here](https://finnschwall.github.io/RIXA/) for the latest main branch version.
+For all other versions (also locally) it is under docs/build/html. For branches other
+than main you will have to build it.
 ## Installation
 **Hardware requirements**
 
@@ -163,6 +168,6 @@ If you want to be able to build the docs you also need `doc`. For installing e.g
 
 
 # Everything else
-[See docs for everything else](docs/build/html/index.html)
+[See docs for everything else](https://finnschwall.github.io/RIXA/))
 
 
