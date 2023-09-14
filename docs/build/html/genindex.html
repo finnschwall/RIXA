@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+
+<html :class="{'dark': darkMode === 'dark' || (darkMode === 'system' &amp;&amp; window.matchMedia('(prefers-color-scheme: dark)').matches)}" class="scroll-smooth" lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') || localStorage.setItem('darkMode', 'system'), activeSection: '' }" x-init="$watch('darkMode', val =&gt; localStorage.setItem('darkMode', val))">
+<head>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta charset="utf-8"/>
+<meta content="white" media="(prefers-color-scheme: light)" name="theme-color"/>
+<meta content="black" metia="(prefers-color-scheme: dark)" name="theme-color"/>
+<title>Index | RIXA 0.1-alpha1 documentation</title>
+<meta content="Index | RIXA 0.1-alpha1 documentation" property="og:title"/>
+<meta content="Index | RIXA 0.1-alpha1 documentation" name="twitter:title"/>
+<link href="_static/pygments.css" rel="stylesheet"/>
+<link href="_static/theme.d5da1ae72e45df4c5b8e.css" rel="stylesheet"/>
+<link href="_static/bugfix.css" rel="stylesheet"/>
+<link href="search.html" rel="search" title="Search"/>
+<link href="#" rel="index" title="Index"/>
+<script>
+    <!-- Prevent Flash of wrong theme -->
+      const userPreference = localStorage.getItem('darkMode');
+      let mode;
+      if (userPreference === 'dark' || window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        mode = 'dark';
+        document.documentElement.classList.add('dark');
+      } else {
+        mode = 'light';
+      }
+      if (!userPreference) {localStorage.setItem('darkMode', mode)}
+    </script>
+<script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=a63e111b"></script>
+<script src="_static/doctools.js?v=888ff710"></script>
+<script src="_static/sphinx_highlight.js?v=4825356b"></script>
+<script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true});</script>
+<script defer="" src="_static/theme.83923940ee80f2e3f0bf.js"></script>
+</head>
+<body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false }">
+<div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
+      Skip to content
+    </a><header class="sticky top-0 z-40 w-full border-b shadow-sm border-border supports-backdrop-blur:bg-background/60 bg-background/95 backdrop-blur"><div class="container flex items-center h-14">
+<div class="hidden mr-4 md:flex">
+<a class="flex items-center mr-6" href="index.html"><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">RIXA 0.1-alpha1 documentation</span>
+</a><nav class="flex items-center space-x-6 text-sm font-medium">
+<a class="transition-colors hover:text-foreground/80 text-foreground/60" href="index.html">Home</a>
+</nav></div><button @click="showSidebar = true" class="inline-flex items-center justify-center h-10 px-0 py-2 mr-2 text-base font-medium transition-colors rounded-md hover:text-accent-foreground hover:bg-transparent md:hidden" type="button">
+<svg aria-hidden="true" fill="currentColor" height="24" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M152.587 825.087q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440Zm0-203.587q-19.152 0-32.326-13.174T107.087 576q0-19.152 13.174-32.326t32.326-13.174h320q19.152 0 32.326 13.174T518.087 576q0 19.152-13.174 32.326T472.587 621.5h-320Zm0-203.587q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440ZM708.913 576l112.174 112.174q12.674 12.674 12.674 31.826t-12.674 31.826Q808.413 764.5 789.261 764.5t-31.826-12.674l-144-144Q600 594.391 600 576t13.435-31.826l144-144q12.674-12.674 31.826-12.674t31.826 12.674q12.674 12.674 12.674 31.826t-12.674 31.826L708.913 576Z"></path>
+</svg>
+<span class="sr-only">Toggle navigation menu</span>
+</button>
+<div class="flex items-center justify-between flex-1 space-x-2 sm:space-x-4 md:justify-end">
+<div class="flex-1 w-full md:w-auto md:flex-none">
+<form @keydown.k.window.meta="$refs.search.focus()" action="search.html" class="relative flex items-center group" id="searchbox" method="get">
+<input aria-label="Search the docs" class="inline-flex items-center font-medium transition-colors bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background border border-input hover:bg-accent focus:bg-accent hover:text-accent-foreground focus:text-accent-foreground hover:placeholder-accent-foreground py-2 px-4 relative h-9 w-full justify-start rounded-[0.5rem] text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64" id="search-input" name="q" placeholder="Search ..." type="search" x-ref="search"/>
+<kbd class="pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none text-muted-foreground items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex group-hover:bg-accent group-hover:text-accent-foreground">
+<span class="text-xs">⌘</span>
+      K
+    </kbd>
+</form>
+</div>
+<nav class="flex items-center space-x-1">
+<button @click="darkMode = darkMode === 'light' ? 'dark' : 'light'" class="relative inline-flex items-center justify-center px-0 text-sm font-medium transition-colors rounded-md hover:bg-accent hover:text-accent-foreground h-9 w-9" type="button">
+<svg class="absolute transition-all scale-100 rotate-0 dark:-rotate-90 dark:scale-0" fill="currentColor" height="24" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 685q45.456 0 77.228-31.772Q589 621.456 589 576q0-45.456-31.772-77.228Q525.456 467 480 467q-45.456 0-77.228 31.772Q371 530.544 371 576q0 45.456 31.772 77.228Q434.544 685 480 685Zm0 91q-83 0-141.5-58.5T280 576q0-83 58.5-141.5T480 376q83 0 141.5 58.5T680 576q0 83-58.5 141.5T480 776ZM80 621.5q-19.152 0-32.326-13.174T34.5 576q0-19.152 13.174-32.326T80 530.5h80q19.152 0 32.326 13.174T205.5 576q0 19.152-13.174 32.326T160 621.5H80Zm720 0q-19.152 0-32.326-13.174T754.5 576q0-19.152 13.174-32.326T800 530.5h80q19.152 0 32.326 13.174T925.5 576q0 19.152-13.174 32.326T880 621.5h-80Zm-320-320q-19.152 0-32.326-13.174T434.5 256v-80q0-19.152 13.174-32.326T480 130.5q19.152 0 32.326 13.174T525.5 176v80q0 19.152-13.174 32.326T480 301.5Zm0 720q-19.152 0-32.326-13.17Q434.5 995.152 434.5 976v-80q0-19.152 13.174-32.326T480 850.5q19.152 0 32.326 13.174T525.5 896v80q0 19.152-13.174 32.33-13.174 13.17-32.326 13.17ZM222.174 382.065l-43-42Q165.5 327.391 166 308.239t13.174-33.065q13.435-13.674 32.587-13.674t32.065 13.674l42.239 43q12.674 13.435 12.555 31.706-.12 18.272-12.555 31.946-12.674 13.674-31.445 13.413-18.772-.261-32.446-13.174Zm494 494.761-42.239-43q-12.674-13.435-12.674-32.087t12.674-31.565Q686.609 756.5 705.38 757q18.772.5 32.446 13.174l43 41.761Q794.5 824.609 794 843.761t-13.174 33.065Q767.391 890.5 748.239 890.5t-32.065-13.674Zm-42-494.761Q660.5 369.391 661 350.62q.5-18.772 13.174-32.446l41.761-43Q728.609 261.5 747.761 262t33.065 13.174q13.674 13.435 13.674 32.587t-13.674 32.065l-43 42.239q-13.435 12.674-31.706 12.555-18.272-.12-31.946-12.555Zm-495 494.761Q165.5 863.391 165.5 844.239t13.674-32.065l43-42.239q13.435-12.674 32.087-12.674t31.565 12.674Q299.5 782.609 299 801.38q-.5 18.772-13.174 32.446l-41.761 43Q231.391 890.5 212.239 890t-33.065-13.174ZM480 576Z"></path>
+</svg>
+<svg class="absolute transition-all scale-0 rotate-90 dark:rotate-0 dark:scale-100" fill="currentColor" height="24" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 936q-151 0-255.5-104.5T120 576q0-138 90-239.5T440 218q25-3 39 18t-1 44q-17 26-25.5 55t-8.5 61q0 90 63 153t153 63q31 0 61.5-9t54.5-25q21-14 43-1.5t19 39.5q-14 138-117.5 229T480 936Zm0-80q88 0 158-48.5T740 681q-20 5-40 8t-40 3q-123 0-209.5-86.5T364 396q0-20 3-40t8-40q-78 32-126.5 102T200 576q0 116 82 198t198 82Zm-10-270Z"></path>
+</svg>
+</button>
+</nav>
+</div>
+</div>
+</header>
+<div class="flex-1"><div class="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10"><aside :aria-hidden="!showSidebar" :class="{ 'translate-x-0': showSidebar }" class="fixed inset-y-0 left-0 md:top-14 z-50 md:z-30 bg-background md:bg-transparent transition-all duration-100 -translate-x-full md:translate-x-0 ml-0 p-6 md:p-0 md:-ml-2 md:h-[calc(100vh-3.5rem)] w-5/6 md:w-full shrink-0 overflow-y-auto border-r border-border md:sticky" id="left-sidebar">
+<a class="!justify-start text-sm md:!hidden bg-background" href="index.html"><span class="font-bold text-clip whitespace-nowrap">RIXA 0.1-alpha1 documentation</span>
+</a>
+<div class="relative overflow-hidden md:overflow-auto my-4 md:my-0 h-[calc(100vh-8rem)] md:h-auto">
+<div class="overflow-y-auto h-full w-full relative pr-6"><nav class="flex md:hidden flex-col font-medium mt-4">
+<a href="index.html">Home</a>
+</nav><nav class="table w-full min-w-full my-6 lg:my-8">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="plugin_tutorial.html">Plugin programming quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="structure.html">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/module_api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/module_conf.html">Log documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/module_settings.html">Settings Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todos.html">Todos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/module_pyro_client.html">Pyro async client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/module_plugin_manager.html">Plugin system internals</a></li>
+</ul>
+</nav>
+</div>
+</div>
+<button @click="showSidebar = false" class="absolute md:hidden right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100" type="button">
+<svg class="h-4 w-4" fill="currentColor" height="24" stroke="none" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M480 632 284 828q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536 576l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480 632Z"></path>
+</svg>
+</button>
+</aside>
+<main class="relative py-6 lg:gap-10 lg:py-8 xl:grid xl:grid-cols-[1fr_300px]">
+<h1 id="index">Index</h1>
+<div class="genindex-jumpbox">
+<a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+</div>
+<h2 id="_">_</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_api.html#plugins.api._LocalAPI">_LocalAPI (class in plugins.api)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._Namespace">_Namespace (class in plugins.plugin_manager)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader">_PluginLoader (class in plugins.plugin_manager)</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.Proxy._pyroBind">_pyroBind() (plugins.rixa_pyro_client.Proxy method)</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.Proxy._pyroHandshake">_pyroHandshake (plugins.rixa_pyro_client.Proxy attribute)</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.Proxy._pyroLocalSocket">_pyroLocalSocket (plugins.rixa_pyro_client.Proxy attribute)</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.Proxy._pyroMaxRetries">_pyroMaxRetries (plugins.rixa_pyro_client.Proxy attribute)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.Proxy._pyroReconnect">_pyroReconnect() (plugins.rixa_pyro_client.Proxy method)</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.Proxy._pyroRelease">_pyroRelease() (plugins.rixa_pyro_client.Proxy method)</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.Proxy._pyroSerializer">_pyroSerializer (plugins.rixa_pyro_client.Proxy attribute)</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.Proxy._pyroTimeout">_pyroTimeout (plugins.rixa_pyro_client.Proxy attribute)</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.Proxy._pyroValidateHandshake">_pyroValidateHandshake() (plugins.rixa_pyro_client.Proxy method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader._reset">_reset() (plugins.plugin_manager._PluginLoader static method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.CountingThreadPoolExecutor._task_completed">_task_completed() (plugins.plugin_manager.CountingThreadPoolExecutor method)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="A">A</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.ALLOWED_HOSTS">ALLOWED_HOSTS (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.ALLOWED_HOSTS">[1]</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_api.html#plugins.api.argument">argument() (in module plugins.api)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="B">B</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.BASE_DIR">BASE_DIR (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.BASE_DIR">[1]</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.BatchProxy">BatchProxy (class in plugins.rixa_pyro_client)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Blink">Blink (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Bold">Bold (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.BOOTSTRAP_THEME">BOOTSTRAP_THEME (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.BOOTSTRAP_THEME">[1]</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.build_plugin_function_dict">build_plugin_function_dict() (in module plugins.plugin_manager)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="C">C</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_api.html#plugins.api._LocalAPI.call_client_js">call_client_js() (plugins.api._LocalAPI method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.call_nlp_model">call_nlp_model() (plugins.plugin_manager._PluginLoader static method)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api._LocalAPI.call_plugin_function">call_plugin_function() (plugins.api._LocalAPI method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.captured_echo">captured_echo() (in module plugins.plugin_manager)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.captured_message">captured_message (plugins.plugin_manager._PluginLoader attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.Capturing">Capturing (class in plugins.log_helper)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.clean">clean() (plugins.plugin_manager._PluginLoader method)</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.CONSOLE_USE_COLORS">CONSOLE_USE_COLORS (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.CONSOLE_USE_COLORS">[1]</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.CountingThreadPoolExecutor">CountingThreadPoolExecutor (class in plugins.plugin_manager)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFormatter.CRITICAL">CRITICAL (plugins.log_helper.RIXAFormatter attribute)</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.CSRF_COOKIE_SAMESITE">CSRF_COOKIE_SAMESITE (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.CSRF_COOKIE_SAMESITE">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.CSRF_COOKIE_SECURE">CSRF_COOKIE_SECURE (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.CSRF_COOKIE_SECURE">[1]</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="D">D</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_api.html#plugins.api.PluginType.DATA">DATA (plugins.api.PluginType attribute)</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.DATABASES">DATABASES (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.DATABASES">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.DEBUG">DEBUG (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.DEBUG">[1]</a>
+<ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFormatter.DEBUG">(plugins.log_helper.RIXAFormatter attribute)</a>
+</li>
+</ul></li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.ThreadSafeCounter.decrement">decrement() (plugins.plugin_manager.ThreadSafeCounter method)</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.SerializedBlob.deserialized">deserialized() (plugins.rixa_pyro_client.SerializedBlob method)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Dim">Dim (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.DISABLE_PLUGIN_MODULE_CHECK">DISABLE_PLUGIN_MODULE_CHECK (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.DISABLE_PLUGIN_MODULE_CHECK">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.DISABLED_LOGGERS">DISABLED_LOGGERS (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.DISABLED_LOGGERS">[1]</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.discover_plugins">discover_plugins() (plugins.plugin_manager._PluginLoader method)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api._LocalAPI.display">display() (plugins.api._LocalAPI method)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api._LocalAPI.display_dashboard">display_dashboard() (plugins.api._LocalAPI method)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api._LocalAPI.display_in_chat">display_in_chat() (plugins.api._LocalAPI method)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="E">E</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.END">END (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFormatter.ERROR">ERROR (plugins.log_helper.RIXAFormatter attribute)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.execute_command">execute_command() (plugins.plugin_manager._PluginLoader static method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.extract_config">extract_config() (plugins.plugin_manager._PluginLoader method)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="F">F</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.FAIL">FAIL (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFilter.filter">filter() (plugins.log_helper.RIXAFilter method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.finish_loading">finish_loading() (plugins.plugin_manager._PluginLoader method)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFormatter.format">format() (plugins.log_helper.RIXAFormatter method)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.format_exception">format_exception() (in module plugins.log_helper)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFormatter.FORMATS_CONSOLE">FORMATS_CONSOLE (plugins.log_helper.RIXAFormatter attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFormatter.FORMATS_HTML">FORMATS_HTML (plugins.log_helper.RIXAFormatter attribute)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.found_plugins">found_plugins (plugins.plugin_manager._PluginLoader attribute)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="G">G</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.GENERATE_INTERMEDIARY_FILES">GENERATE_INTERMEDIARY_FILES (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.GENERATE_INTERMEDIARY_FILES">[1]</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.CountingThreadPoolExecutor.get_active_task_count">get_active_task_count() (plugins.plugin_manager.CountingThreadPoolExecutor method)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.ThreadSafeCounter.get_count">get_count() (plugins.plugin_manager.ThreadSafeCounter method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.CountingThreadPoolExecutor.get_free_worker_count">get_free_worker_count() (plugins.plugin_manager.CountingThreadPoolExecutor method)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="H">H</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.has_shut_down">has_shut_down (plugins.plugin_manager._PluginLoader attribute)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.HEADER">HEADER (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Hidden">Hidden (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="I">I</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.IGNORE_PLUGIN_WARNINGS">IGNORE_PLUGIN_WARNINGS (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.IGNORE_PLUGIN_WARNINGS">[1]</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.ThreadSafeCounter.increment">increment() (plugins.plugin_manager.ThreadSafeCounter method)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFormatter.INFO">INFO (plugins.log_helper.RIXAFormatter attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Italic">Italic (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="J">J</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.json_hook">json_hook() (in module plugins.plugin_manager)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="L">L</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.LANGUAGES">LANGUAGES (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.LANGUAGES">[1]</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.load_discovered_plugins">load_discovered_plugins() (plugins.plugin_manager._PluginLoader method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.load_plugin">load_plugin() (plugins.plugin_manager._PluginLoader method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.load_plugin_as_local">load_plugin_as_local() (plugins.plugin_manager._PluginLoader method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.load_plugin_as_remote">load_plugin_as_remote() (plugins.plugin_manager._PluginLoader method)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.loaded_plugins">loaded_plugins (plugins.plugin_manager._PluginLoader attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXALogger.log_exception">log_exception() (plugins.log_helper.RIXALogger method)</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.LOG_FILE_TYPE">LOG_FILE_TYPE (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.LOG_FILE_TYPE">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.LOG_FMT">LOG_FMT (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.LOG_FMT">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.LOG_UID_MODE">LOG_UID_MODE (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.LOG_UID_MODE">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.logfile_path">logfile_path (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.logfile_path">[1]</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="M">M</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.main_plugin_entry">main_plugin_entry (plugins.plugin_manager._PluginLoader attribute)</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.MAINTENANCE_MODE">MAINTENANCE_MODE (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.MAINTENANCE_MODE">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.MAX_BLOCKING_CALLS">MAX_BLOCKING_CALLS (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.MAX_BLOCKING_CALLS">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.MAX_LOAD_TIME_PER_MODULE">MAX_LOAD_TIME_PER_MODULE (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.MAX_LOAD_TIME_PER_MODULE">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.MAX_LOG_SIZE">MAX_LOG_SIZE (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.MAX_LOG_SIZE">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.MAX_PLUGIN_STACK_DEPTH">MAX_PLUGIN_STACK_DEPTH (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.MAX_PLUGIN_STACK_DEPTH">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.MAX_USER_JOBS">MAX_USER_JOBS (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.MAX_USER_JOBS">[1]</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api.MessageFlags">MessageFlags (class in plugins.api)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_api.html#plugins.api.MessageLevel">MessageLevel (class in plugins.api)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api.PluginType.ML_MODEL">ML_MODEL (plugins.api.PluginType attribute)</a>
+</li>
+<li>
+    module
+
+      <ul>
+<li><a href="modules/module_api.html#module-plugins.api">plugins.api</a>
+</li>
+<li><a href="modules/module_conf.html#module-plugins.log_helper">plugins.log_helper</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#module-plugins.plugin_manager">plugins.plugin_manager</a>
+</li>
+<li><a href="modules/module_pyro_client.html#module-plugins.rixa_pyro_client">plugins.rixa_pyro_client</a>
+</li>
+<li><a href="modules/module_pyro_server.html#module-RIXAWebserver.settings">RIXAWebserver.settings</a>, <a href="modules/module_settings.html#module-RIXAWebserver.settings">[1]</a>
+</li>
+</ul></li>
+</ul></td>
+</tr></table>
+<h2 id="N">N</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.NC">NC (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api.PluginType.NL_INFERENCE">NL_INFERENCE (plugins.api.PluginType attribute)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.NLP_BACKEND">NLP_BACKEND (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.NLP_BACKEND">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.NLP_GREETING">NLP_GREETING (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.NLP_GREETING">[1]</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="O">O</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.OKBLUE">OKBLUE (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.OKGREEN">OKGREEN (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api.option">option() (in module plugins.api)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="P">P</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.parse_plugin">parse_plugin() (plugins.plugin_manager._PluginLoader method)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api.plugin_init">plugin_init() (in module plugins.api)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api.plugin_method">plugin_method() (in module plugins.api)</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.PLUGIN_PATHS">PLUGIN_PATHS (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.PLUGIN_PATHS">[1]</a>
+</li>
+<li>
+    plugins.api
+
+      <ul>
+<li><a href="modules/module_api.html#module-plugins.api">module</a>
+</li>
+</ul></li>
+<li>
+    plugins.log_helper
+
+      <ul>
+<li><a href="modules/module_conf.html#module-plugins.log_helper">module</a>
+</li>
+</ul></li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li>
+    plugins.plugin_manager
+
+      <ul>
+<li><a href="modules/module_plugin_manager.html#module-plugins.plugin_manager">module</a>
+</li>
+</ul></li>
+<li>
+    plugins.rixa_pyro_client
+
+      <ul>
+<li><a href="modules/module_pyro_client.html#module-plugins.rixa_pyro_client">module</a>
+</li>
+</ul></li>
+<li><a href="modules/module_api.html#plugins.api.PluginType">PluginType (class in plugins.api)</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.Proxy">Proxy (class in plugins.rixa_pyro_client)</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.PYENV_LOC">PYENV_LOC (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.PYENV_LOC">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.PYENV_PY_BASE">PYENV_PY_BASE (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.PYENV_PY_BASE">[1]</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="R">R</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.register_consumer">register_consumer() (plugins.plugin_manager._PluginLoader static method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.reload_plugin">reload_plugin() (plugins.plugin_manager._PluginLoader method)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api.RemoteAPIModule">RemoteAPIModule (class in plugins.api)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Reset">Reset (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Reset_Blink">Reset_Blink (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Reset_Bold">Reset_Bold (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Reset_Dim">Reset_Dim (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Reset_Hidden">Reset_Hidden (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Reset_Italic">Reset_Italic (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Reset_Reverse">Reset_Reverse (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Reset_Underlined">Reset_Underlined (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api._LocalAPI.retrieve_usr_obj">retrieve_usr_obj() (plugins.api._LocalAPI method)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Reverse">Reverse (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.rgb">rgb() (plugins.log_helper.TerminalFormat static method)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFormatter.rgb_to_html">rgb_to_html() (plugins.log_helper.RIXAFormatter static method)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFilter">RIXAFilter (class in plugins.log_helper)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFormatter">RIXAFormatter (class in plugins.log_helper)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXALogger">RIXALogger (class in plugins.log_helper)</a>
+</li>
+<li>
+    RIXAWebserver.settings
+
+      <ul>
+<li><a href="modules/module_pyro_server.html#module-RIXAWebserver.settings">module</a>, <a href="modules/module_settings.html#module-RIXAWebserver.settings">[1]</a>
+</li>
+</ul></li>
+</ul></td>
+</tr></table>
+<h2 id="S">S</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_api.html#plugins.api._LocalAPI.save_usr_obj">save_usr_obj() (plugins.api._LocalAPI method)</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.SECRET_KEY">SECRET_KEY (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.SECRET_KEY">[1]</a>
+</li>
+<li><a href="modules/module_pyro_client.html#plugins.rixa_pyro_client.SerializedBlob">SerializedBlob (class in plugins.rixa_pyro_client)</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.SESSION_COOKIE_AGE">SESSION_COOKIE_AGE (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.SESSION_COOKIE_AGE">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.SESSION_COOKIE_SAMESITE">SESSION_COOKIE_SAMESITE (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.SESSION_COOKIE_SAMESITE">[1]</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.SESSION_COOKIE_SECURE">SESSION_COOKIE_SECURE (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.SESSION_COOKIE_SECURE">[1]</a>
+</li>
+<li><a href="modules/module_pyro_server.html#RIXAWebserver.settings.SHOW_ALL_PLUGIN_EXCEPTIONS">SHOW_ALL_PLUGIN_EXCEPTIONS (in module RIXAWebserver.settings)</a>, <a href="modules/module_settings.html#RIXAWebserver.settings.SHOW_ALL_PLUGIN_EXCEPTIONS">[1]</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.shutdown_server">shutdown_server() (plugins.plugin_manager._PluginLoader static method)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.singleton">singleton (plugins.plugin_manager._PluginLoader attribute)</a>
+</li>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.STANDARDTEXT">STANDARDTEXT (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.CountingThreadPoolExecutor.submit">submit() (plugins.plugin_manager.CountingThreadPoolExecutor method)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="T">T</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat">TerminalFormat (class in plugins.log_helper)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager.ThreadSafeCounter">ThreadSafeCounter (class in plugins.plugin_manager)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="U">U</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.Underlined">Underlined (plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+</ul></td>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_plugin_manager.html#plugins.plugin_manager._PluginLoader.unregister_consumer">unregister_consumer() (plugins.plugin_manager._PluginLoader static method)</a>
+</li>
+<li><a href="modules/module_api.html#plugins.api.PluginType.UNSPECIFIED">UNSPECIFIED (plugins.api.PluginType attribute)</a>
+</li>
+</ul></td>
+</tr></table>
+<h2 id="W">W</h2>
+<table class="indextable genindextable" style="width: 100%"><tr>
+<td style="width: 33%; vertical-align: top;"><ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.RIXAFormatter.WARNING">WARNING (plugins.log_helper.RIXAFormatter attribute)</a>
+<ul>
+<li><a href="modules/module_conf.html#plugins.log_helper.TerminalFormat.WARNING">(plugins.log_helper.TerminalFormat attribute)</a>
+</li>
+</ul></li>
+</ul></td>
+</tr></table>
+</main>
+</div>
+</div><footer class="py-6 border-t border-border md:py-0">
+<div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+<div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2023, Finn Schwall, Fraunhofer IOSB Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 7.1.2</a></p>
+</div>
+</div>
+</footer>
+</div>
+</body>
+</html>
