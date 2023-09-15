@@ -21,7 +21,7 @@ async def print_to_chat(api, to_print):
     await api.display_in_chat(to_print)
 
 
-@data.plugin_method(help="Render all available session data as json")
+@data.plugin_method(help="Render all available backend relevant session data (e.g. cookies, username etc) as json")
 async def show_json_session(api):
     session = json.dumps(dict(api.scope["session"]))
     await api.display_json(session)

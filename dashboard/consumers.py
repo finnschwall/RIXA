@@ -39,6 +39,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         public_variables["active_user_connections"].increment()
 
+        await self.api.call_plugin_function("data", "user_init")
+
     async def disconnect(self, close_code):
         _PluginLoader.unregister_consumer(self.channel_name)
         public_variables["active_user_connections"].decrement()
