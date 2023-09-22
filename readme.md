@@ -4,10 +4,10 @@ A project for end user focused XAI (and other stuff)</font>
 
 # Description
 RIXA is primarily a combination of dashboard and NLP for integration between XAI code and a more "natural" interface.
-The underlying paper is **MISSING**.
+The underlying paper is _**Coming soon (~December)**_.
 
 This readme aims to give a quick overview for getting started. All technical questions and advanced infos are in the
-docs **MISSING**.
+[docs](https://finnschwall.github.io/RIXA/) .
 
 
 
@@ -36,11 +36,11 @@ For the server you need Python>=3.10.
 
 Server + Plugin API:
 ```bash
-pip3 install git+https://gitlab.cc-asp.fraunhofer.de/xai-hiwi/rixa/rixawebserver.git
+pip3 install rixa
 ```
 Plugin API only. Works with lower python versions but functionality may be reduced.
 ```bash
-pip3 install git+https://gitlab.cc-asp.fraunhofer.de/xai-hiwi/rixa/rixawebserver.git#subdirectory=plugins
+pip3 install git+https://github.com/finnschwall/RIXA#subdirectory=plugins
 ```
 RIXA works fine without venvs, conda, pyenv etc. But it comes with extensive support for all of those.
 The "RIXA way" is to install plugins with different requirements in different environments so plugin dependencies
