@@ -4,7 +4,7 @@ import numpy as np
 import plotly.express as px
 from plugins.api import *
 import plotly.graph_objects as go
-@plugin_init(name="math_helper", venv_path="/home/finn/.pyenv/versions/BasicML/bin/python3", call_architecture="functional")
+@plugin_init(name="math_helper", call_architecture="functional")
 def data(ctx, config, meta_config):
     pass
 

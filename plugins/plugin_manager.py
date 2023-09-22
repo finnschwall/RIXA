@@ -18,7 +18,7 @@ from copy import copy as _copy
 import os as _os
 import sys as _sys
 import ast as _ast
-import platform as _platform
+import platform
 import pkgutil as _pkgutil
 import types as _types
 import importlib as _importlib
@@ -155,8 +155,14 @@ class _PluginLoader:
             #     self.pyro_daemon.register(jupyter_sync_api, "JUPYTER")
 
 
-
-        self.standard_modules = _sys.stdlib_module_names
+        python_version = platform.python_version_tuple()[1]
+        if int(python_version) <10:
+            self.standard_modules = set()
+            settings.DISABLE_PLUGIN_MODULE_CHECK = True
+            _logger.warning("The interpreters python version is >3.10. Server will run in maixmum compatability mode."
+                            "Features like package managment, advanced import system etc. are disabled.")
+        else:
+            self.standard_modules = _sys.stdlib_module_names
         self.main_thread_packages = set([x.name for x in list(_pkgutil.iter_modules()) if x.ispkg == True])
         self.main_thread_packages.update(set(["plugins", "api", "rixawebserver"]))
         # self.main_thread_packages.add("plugin_manager")
@@ -594,6 +600,9 @@ class _PluginLoader:
                 conf_dic["venv_path"] = conf_dic["config"]["venv_path"]
 
             if not conf_dic["is_local"]:
+                # from pprint import pp
+                # del conf_dic["local_code"]
+                # pp(conf_dic)
                 if not conf_dic["venv_path"]:
                     if settings.DEFAULT_PLUGIN_VENV:
                         conf_dic["venv_path"] = settings.DEFAULT_PLUGIN_VENV
@@ -629,8 +638,8 @@ class _PluginLoader:
                     all_av_packages = av_packages | {"plugins"} | self.standard_modules
                     missing_imports = list(set(absolute_imports) - all_av_packages)
                     if len(missing_imports) > 0 and not settings.DISABLE_PLUGIN_MODULE_CHECK:
-                        _logger.error(f"The server thinks the venv which you specified for '{plugin_config['name']}'"
-                                         f" does not contain all packages required for running the plugin. Assumed "
+                        _logger.error(f"The server thinks the venv ({conf_dic['venv_path']}) which you specified for '{plugin_config['name']}'"
+                                         f" does not contain all packages required for running the plugin.\nAssumed "
                                          f"missing are: {missing_imports}'.\nThis plugin will be skipped!")
                         return
             else:

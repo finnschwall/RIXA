@@ -70,7 +70,7 @@ class PluginType(_enum.Enum):
     SYSTEM = 40
 
 
-class MessageLevel(_enum.StrEnum):
+class MessageLevel:
     SUCCESS = "success"
     INFO = "info"
     WARNING = "warning"
@@ -284,7 +284,7 @@ def plugin_func_generator_server(config):
     return plugin_method
 
 
-class MessageFlags(_enum.StrEnum):
+class MessageFlags:
     LONG_CALL_STARTED = "show_bot_loading"
 
 

@@ -11,6 +11,7 @@ from plugins.plugin_manager import _PluginLoader, public_variables
 from django.conf import settings
 import collections
 import datetime
+import plugins.conf
 
 logger = logging.getLogger()
 user_logger = logging.getLogger("ws_handler")
@@ -39,7 +40,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         public_variables["active_user_connections"].increment()
 
-        await self.api.call_plugin_function("data", "user_init")
+        found = False
+        for entry in plugins.conf.all_available_functions:
+            if entry.get('name') ==  "data__user-init":
+                found = True
+                break
+        if found:
+            await self.api.call_plugin_function("data", "user_init")
 
     async def disconnect(self, close_code):
         _PluginLoader.unregister_consumer(self.channel_name)
