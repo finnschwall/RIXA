@@ -95,6 +95,10 @@ def initialize_dir(path):
                 os.mkdir(os.path.join(path, i))
             else:
                 shutil.copy2(copy_path, path)
+        print("WD copied. Building database...")
+        os.environ["RIXA_WD"] = path
+
+        _update_db(False)
         print(f"New working directoy has been set up in {path}.")
 
     except Exception as e:
@@ -115,16 +119,17 @@ def dump_settings(path):
 @plug_conf.command(help="Build, update or modify the database of the current RIXA instance")
 @click.option('--rebuild', is_flag=True)
 def update_db(rebuild):
+    _update_db(rebuild)
+def _update_db(rebuild):
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'RIXAWebserver.settings')
     from django.conf import settings
     assert settings.WORKING_DIRECTORY
     result = subprocess.run("rixaserver django migrate", capture_output=True, text=True, shell=True, check=False)
-    if result.returncode !=0:
+    if result.returncode != 0:
         print(result.stdout)
         raise Exception("DB building failed!")
     else:
         print("Successfully built DB")
-
 # @plug_conf.command()
 # def open_config_location():
 #     path = ""
