@@ -70,7 +70,7 @@ class PluginType(_enum.Enum):
     SYSTEM = 40
 
 
-class MessageLevel(_enum.StrEnum):
+class MessageLevel:
     SUCCESS = "success"
     INFO = "info"
     WARNING = "warning"
@@ -216,6 +216,7 @@ def plugin_func_generator_client(group, config):
             def pyro_call(*args, **kwargs):
                 uri = f"PYRO:{config['name']}@localhost:{config['port']}"
                 proxy = Pyro5.api.Proxy(uri)
+                proxy._pyroMaxRetries = 100
                 proxy._pyroBind()
 
                 ret_val = getattr(proxy, func_command.__name__)(args[0], *(args[1:]), **kwargs)
@@ -283,7 +284,7 @@ def plugin_func_generator_server(config):
     return plugin_method
 
 
-class MessageFlags(_enum.StrEnum):
+class MessageFlags:
     LONG_CALL_STARTED = "show_bot_loading"
 
 
@@ -421,9 +422,15 @@ class _LocalAPI(object):
         elif json_str:
             raise Exception("Not working right now. Use text for display.")
         elif text:
-            await self._consumer.send(text_data=json.dumps(
-                {"role": "assistant", "content": f"<p>{text['content']}</p>","metadata":text["metadata"],
-                 "forced_position": False}))
+            # print(text)
+            if "metadata" in text:
+                await self._consumer.send(text_data=json.dumps(
+                    {"role": "assistant", "content": f"<p>{text['content']}</p>","metadata":text["metadata"],
+                     "forced_position": False}))
+            else:
+                await self._consumer.send(text_data=json.dumps(
+                    {"role": "assistant", "content": f"<p>{text['content']}</p>",
+                     "forced_position": False}))
         else:
             raise Exception("No valid object specified for displaying!")
 

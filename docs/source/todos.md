@@ -1,4 +1,14 @@
 # Todos
+## XYZ
+* plugin signals functioning to server before server allows calls
+* func return value integration
+* get rid of click (no return values possible, really restricted)
+* stop pyro messages from appearing
+* put loc/line of problem below stack message
+* autoreload plugins
+* fix wrong plugin calls hiding in nirvana
+* no really the whole click thing is just a mess
+
 ## Next or running
 * Separate plugin package for installation in the venvs
 * create a working main branch version

@@ -19,14 +19,21 @@ except KeyError:
         config_dir = current_directory
     else:
         raise Exception(
-            f"The folder '{current_directory}' from which you started the server does not contain a valid configuration.")
+            f"The folder '{current_directory}' from which you started the server does not seem to be a RIXA working directory."
+            f"Either change into a working dir or set the 'RIXA_WD' env var.")
 
 # check for wd conformity
-if not DOC_BUILD and (not os.path.exists(os.path.join(config_dir, "plugins")) or not os.path.exists(
-        os.path.join(config_dir, "plugin_configurations"))):
-    print(config_dir)
-    raise Exception(
-        "Your working directory contains a conf.ini but the structure does not conform to the RIXA wd specifications!")
+if not DOC_BUILD:
+    for dir in ["plugins", "plugin_configurations", "log"]:
+        full_path = os.path.join(config_dir, dir)
+        if not os.path.exists(full_path):
+            try:
+                os.mkdir(full_path)
+            except Exception as e:
+                print(e)
+                raise Exception(f"Your working dir is missing the '{dir}' folder. Automatic fixing has failed. "
+                                f"Is the working dir read only?")
+
 
 
 config = Config(RepositoryEnv(os.path.join(config_dir, "config.ini")))

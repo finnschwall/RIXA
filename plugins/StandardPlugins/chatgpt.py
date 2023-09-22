@@ -45,7 +45,8 @@ def setup_conv_tracker(uid, scope):
         start_msgs = [{"role": "system", "content": chatgpt.config["system_string"]}]
         # if "example_conv" in chatgpt.config and chatgpt.config["example_conv"]:
         #     start_msgs += chatgpt.config["example_conv"]
-        start_msgs.append({"role":"server","metadata":{"display_only": True}, "content":settings.NLP_GREETING})
+        # start_msgs.append({"role":"server","metadata":{"display_only": True}, "content":settings.NLP_GREETING})
+        start_msgs.append({"role": "assistant", "content": "Hello, I am PIXI. Currently I can assist with exploration of a coronary heart disease dataset."})
         # settings.NLP_GREETING
         scope["session"]["conversations"] = {"active_id": "0",
                                              "available": {"0": {"active_msg_id": 1,
@@ -66,6 +67,7 @@ async def get_answer(api, client_payload):
     await api.send_flag(MessageFlags.LONG_CALL_STARTED)
     await api.add_to_conv_tracker(client_payload["content"], "user")
     conv_tracker = await api.get_conv_tracker(exlude_key="display_only")
+
     corpus = ""
     if chatgpt.config["use_embeddings"] and is_plugin_available("text_retriever"):
         corpus = await api.call_plugin_function("text_retriever", "retrieve_text", args=(client_payload["content"],),
@@ -74,6 +76,7 @@ async def get_answer(api, client_payload):
             await api.display_message("This is really bad",  5, MessageLevel.DANGER)
         conv_tracker[-1]["content"] = "##CONTEXT##" + corpus + "####\n" +conv_tracker[-1]["content"]
     try:
+
         if chatgpt.config["enable_function_calls"]:
             kwargs = {"model": chatgpt.ctx.model,
                       "messages": conv_tracker,
@@ -89,26 +92,57 @@ async def get_answer(api, client_payload):
                       }
         with_kwargs = functools.partial(openai.ChatCompletion.create, **kwargs)
         response = await plugin_conf.async_loop.run_in_executor(None, with_kwargs)
+
         # response = {"choices":[{"message":{"content":"yo"}, "finish_reason":"message"}], "usage":{"completion_tokens":3,"prompt_tokens":4}}
     except Exception as e:
         await api.remove_last_conv_entry()
         raise e
     if response["choices"][0]["finish_reason"] == "function_call":
+
         msg = response["choices"][0]["message"]["function_call"]
+        # print(msg)
         func_name = msg["name"]
-        func_name = func_name.replace("-", "_")
+        func_name_call = func_name.replace("-", "_")
         kwargs = json.loads(msg["arguments"])
-        await api.call_plugin_function(function_name=func_name, kwargs=kwargs)
-    else:
-        ret_msg = response["choices"][0]["message"]["content"]
-        completion_tokens = response["usage"]["completion_tokens"]
-        prompt_tokens = response["usage"]["prompt_tokens"]
-        metadata = {"completion_tokens": completion_tokens, "prompt_tokens": prompt_tokens, "cost": (
-                      0.0015 * prompt_tokens + 0.002 * completion_tokens) / 1000}
-        client_meta = dict(metadata)
-        client_meta["context"] = corpus
-        ret_msg = await api.add_to_conv_tracker(ret_msg, "assistant", client_meta)
-        await api.sync_session_storage_db()
-        await api.display_in_chat(text=ret_msg)
+
+        found_entry = None
+        for entry in plugin_conf.all_available_functions:
+            if entry['name'] == func_name:
+                found_entry = entry
+                break
+        if not found_entry:
+            api.show_message(f"{func_name} not existing. Request cancelled!", theme="danger")
+            return
+        ret_vals = await api.call_plugin_function(function_name=func_name_call, kwargs=kwargs)
+
+
+        param_desc = found_entry["parameters"]["properties"]
+        params_chosen = response["choices"][0]["message"]["function_call"]["arguments"]
+
+        content = f"Description: {found_entry['description']}\nArgument description: {param_desc}\n" \
+                  f"Used arguments: {params_chosen}\nReturn vals: {ret_vals}"
+        # print(content)
+
+        await api.add_to_conv_tracker(content, "function", add_keys={"name":func_name})
+        conv_tracker = await api.get_conv_tracker(exlude_key="display_only")
+
+        kwargs = {"model": chatgpt.ctx.model,
+                  "messages": conv_tracker,
+                  "temperature": chatgpt.ctx.temperature_value,
+                  }
+        with_kwargs = functools.partial(openai.ChatCompletion.create, **kwargs)
+        response = await plugin_conf.async_loop.run_in_executor(None, with_kwargs)
+        # print(response)
+
+    ret_msg = response["choices"][0]["message"]["content"]
+    completion_tokens = response["usage"]["completion_tokens"]
+    prompt_tokens = response["usage"]["prompt_tokens"]
+    metadata = {"completion_tokens": completion_tokens, "prompt_tokens": prompt_tokens, "cost": (
+                  0.0015 * prompt_tokens + 0.002 * completion_tokens) / 1000}
+    client_meta = dict(metadata)
+    client_meta["context"] = corpus
+    ret_msg = await api.add_to_conv_tracker(ret_msg, "assistant", client_meta)
+    await api.sync_session_storage_db()
+    await api.display_in_chat(text=ret_msg)
 
         # await api.display_in_chat(ret_msg["content"], role=ret_msg["role"], metadata=ret_msg["metadata"])

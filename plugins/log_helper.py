@@ -81,6 +81,10 @@ class RIXAFilter(logging.Filter):
                 record.session_id = user_name
         return True
 
+def rgb_to_html(x, invert=False):
+    if invert:
+        x = [255 - i for i in x]
+    return f"<p style='color:rgb({x[0]}, {x[1]}, {x[2]})'>"
 
 class RIXAFormatter(logging.Formatter):
     DEBUG = [51, 204, 204]
@@ -96,11 +100,8 @@ class RIXAFormatter(logging.Formatter):
         self.fmt_string = fmt_string
         self.time_fmt = time_fmt
 
-    @staticmethod
-    def rgb_to_html(x, invert=False):
-        if invert:
-            x = [255 - i for i in x]
-        return f"<p style='color:rgb({x[0]}, {x[1]}, {x[2]})'>"
+    # @staticmethod
+
 
     FORMATS_CONSOLE = {
         logging.DEBUG: TerminalFormat.rgb(*DEBUG),
