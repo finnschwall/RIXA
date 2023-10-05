@@ -2,6 +2,8 @@
 "<b>R</b>eal t<b>I</b>me e<b>X</b>plainable <b>A</b>rtificial Intelligence"
 A project for end user focused XAI (and other stuff)</font>
 
+> :warning: **The project is in an unstable alpha stage. A stable, locally installable, release is expected in the middle of November**
+
 # Description
 RIXA is primarily a combination of dashboard and NLP for integration between XAI code and a more "natural" interface.
 The underlying paper is _**Coming soon (~December)**_.
