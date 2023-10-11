@@ -2,7 +2,22 @@
 "<b>R</b>eal t<b>I</b>me e<b>X</b>plainable <b>A</b>rtificial Intelligence"
 A project for end user focused XAI (and other stuff)</font>
 
-> :warning: **The project is in an unstable alpha stage. A stable, locally installable, release is expected in the middle of November**
+<p align="center">
+<img src="https://cdn-icons-png.flaticon.com/512/6261/6261561.png" alt="drawing" width="75"/>
+<b>You are entering an active construction zone!</b>
+</p>
+
+> :warning: **The project is being reworked. A stable release is expected in the middle of November to early December**
+
+It will break the current API spec completely. Installations will not be compatible as the project is refactored into smaller, more manageable projects.
+
+Current development is mainly going on in 
+
+[PyALM](https://github.com/finnschwall/PyALM)
+
+[PyLoT](https://github.com/finnschwall/PyLoT)
+
+[DikeLM](https://github.com/finnschwall/DikeLM)
 
 # Description
 RIXA is primarily a combination of dashboard and NLP for integration between XAI code and a more "natural" interface.
