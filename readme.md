@@ -7,9 +7,20 @@ A project for end user focused XAI (and other stuff)</font>
 <b>You are entering an active construction zone!</b>
 </p>
 
-> :warning: **The project is being reworked. A stable release is expected in the middle of November to early December**
+> :warning: **~A stable release is expected in the middle of November to early December~**
+> 
+> **Install, program and deploy is currently not possible except for a few handpicked cases.**
+>
+> **However we would love to see RIXA deployed. If you would like to try out or use RIXA contact finn.schwall@iosb.fraunhofer.de with a rough idea of usage and timeline.**
+>
+> **A version that works (for a case) should be ready in < 2 weeks.**
 
-It will break the current API spec completely. Installations will not be compatible as the project is refactored into smaller, more manageable projects.
+This is mainly due to dev priorities. We intend RIXA to be easily locally installable at some point, where installing plugins will just be drag and drop. But as of now more pressing is optimizing the LLM pipeline and the stability of the plugin system.
+
+However deploying RIXA is the highest priority so if you are reading this and can think of a use case we will gladly try to finish up the areas that would be required to allow for timely use.
+
+# Rework
+The plugin system is changed from the ground up to make it more stable and ease its use. Reworked RIXA will break parts of the current API. Installations will not be compatible as the project is refactored into smaller, more manageable projects.
 
 Current development is mainly going on in 
 
