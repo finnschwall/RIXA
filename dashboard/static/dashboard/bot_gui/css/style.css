@@ -3,6 +3,21 @@
 /*}*/
 
 /* ============= css related to chats =============== */
+ pre {
+     overflow: auto; /* Add scrolling if the content overflows */
+     white-space: pre-wrap; /* Wrap long lines */
+     word-wrap: break-word; /* Break long words */
+     max-width: 100%; /* Ensure it doesn't overflow parent element */
+ }
+p{
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+ code {
+     display: block;
+ }
+
 
 .statusMessage {
   z-index: 5;
@@ -133,6 +148,7 @@ div.chats::-webkit-scrollbar {
   border-radius: 1.5em;
   max-width: 75%;
   min-width: 25%;
+  /*overflow: auto;*/
   /*font-size: 13px;*/
   word-wrap: break-word;
   border-radius: 5px 20px 20px 20px;

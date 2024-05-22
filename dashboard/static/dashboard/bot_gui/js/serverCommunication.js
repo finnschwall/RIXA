@@ -3,13 +3,15 @@ let ws_scheme = window.location.protocol == "https:" ? "wss://" : "ws://";
 const websocketURL =  ws_scheme + window.location.host+ '/ws/chat/'+ roomName+'/'
 
 let reconnectTries = 0
-const maxTries =3
+const maxTries = 3
 let chatSocket
 
-let lastUsedId=0
+let lastUsedId=-1
 let messageHistory = []
 
 let lastUsedDisplay = 0
+
+let chat_enabled = true
 
 
 initializeWebSocket()
@@ -32,10 +34,16 @@ function initializeWebSocket() {
     chatSocket.onopen = onOpenHandler;
     chatSocket.onmessage = onMessageHandler;
     chatSocket.onclose = onCloseHandler;
+
 }
 
 function clearConversations(){
-    send({"CMD":"clear_tracker"})
+    resetUI()
+    send({"type":"delete_current_tracker"})
+    $("#chats").html("")
+    messageHistory = []
+    lastUsedId = -1
+
 }
 
 // Using a message that looks like this
@@ -44,12 +52,6 @@ function clearConversations(){
 async function send(message) {
     chatSocket.send(JSON.stringify(message));
 }
-
-
-function cmd(text){
-    send({'content': text, "msg_id": lastUsedId, "role": "user"})
-}
-
 
 
 function callFunction(data) {
@@ -65,12 +67,25 @@ function callFunction(data) {
 
  // Call the function with args and kwargs
  // this[funcName].apply(this, [].concat(funcArgs).concat([funcKWArgs]));
-
+let firstDisplay = false
 function onMessageHandler(e) {
     const data = JSON.parse(e.data);
-    console.log(data)
     if(data["type"]==="f_call"){
         callFunction(data);
+    }
+    if("flags" in data){
+        for(let i in data["flags"]){
+            if(data["flags"][i]==="disable_chat"){
+                chat_enabled = false
+                showBotTyping()
+            }
+            if(data["flags"][i]==="enable_chat"){
+                chat_enabled = true
+                hideBotTyping()
+            $("#userInput").prop("disabled",false)
+            }
+
+        }
     }
 
 
@@ -80,11 +95,15 @@ function onMessageHandler(e) {
             showMessage(data["content"],data["timeout"], data["level"])
         }
         else if(data["role"]==="HTML") {
+            if(!firstDisplay){
+                firstDisplay = true
+                resetUI()
+            }
             $(`#content_main_${lastUsedDisplay}`).html(data["content"])
             $(`#content_main_${lastUsedDisplay}`).show()
             lastUsedDisplay++
             lastUsedDisplay%=container_count
-            hideBotTyping();
+            // hideBotTyping();
         }
         else if(data["role"]==="JSON"){
             lastUsedDisplay = 1
@@ -92,11 +111,10 @@ function onMessageHandler(e) {
             $(`#content_main_0`).jsonViewer(JSON.parse(data["content"]));
         }
         else if(data["role"]==="flag"){
-            if(data["content"]=="show_bot_loading"){
+            if(data["content"]==="show_bot_loading"){
                 showBotTyping()
                 scrollToBottomOfResults()
             }
-
         }
         else if(data["role"]==="variable"){
             if("datasize" in data){
@@ -108,42 +126,40 @@ function onMessageHandler(e) {
 
             }
 
-
+        }
+        else if(data["role"]==="assistant" || data["role"]==="user"){
+            addMessage(data)
+        }
+        else if(data["role"]==="tracker_entry"){
+            addMessage(data["tracker"])
         }
         else {
-            lastUsedId+=1
-            addMessage(data)
-            hideBotTyping();
+            console.error("Unknown role")
+
+            // hideBotTyping();
             //data["msg_id"] = lastUsedId
             //
             // setBotResponse(data)
         }
     }
 
-    if("update_conversation" in data){
-        $("#userInput").prop("disabled",false)
-        lastUsedId=data["update_conversation"]["active_message_id"]
-        messageHistory = data["update_conversation"]["messages"]
-        let availableConvos = Object.keys(data["update_conversation"]["messages"])
 
-        rebuildConversation()
-        hideBotTyping();
-    }
 
 };
 
-function rebuildConversation(){
-      $(".chats").html(`<div class="clearfix"></div>
-        <div class="statusMessage">
-            <p class="statusInner" id="statusMessage" style="display: none"></p>
-        </div>
-        <div class="clearfix"></div>`);
-    for(let i in messageHistory){
-        if(messageHistory[i]["role"]!="system"){
-            addMessage(messageHistory[i])
-        }
+function resetUI(){
+    for(let i=0; i<container_count; i++){
+        $(`#content_main_${i}`).html("")
+        $(`#content_main_${i}`).show()
     }
+
+    //
+    // $(`#content_main_${lastUsedDisplay}`).show()
+    // lastUsedDisplay++
+    // lastUsedDisplay%=container_count
 }
+
+
 
 
 function onErrorHandler(e){
@@ -156,6 +172,11 @@ function onOpenHandler(e){
     // showMessage("Connected successfully",5000)
     $("#userInput").prop("disabled",false)
     openChat()
+    console.log("Connected to server")
+    // let toSend = {"type":"execute_plugin_code",'content': "##draw_plot('x^2')#", "msg_id": lastUsedId, "role": "user"}
+    // send(toSend)
+
+
 }
 
 function onCloseHandler(e) {
@@ -164,8 +185,8 @@ function onCloseHandler(e) {
         return
     }
     $("#userInput").prop("disabled",true)
-    showMessage(`Connection to server lost ${reconnectTries+1} times. Retrying in 5 seconds.`, 5000, "warning")
-    setTimeout(initializeWebSocket, 5000);
+    showMessage(`Connection to server lost ${reconnectTries+1} times. Retrying...`, 2000, "warning")
+    setTimeout(initializeWebSocket, 2000);
 };
 
 

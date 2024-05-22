@@ -14,16 +14,13 @@
 
 {% block result_list %}
     {{ info_table | safe }}
-    <h2 style="margin-top: 2em">Active and loaded plugins</h2>
+    <h2 style="margin-top: 2em">Active plugins</h2>
     {% for x in active_plugins %}
-        <button style="margin-right: 0.5em; margin-top: 0.5em">Restart</button>
-        <button style="margin-right: 0.5em;">Unload</button>
-        <a href="{% url 'admin:plugin' %}{{ x }}">{{ x }}</a> <br>
+        <h4><a href="{% url 'admin:plugin' %}{{ x.id }}">{{ x.name }} - {{x.type}} - {{ x.tags }} - {{ x.id }}</a> </h4>
     {% endfor %}
-    <h2 style="margin-top: 2em">Discovered plugins</h2>
-    {% for x in available_plugins %}
-        <button style="margin-right: 0.5em; margin-top: 0.5em">Load</button>
-        <a href="{% url 'admin:plugin' %}{{ x }}">{{ x }}</a> <br>
+    <h2 style="margin-top: 2em">Offline plugins</h2>
+    {% for x in offline_plugins %}
+        <h4><a href="{% url 'admin:plugin' %}{{ x }}">{{ x }}</a> </h4>
     {% endfor %}
 
     <style>
@@ -104,7 +101,7 @@ input:checked + .roundbutton:before  {
             let isChecked = localStorage.getItem("autorefresh") === "true"
             input.checked = isChecked
             if(isChecked){
-                timeout = setTimeout(reloadPage, 2000)
+                timeout = setTimeout(reloadPage, 5000)
             }
         }
 
@@ -113,7 +110,7 @@ input:checked + .roundbutton:before  {
         input.addEventListener('change',function(){
             if(this.checked) {
                 localStorage.setItem("autorefresh", true.toString());
-                timeout = setTimeout(reloadPage, 2000)
+                timeout = setTimeout(reloadPage, 5000)
             } else {
                 localStorage.setItem("autorefresh", false.toString());
                 clearTimeout(timeout)

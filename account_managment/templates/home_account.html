@@ -6,7 +6,7 @@
 {% block content %}
 
 <div class="container container-lg text-center">
-{#<h1><a class="h1" href="{%url 'game_home'%}">Home</a></h1>#}
+<h1><a class="h1" href="/dashboard">Home</a></h1>
 <h2>All available user info</h2>
 <div class="container container-md ">
     {% for x,y  in user_info.items %}
@@ -20,42 +20,72 @@
         <p>{{perms.account_managment}}</p>
     {%endif%}
 
-    <h2>Groups:</h2>
-    <p>
-        {%for x in user.groups.all%}
-            {{x}},
-        {%endfor%}
-    </p>
+{#    <h2>Groups:</h2>#}
+{#    <p>#}
+{#        {%for x in user.groups.all%}#}
+{#            {{x}},#}
+{#        {%endfor%}#}
+{#        {%if not user.groups.all%}#}
+{#            No groups#}
+{#        {%endif%}#}
+{#    </p>#}
 
 {% if not request.user.is_active%}
     <p class="text-bg-danger">Account not activated!.</p>
 {%endif%}
+<h2>Config</h2>
+<a class="text-info" href="{%url 'edit_chat_configuration'%}">Chat configurations</a>
+<h3>Plugin auth keys</h3>
+{% for name in downloadable_keys %}
+    <form action="" method="post" class="mt-3" >
+        {% csrf_token %}
+         <input class="btn btn-info" type="submit"  name="download_id" value="{{ name }}">
+    </form>
+    <br>
+{%endfor%}
+{% if not downloadable_keys %}
+    <p>No permission</p>
+{%endif%}
 
-<form action="" method="post" >
-    {% csrf_token %}
-        <h2>Feedback</h2>
-        <textarea class="form-control" name="feedback" id="feedback" required></textarea>
-    <input id="submit" type="submit" value="Send feedback" class="btn btn-primary mt-3" disabled>
-</form>
-
+<h2>Account managment</h2>
 <form action="{%url 'account_user_logout'%}" method="post" class="mt-3">
     {% csrf_token %}
     <input class="btn btn-primary" type="submit" value="Logout">
 </form>
+<br>
+This will deactivate your account. It will be deleted the next time data is taken for analysis.<br>
+Your data will be completely anonymized. This is (for us) highly preferable to deleting the account.
+<form action="" method="post" class="mt-3">
+    {% csrf_token %}
+    <input class="btn btn-warning" type="submit" id="deactivate_account" name="deactivate_account" value="Deactivate account">
+</form>
+<br>
+Nuclear option. This will purge everything we have on you.
+    <br>This option will affect our research quite a bit as it also affects statistics like avg. chat messages and so forth.
+<form action="" method="post" class="mt-3">
+    {% csrf_token %}
+    <input class="btn btn-danger" type="submit" id="delete_account" name="delete_account" value="Delete account">
+</form>
 
-<img id="photo" style="width:100%; max-width:500px;">
-
-</div>
 <script>
-    function randomCat(){
-      var XHR = new XMLHttpRequest();
-      XHR.onreadystatechange = function() {
-        if (XHR.readyState == 4 && XHR.status == 200) {
-        $("#photo").attr("src",JSON.parse(XHR.responseText).file)
+    document.getElementById('deactivate_account').onclick = function(){
+        if(!confirm("Are you sure? This will deactivate your account.\n" +
+            "You will not be able to login anymore. You can contact us if you want a copy of your data, reenable the account, etc.\n" +
+            "After 1-2 weeks your account will be deleted and your data anonymized. Then reenabling etc. is not possible anymore.")){
+            return false;
         }
-      }
-      XHR.open("GET", "https://aws.random.cat/meow");
-      XHR.send();
+    }
+
+
+    document.getElementById('delete_account').onclick = function(){
+        if(!confirm("Are you sure? This will purge everything!\nIt will potentially leave a significant dent in our research data.\n" +
+            "Please consider deactivating the account instead. In this case it will be deleted the next time data is taken for analysis.\n" +
+            "Your data will then be anonymized and kept for research purposes only.")){
+            return false;
+        }
     }
 </script>
+
+</div>
+
 {% endblock %}

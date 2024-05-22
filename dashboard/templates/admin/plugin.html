@@ -14,6 +14,12 @@
 
 {% block result_list %}
     <h1>{{ name }}</h1>
-    <h2 style="margin-bottom: 2em">Loaded?: {{ is_loaded }}</h2>
+    <h2 style="margin-bottom: 2em">Active: {{ is_offline }}</h2>
     {{ info_table | safe }}
+    <br><br>
+    <form method="post">
+        {% csrf_token %}
+            <input type="hidden" name="remove_plugin" value="{{ name }}">
+            <input type="submit" value="Remove Plugin">
+        </form>
 {% endblock result_list %}

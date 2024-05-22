@@ -9,5 +9,6 @@ urlpatterns = [
     path('user_login/', views.user_login, name='account_user_login'),
     path('signup/', views.register_user, name='account_signup'),
     path(r'main', views.account_managment, name='account_main'),
+    path(r"statistics", views.user_statistics_view, name=""),
     path('', RedirectView.as_view(url='main'))
 ]

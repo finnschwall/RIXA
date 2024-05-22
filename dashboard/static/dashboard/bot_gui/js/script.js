@@ -3,9 +3,82 @@ $(".widget").toggle();
 
 let msgId=-1
 
+function submitBugReport(){
+    let bugReport = $("#bugReportContent").val()
+    if(bugReport.length < 10){
+        showMessage("Please enter a more detailed report", 5000, "warning")
+        return
+    }
+
+    let browserInfo = navigator.userAgent;
+    let platform = navigator.platform;
+    let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    let screenResolution = window.screen.width + "x" + window.screen.height;
+    let locale = navigator.language;
+    let onlineStatus = navigator.onLine;
+    let cookiesEnabled = navigator.cookieEnabled;
+
+    // Create an object to hold all the information
+    let reportInfo = {
+        "type": "bug_report",
+        "report": bugReport,
+        "browserInfo": browserInfo,
+        "platform": platform,
+        "timezone": timezone,
+        "screenResolution": screenResolution,
+        "locale": locale,
+        "onlineStatus": onlineStatus,
+        "cookiesEnabled": cookiesEnabled,
+    };
+
+    input = document.getElementById('bugReportAttachment');
+    const file = input.files[0];
+   if (file) {
+        if (!file.type.match('image.*')) {
+               alert("Please select an image file.");
+               input.value = ''; // Reset the file input
+       }
+       const reader = new FileReader();
+       reader.onload = function(event) {
+               const imgData = event.target.result;
+               reportInfo["image"] = imgData;
+               send(reportInfo)
+           };
+           reader.readAsDataURL(file);
+   }
+   else{
+       send(reportInfo)
+   }
+
+
+    $("#bugReportContent").val("")
+    $("#bugReport").modal('hide')
+    showMessage("Bug report submitted successfully", 5000, "info")
+}
+
+function showCitation(msgIndex, citationIndex){
+    let msg = messageHistory.find(obj => obj.index === msgIndex)
+    let citation = msg["citations"].find(obj => obj.index === citationIndex)
+    let url = (citation.hasOwnProperty('url') ? citation['url'] : citation.source) || citation.source
+    let citationDetails = `
+        <strong>${citation.header}</strong><br>
+        ${citation['subheader'] || 'No subheader available'}<br>
+        ${citation['location'] || 'No location available'}<br>
+        From: ${citation.document_title}<br>
+        Authors: ${citation['authors'] || 'No authors available'}<br>
+        Publisher: ${citation['publisher'] || 'No publisher available'}<br>
+        Source: <a href="${url}" target="_blank">${url}</a>
+        <br><br>${citation.content}
+    `;
+    $("#citationBody").html(citationDetails)
+    $("#citationDisplay").modal('show')
+}
+
+
 function showMessage(message, timeout=5000, theme="info"){
     console.log(message, timeout, theme)
     $("#toast_text").html(message)
+    $("#toast_title").text(theme.charAt(0).toUpperCase() + theme.slice(1))
     $("#toast_title").text(theme.charAt(0).toUpperCase() + theme.slice(1))
     for(let i in ["danger","info", "success", "warning"]){
         $("#toast_header_div").removeClass(`text-bg-${i}`)
@@ -89,6 +162,17 @@ window.addEventListener('load', () => {
   $(document).ready(() => {
     $(".dropdown-trigger").dropdown();
   });
+
+  $("#chatModeSelector").change(function(){
+    send({"type":"change_setting" , "setting":"selected_chat_mode", "value": this.value})
+  });
+
+ $('#enableContext').change(function() {
+     send({"type":"change_setting" , "setting":"enable_knowledge_retrieval", "value": this.checked})
+       });
+ $('#enableFunctions').change(function() {
+     send({"type":"change_setting" , "setting":"enable_function_calls", "value": this.checked})
+       });
   
   $('#maximizeChat').on('change', function() {
     let newState = $(this).is(':checked')
@@ -104,19 +188,14 @@ window.addEventListener('load', () => {
      switchCSS("materia")
   });
 
-
   $("#profile_pic").click(() => {
     openChat()
   });
-  
-
 
   $("#close").click(() => {
     closeChat()
     scrollToBottomOfResults();
   });
-  
-  
     
   $("#close_shortcut").click(() => {
       if(isMaximized){
@@ -132,25 +211,46 @@ window.addEventListener('load', () => {
           // sub_id_span_
           msgId=-1
           msgId = parseInt(event.target.id.substring(12))
+          // console.log(msgId)
+          // console.log(event.target)
+          // console.log(event.target.id)
           if(msgId==-1){
               $("#liveToast").show()
               $("#liveToast").delay(8000).hide(1000)
               return
           }
-          let msg = messageHistory.find(obj => obj.msg_id === msgId)
+          let msg = messageHistory.find(obj => obj.index === msgId)
+
+          let code = "code" in msg ? msg["code"] : "No code used"
+          //properly format code
+            code = code.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            code = code.replace(/(?:\r\n|\r|\n)/g, '<br>')
+          $("#modalCodeDisplay").html(code)
+
           let metadata = "metadata" in msg ? msg["metadata"] : {"There is no metadata available":""}
-          metadata["id"] = msg["msg_id"]
-          console.log(msg)
+          metadata["Index"] = msg["index"]
 
           $("#messageCloseUp").modal('show')
           $("#messageCloseUpContent").val(msg["content"])//event.target.innerHTML
 
           let metaList = ""
           for(let i in metadata){
-              if(i == "context"){
+              if(i == "timings"){
+                  let response_time = metadata[i]["total_time"]
                   metaList+=`<li class="list-group-item d-flex justify-content-between align-items-center">
-                    ${i}
-                    <div style="margin-left: 0.5rem;max-height: 8rem; overflow-y: scroll">${metadata[i]}</div></li>`
+                    Response time
+                    <span class="badge bg-primary">${response_time} s</span></li>`
+              }
+              else if(i == "t_per_s"){
+                  continue
+                  metaList+=`<li class="list-group-item d-flex justify-content-between align-items-center">
+                    Token/s
+                    <div style="margin-left: 0.5rem;max-height: 8rem; overflow-y: scroll">${metadata[i]['token_total_per_s']}</div></li>`
+              }
+              else if(i=="tokens"){
+                    metaList+=`<li class="list-group-item d-flex justify-content-between align-items-center">
+                        Tokens
+                        <div style="margin-left: 0.5rem;max-height: 8rem; overflow-y: scroll">${metadata[i]['total_tokens']}</div></li>`
               }
               else {
                   metaList+=`<li class="list-group-item d-flex justify-content-between align-items-center">

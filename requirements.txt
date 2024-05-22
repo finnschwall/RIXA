@@ -1,0 +1,10 @@
+rixaplugin~=0.0.1
+PyALM
+asgiref
+channels
+Django
+pandas~=2.2.2
+psutil~=5.9.8
+numpy~=1.26.4
+plotly~=5.14.1
+setuptools~=65.5.0

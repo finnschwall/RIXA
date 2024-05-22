@@ -1,0 +1,63 @@
+<!doctype html>
+{% load static %}
+{% load bootstrap5 %}
+{% load plots %}
+<head>
+    {#    meta stuff#}
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <title>{{ website_title }}</title>
+
+    {#    css#}
+    <link href="{% static 'favicon.ico' %}" rel="shortcut icon" type="image/png"/>
+    <link rel="stylesheet" id="stylesheet" href="{% static 'css/bootstrap.main.css' %}">
+    <link href="{% static 'css/font/bootstrap-icons.css' %}" rel="stylesheet">
+
+    {% bootstrap_javascript %}
+    <script src="{% static 'js/jquery-3.6.3.min.js' %}"></script>
+
+
+    <script>
+        function getPath(path) {
+            path = path.replace("./static/", "{% static 'dashboard/bot_gui/' %}")
+            return path
+        }
+
+        let themes = {
+            "standard": "{% static 'css/bootstrap.main.css' %}",
+            "materia": "{% static 'css/bootstrap.materia.css' %}",
+            "slate": "{% static 'css/bootstrap.slate.css' %}",
+            "morph": "https://bootswatch.com/5/morph/bootstrap.min.css",
+            "vapor": "https://bootswatch.com/5/vapor/bootstrap.min.css",
+            "cyborg": "https://bootswatch.com/5/cyborg/bootstrap.min.css"
+        }
+        $("#stylesheet").attr("href",themes["{{ theme }}"])
+    </script>
+</head>
+
+<body>
+<div style="width: 30%; margin-left: 35%;margin-top: 2em;background-color: #ff000075">{% bootstrap_messages %}</div>
+<div class="container container-sm text-center" >
+    {% if is_form %}
+    <h1>Edit Chat Configuration: {{ config_name }}</h1>
+    <br>
+
+    <form method="post" class="row justify-content-sm-center">
+        {% csrf_token %}
+        {% bootstrap_form form%}
+
+        <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+    </div>
+    {% else %}
+    <h1>Available Chat Configurations</h1>
+
+        {% for config in available_configs %}
+        <a href="{% url 'edit_chat_configuration' %}?template_id={{ config }}">{{ config }}</a>
+            <br>
+        {% endfor %}
+
+
+{% endif %}
+
+</body>

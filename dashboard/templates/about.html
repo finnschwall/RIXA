@@ -1,0 +1,86 @@
+<!doctype html>
+{% load static %}
+{% load bootstrap5 %}
+<head>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <title>{{ website_title }}</title>
+
+    <link href="{% static 'favicon.ico' %}" rel="shortcut icon" type="image/png"/>
+    <link rel="stylesheet" id="stylesheet" href="{% static 'css/bootstrap.main.css' %}">
+    <link href="{% static 'css/font/bootstrap-icons.css' %}" rel="stylesheet">
+
+    {% bootstrap_javascript %}
+    <script src="{% static 'js/jquery-3.6.3.min.js' %}"></script>
+
+    <style>body {
+    background-color: #f8f9fa;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #ffffff;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+}
+
+h1, h2 {
+    font-weight: bold;
+}
+
+.text-primary {
+    color: #0d6efd !important;
+}
+
+.text-secondary {
+    color: #6c757d !important;
+}
+
+.text-info {
+    color: #17a2b8 !important;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}</style>
+    </head>
+
+<body>
+
+<div class="container text-center mt-2">
+    <h1 class="text-primary my-4">What is RIXA?</h1>
+    <p class="text-secondary">A research project.<br>
+        <i>...We present
+our concept and work in progress implementation of a new kind
+of XAI dashboard that uses a natural language chat. We specify 5
+design goals for the dashboard and show the current state of our
+implementation. The natural language chat is the main form of
+interaction for our new dashboard. Through it the user should be
+            able to control all important aspects of our dashboard...</i><br>
+    For more info see the paper <a href="https://publikationen.bibliothek.kit.edu/1000167428">here</a></p>
+
+    <h2 class="text-primary my-4">What is this website for?</h2>
+    <p class="text-secondary">A public demo. Although not entirely public yet
+    In the coming weeks a registration link will be added.</p>
+
+    <h2 class="text-primary my-4">I want to find out more!</h2>
+    <p class="text-secondary">
+        <a href="https://github.com/finnschwall/RIXA">Github project page (for webserver)</a><br>
+        <a href="https://github.com/finnschwall/PyALM">Github PyALM project page (natural language backend)</a><br>
+        <a href="https://github.com/finnschwall/rixaplugin">Github plugin system project page</a><br>
+        <a href="https://ieeexplore.ieee.org/document/10411695">Original paper</a>
+    </p>
+
+    <h2 class="text-primary my-4">Contact Us</h2>
+    <p class="text-secondary">For any inquiries, please contact us at:</p>
+    <p class="text-info">Email: rixa@iosb.fraunhofer.de </p>
+    <h2 class="text-primary my-4">Login and registration</h2>
+    <a href="{% url 'account_user_login' %}" class="btn btn-primary my-4">Login page</a>
+</div>
+
+</body>
