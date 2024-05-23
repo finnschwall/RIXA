@@ -17,7 +17,7 @@ from .models import User, Invitation
 from django.conf import settings
 from django.utils import translation
 import pandas as pd
-
+import plotly.graph_objects as go
 
 @login_required
 def user_statistics_view(request):
@@ -25,6 +25,7 @@ def user_statistics_view(request):
     try:
         df = pd.read_csv(settings.WORKING_DIRECTORY + "/statistics/user_info.csv", sep=";")
         df_statistics = pd.read_csv(settings.WORKING_DIRECTORY + "/statistics/user_statistics.csv", sep=";")
+        df_sessions = pd.read_csv(settings.WORKING_DIRECTORY + "/statistics/session_statistics.csv", sep=";")
     except FileNotFoundError:
         return HttpResponse("No data available")
     # df statistics: statistics_names = [f"users_per_{timedelta}", f"total_time_per_{timedelta}"]
@@ -34,26 +35,60 @@ def user_statistics_view(request):
         avg_time_spent=Avg('total_time_spent'),
         avg_sessions=Avg('total_sessions')
     )
-
     # Cumulative time spent: {df['visit_time'].sum()} minutes < br >
     data = RixaUser.objects.annotate(messages_json=F('messages_per_session')).values_list('messages_json', flat=True)
     all_messages = []
     for item in data:
         if item:
             all_messages += json.loads(item)
+
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df_sessions['time'], y=df_sessions['user_count'], mode='markers', name='Real Users'))
+    fig.add_trace(
+        go.Scatter(x=df_sessions['time'], y=df_sessions['total_msg_count'], mode='markers', name='Total Messages'))
+    fig.add_trace(
+        go.Scatter(x=df_sessions['time'], y=df_sessions['total_time_spent'], mode='markers', name='Total time spent'))
+    fig.update_layout(
+        title='User and Message Count Over Time',
+        xaxis_title='Time',
+        yaxis_title='Count',
+        legend_title='Legend'
+    )
+    fig.update_layout(title_text='Session Metrics Comparison', xaxis_title='Time')
+
+
+    fig2 = go.Figure()
+    # Add the first trace for user count
+    fig2.add_trace(go.Scatter(x=df_sessions['time'], y=df_sessions['user_count'], mode='markers', name='Real Users'))
+    fig2.add_trace(
+        go.Scatter(x=df_sessions['time'], y=df_sessions['avg_msg_count'], mode='markers', name='Avg. Total Messages'))
+    fig2.add_trace(
+        go.Scatter(x=df_sessions['time'], y=df_sessions['avg_time_spent'], mode='markers', name='Avg. Total time spent'))
+    fig2.update_layout(
+        title='Average User and Message Count Over Time',
+        xaxis_title='Time',
+        yaxis_title='Avg. Count',
+        legend_title='Legend'
+    )
+    fig2.update_layout(title_text='Average Session Metrics Comparison', xaxis_title='Time')
+
     html_content = f"""<script src="https://rixa.ai/static/js/plotly-2.20.0.min.js"></script>
     <h1>User statistics</h1>
     Total visits {len(df['visit_time'])}<br>
-    Average messages per user: {avg_data['avg_messages']:.2f}<br>
-    Average time spent per user: {avg_data['avg_time_spent']:.2f} minutes<br>
-    Average sessions per user: {avg_data['avg_sessions']:.2f}<br><br>
-    Users per time:<br>
-    {px.scatter(df_statistics, y=cols[0], x=cols[2]).to_html(include_plotlyjs=False, default_height='50%')}<br>
-    Session times:<br>
+    Total average messages per user: {avg_data['avg_messages']:.2f}<br>
+    Total average time spent per user: {avg_data['avg_time_spent']:.2f} minutes<br>
+    Total average sessions per user: {avg_data['avg_sessions']:.2f}<br><br>
+    {fig2.to_html(include_plotlyjs=False, default_height='50%')}
+    {fig.to_html(include_plotlyjs=False, default_height='50%')}
+    RIXA CPU core utilization:<br>
+    {px.scatter(df_sessions, y='core_utilization', x='time').to_html(include_plotlyjs=False, default_height='50%')}<br>
+    Session times distribution:<br>
     {px.histogram(all_messages, nbins=20).to_html(include_plotlyjs=False, default_height='50%')}<br>
-    Languages: {df['accepted_languages'].value_counts().to_string()}<br>
-    Bot?: {df['is_bot'].value_counts().to_string()}
-    <br>Last 20 entries:<br><br>
+    
+    Unique server connections per time:<br>
+    {px.scatter(df_statistics, y=cols[0], x=cols[2]).to_html(include_plotlyjs=False, default_height='50%')}<br>
+    <br>Last 20 connection entries:<br><br>
     {df.drop(['is_user', 'touch_capable'],axis=1).head(20).to_html()}"""
     return HttpResponse(html_content)
 
@@ -101,7 +136,7 @@ def account_managment(request):
             return response
     user_dic = dict(request.user._wrapped.__dict__)
     rixa_user_dic = dict(request.user.rixauser.__dict__)
-    for i in ["_state", "password", "id", "first_name", "last_name", "user_id"]:
+    for i in ["_state", "password", "id", "first_name", "last_name", "user_id", "messages_per_session"]:
         rixa_user_dic.pop(i, None)
         user_dic.pop(i, None)
     scope_names = list(request.user.rixauser.scope_write.values_list('name', flat=True))

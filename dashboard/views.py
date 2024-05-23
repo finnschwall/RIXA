@@ -1,6 +1,6 @@
 import os
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, resolve_url
 from django.http import HttpResponseForbidden, JsonResponse
 import json
 from datetime import datetime
@@ -12,7 +12,8 @@ from account_managment.models import RixaUser
 from dashboard.forms import ChatConfigurationForm
 from dashboard.models import ChatConfiguration
 from django.http import HttpResponseNotFound
-
+from urllib.parse import urlparse
+import functools
 def conditional_decorator(decorator, condition):
     def decorate(func):
 
@@ -24,6 +25,34 @@ def conditional_decorator(decorator, condition):
     return decorate
 
 
+def conditional_login(view_func):
+    @functools.wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        login_url = "about"
+        if settings.MAINTENANCE_MODE:
+            if request.user.is_superuser:
+                return view_func(request, *args, **kwargs)
+            else:
+                return render(request, 'maintenance.html')
+        if request.user.is_authenticated and settings.REQUIRE_LOGIN_CHAT:
+            return view_func(request, *args, **kwargs)
+        path = request.build_absolute_uri()
+        resolved_login_url = resolve_url(login_url or settings.LOGIN_URL)
+
+        login_scheme, login_netloc = urlparse(resolved_login_url)[:2]
+        current_scheme, current_netloc = urlparse(path)[:2]
+        if (not login_scheme or login_scheme == current_scheme) and (
+                not login_netloc or login_netloc == current_netloc
+        ):
+            path = request.get_full_path()
+        from django.contrib.auth.views import redirect_to_login
+
+        return redirect_to_login(path, resolved_login_url)
+
+    return _wrapped_view
+
+
+
 latest_time = os.path.getmtime("..")
 for root, dirs, files in os.walk(".."):
     for name in files + dirs:
@@ -33,7 +62,8 @@ for root, dirs, files in os.walk(".."):
             if file_time > latest_time:
                 latest_time = file_time
 
-@conditional_decorator(login_required(login_url="about"), settings.REQUIRE_LOGIN_CHAT)
+# @conditional_decorator(login_required(login_url="about"), settings.REQUIRE_LOGIN_CHAT)
+@login_required(login_url="about")
 def edit_chat_configuration(request,):
     query_params = request.GET
     template_id = query_params.get("template_id", None)
@@ -49,11 +79,11 @@ def edit_chat_configuration(request,):
             form = ChatConfigurationForm(request.POST, instance=chat_config)
             if form.is_valid():
                 form.save()
-                #display success message
                 messages.success(request, 'Chat configuration updated successfully')
 
         else:
             form = ChatConfigurationForm(instance=chat_config)
+
         return render(request, 'edit_chat_configuration.html', {'is_form':True, 'form': form, "config_name":chat_config.name})
     else:
         names = ChatConfiguration.objects.values_list('name', flat=True)
@@ -61,7 +91,8 @@ def edit_chat_configuration(request,):
         return render(request, 'edit_chat_configuration.html', {'is_form': False, "available_configs": names_list})
 
 
-@conditional_decorator(login_required(login_url="about"), settings.REQUIRE_LOGIN_CHAT)
+# @conditional_decorator(login_required(login_url="about"), settings.REQUIRE_LOGIN_CHAT)
+@login_required(login_url="about")
 def home(request):
     user_settings = request.session.get("settings", None)
     if user_settings:
@@ -102,16 +133,3 @@ def test(request):
 
 
 
-def json_stripped(dic):
-    s = json.dumps(dic, indent="\t")
-    s = s.replace("{", "")
-    s = s.replace(",", "NEWLINEHERE")
-    s = s.replace("}", "")
-    s = s.replace("]", "")
-    s = s.replace("[", "")
-    s = s.replace("\"", "")
-    s = [line for line in s.split('\n') if line.strip() != '']
-    s = [i[1:] for i in s]
-    s = "\n".join(s)
-    s = s.replace("NEWLINEHERE", "\n")
-    return s

@@ -17,6 +17,7 @@ import re
 from django.contrib.auth import get_user_model
 
 from RIXAWebserver import settings
+from account_managment.visit_statistics import SessionStatistics
 
 from .api import ChannelBridgeAPI, ConsumerAPI
 from .models import PluginScope, ChatConfiguration
@@ -50,9 +51,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
         chat_config = self.scope["user"].rixauser.configurations_read.all()
         chat_config_default = ChatConfiguration.objects.get(name="default")
+        chat_config = set(chat_config)
+        # if chat_config_default not in chat_config:
+        #     chat_config.append(chat_config_default)
+        globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True))
+        chat_config = chat_config.union(globally_available_configs)
         chat_config = list(chat_config)
-        if chat_config_default not in chat_config:
-            chat_config.append(chat_config_default)
+
 
         chat_modes = {}
         for config in chat_config:
@@ -104,6 +109,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             messages_per_session_json.append(self.msg_count)
             self.scope["user"].rixauser.messages_per_session = json.dumps(messages_per_session_json)
             self.scope["user"].rixauser.save()
+
+            SessionStatistics.register_infos(self.scope["user"].username, self.msg_count, (datetime.now() - self.start_time).seconds//60)
         except Exception as e:
             print(e)
 

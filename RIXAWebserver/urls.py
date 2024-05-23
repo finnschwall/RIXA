@@ -23,21 +23,21 @@ from account_managment.views import logout_user, user_login, maintenance_mode, u
 
 from django.contrib import admin
 from django.conf.urls.static import static
-if settings.MAINTENANCE_MODE:
-    urlpatterns = i18n_patterns(
-        re_path(r'^.*$', maintenance_mode)
-    )
-else:
-    urlpatterns = i18n_patterns(
-        path('admin/', admin.site.urls),
-        path("dashboard/", include("dashboard.urls"), name="dashboard"),
-        path("account_managment/", include("account_managment.urls")),
-        path('login/', lambda request: redirect('/account_managment/user_login/')),
-        path('logout/', lambda request: redirect('/account_managment/user_logout/')),
-        path('', RedirectView.as_view(url='dashboard/'))
-    )
-    if 'rosetta' in settings.INSTALLED_APPS:
-        urlpatterns += [
-            re_path(r'^rosetta/', include('rosetta.urls'))
-    ]
+# if settings.MAINTENANCE_MODE:
+#     urlpatterns = i18n_patterns(
+#         re_path(r'^.*$', maintenance_mode)
+#     )
+# else:
+urlpatterns = i18n_patterns(
+    path('admin/', admin.site.urls),
+    path("dashboard/", include("dashboard.urls"), name="dashboard"),
+    path("account_managment/", include("account_managment.urls")),
+    path('login/', lambda request: redirect('/account_managment/user_login/')),
+    path('logout/', lambda request: redirect('/account_managment/user_logout/')),
+    path('', RedirectView.as_view(url='dashboard/'))
+)
+if 'rosetta' in settings.INSTALLED_APPS:
+    urlpatterns += [
+        re_path(r'^rosetta/', include('rosetta.urls'))
+]
 # urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
