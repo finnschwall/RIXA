@@ -133,6 +133,9 @@ function onMessageHandler(e) {
         else if(data["role"]==="tracker_entry"){
             addMessage(data["tracker"])
         }
+        else if(data["role"]==="partial"){
+            addPartialMessage(data)
+        }
         else {
             console.error("Unknown role")
 

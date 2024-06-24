@@ -98,9 +98,11 @@ def home(request):
     if user_settings:
         enable_function_calls = user_settings.get("enable_function_calls", True)
         enable_knowledge_retrieval = user_settings.get("enable_knowledge_retrieval", True)
+        selected_chat_mode = user_settings.get("selected_chat_mode", "default")
     else:
         enable_function_calls = True
         enable_knowledge_retrieval = True
+        selected_chat_mode = "default"
     executor_work = (_memory.executor.get_active_task_count()/_memory.executor.get_max_task_count())*100
     task_queue_count = _memory.executor.get_queued_task_count()
     server_status = f"""Last updated (webserver): {datetime.fromtimestamp(latest_time).strftime('%Y-%m-%d %H:%M:%S')}<br>
@@ -110,14 +112,17 @@ QUEUED TASKS: {task_queue_count}<br>
 BACKEND CONNECTION?: {'openai_server' in _memory.plugins}<br>
 LLM BACKENDS: ERROR<br>
 CALLABLE PLUGINS: ERROR<br>"""
-    available_chat_modes = list(request.user.rixauser.configurations_read.values_list('name', flat=True))+["default"]
+    globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True).values_list('name', flat=True))
+    user_available_chat_modes = set(request.user.rixauser.configurations_read.values_list('name', flat=True))
+    available_chat_modes = list(globally_available_configs.union(user_available_chat_modes))
+
 
     context = {"chat_disabled": settings.DISABLE_CHAT, "website_title": settings.WEBSITE_TITLE,
                "chat_title": settings.CHAT_TITLE, "always_maximize_chat": settings.ALWAYS_MAXIMIZE_CHAT,
                "theme":settings.BOOTSTRAP_THEME, "enable_function_calls": enable_function_calls,
                 "enable_knowledge_retrieval": enable_knowledge_retrieval,
                "available_chat_modes": available_chat_modes, "selected_chat": str(request.session.get("selected_chat", 0)),
-               "selected_chat_mode" : request.session.get("selected_chat_mode", "default"),
+               "selected_chat_mode" :selected_chat_mode,
                "server_status": server_status}
     return render(request, 'home.html', context)
 

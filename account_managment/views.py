@@ -29,6 +29,18 @@ def user_statistics_view(request):
     except FileNotFoundError:
         return HttpResponse("No data available")
     # df statistics: statistics_names = [f"users_per_{timedelta}", f"total_time_per_{timedelta}"]
+
+    max_val = 20
+
+    df_sessions['total_msg_count'] = df_sessions['total_msg_count'].apply(lambda x: max_val if x > max_val else x)
+    df_sessions['total_time_spent'] = df_sessions['total_time_spent'].apply(lambda x: max_val if x > max_val else x)
+    df_sessions['avg_msg_count'] = df_sessions['total_msg_count'].apply(lambda x: max_val if x > max_val else x)
+    df_sessions['avg_time_spent'] = df_sessions['total_time_spent'].apply(lambda x: max_val if x > max_val else x)
+
+    df_sessions['time'] = pd.to_datetime(df_sessions['time'])
+
+    last_week = df_sessions[df_sessions['time'] >= (pd.Timestamp.now() - pd.Timedelta(days=4))]
+
     cols = df_statistics.columns
     avg_data = RixaUser.objects.aggregate(
         avg_messages=Avg('total_messages'),
@@ -46,11 +58,11 @@ def user_statistics_view(request):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df_sessions['time'], y=df_sessions['user_count'], mode='markers', name='Real Users'))
     fig.add_trace(
-        go.Scatter(x=df_sessions['time'], y=df_sessions['total_msg_count'], mode='markers', name='Total Messages'))
+        go.Scatter(x=df_sessions['time'], y=df_sessions['avg_msg_count'], mode='markers', name='Total Messages'))
     fig.add_trace(
-        go.Scatter(x=df_sessions['time'], y=df_sessions['total_time_spent'], mode='markers', name='Total time spent'))
+        go.Scatter(x=df_sessions['time'], y=df_sessions['avg_time_spent'], mode='markers', name='Total time spent'))
     fig.update_layout(
-        title='User and Message Count Over Time',
+        title='Averages over all time',
         xaxis_title='Time',
         yaxis_title='Count',
         legend_title='Legend'
@@ -60,13 +72,13 @@ def user_statistics_view(request):
 
     fig2 = go.Figure()
     # Add the first trace for user count
-    fig2.add_trace(go.Scatter(x=df_sessions['time'], y=df_sessions['user_count'], mode='markers', name='Real Users'))
+    fig2.add_trace(go.Scatter(x=last_week['time'], y=last_week['user_count'], mode='markers', name='Real Users'))
     fig2.add_trace(
-        go.Scatter(x=df_sessions['time'], y=df_sessions['avg_msg_count'], mode='markers', name='Avg. Total Messages'))
+        go.Scatter(x=last_week['time'], y=last_week['avg_msg_count'], mode='markers', name='Avg. Total Messages'))
     fig2.add_trace(
-        go.Scatter(x=df_sessions['time'], y=df_sessions['avg_time_spent'], mode='markers', name='Avg. Total time spent'))
+        go.Scatter(x=last_week['time'], y=last_week['avg_time_spent'], mode='markers', name='Avg. Total time spent'))
     fig2.update_layout(
-        title='Average User and Message Count Over Time',
+        title='Averages over last 3 days',
         xaxis_title='Time',
         yaxis_title='Avg. Count',
         legend_title='Legend'
@@ -192,9 +204,9 @@ def register_user(request):
                 user.save()
                 rixa_user = RixaUser(user=user)
                 rixa_user.save()
-                if invitation.tags.exists():
-                    rixa_user.allowed_tags.add(*invitation.tags.all())
-                    rixa_user.save()
+                # if invitation.tags.exists():
+                #     rixa_user.allowed_tags.add(*invitation.tags.all())
+                #     rixa_user.save()
                 invitation.uses += 1
                 invitation.save()
                 login(request, user)

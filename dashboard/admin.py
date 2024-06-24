@@ -51,7 +51,7 @@ class PluginAdmin(admin.AdminSite):
                 messages.success(request, f"Plugin '{name}' removed")
             return redirect('admin:plugin_management')
         entry = _memory.plugins[name]
-        table_html = pprint.pformat(entry, indent=4).replace("\n", "<br>").replace(" ", "&nbsp;")
+        table_html = _memory._pretty_print_plugin(entry).replace("\n", "<br>").replace(" ", "&nbsp;").replace("\t","&nbsp"*4)#pprint.pformat(entry, indent=4)
         context = {
             "text": "Hello Admin",
             "page_name": "Plugin",

@@ -71,7 +71,3 @@ class ChatConfiguration(models.Model):
 
     def __str__(self):
         return self.name
-
-
-if not ChatConfiguration.objects.filter(name__exact="default").exists():
-    ChatConfiguration.objects.create(name='default', available_to_all=True, )

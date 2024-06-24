@@ -1,5 +1,5 @@
 
-
+let lastMessage = "##help()#"
 
 
 const converter = new showdown.Converter({
@@ -50,6 +50,22 @@ function scrollToBottomOfResults() {
     const terminalResultsDiv = document.getElementById("chats");
     terminalResultsDiv.scrollTop = terminalResultsDiv.scrollHeight;
 }
+let updateableMessage = false
+let partialID = 0
+function addPartialMessage(content, fmt=true) {
+    let msg_id =-100
+    let message = content["content"]
+    if(fmt) {
+        message = formatForChat(message)
+    }
+    let botResponse = `<img class="botAvatar" src=${getPath("./static/img/botAvatar.png")}><span id="sub_id_span_${msg_id}" class="botMsg">${message}</span><div class="clearfix"></div>`;
+    botResponse = `<div id="sub_id_parent_${msg_id}">${botResponse}</div>`;
+    $(botResponse).appendTo(".chats").hide().fadeIn(1000);
+    $("#userInput").focus();
+    scrollToBottomOfResults()
+    updateableMessage = true
+}
+
 
 
 function addMessage(content, fmt=true) {
@@ -66,6 +82,10 @@ function addMessage(content, fmt=true) {
         $("#userInput").val("");
         scrollToBottomOfResults();
     } else {
+        if(updateableMessage){
+            //remove partial
+            $("#sub_id_parent_-100").remove()
+        }
         let botResponse = `<img class="botAvatar" src=${getPath("./static/img/botAvatar.png")}><span id="sub_id_span_${msg_id}" class="botMsg">${message}</span><div class="clearfix"></div>`;
         botResponse = `<div id="sub_id_parent_${msg_id}">${botResponse}</div>`;
         $(botResponse).appendTo(".chats").hide().fadeIn(1000);
@@ -78,12 +98,13 @@ function addMessage(content, fmt=true) {
 
 function userWantsSend(e) {
     let text = $("#userInput").val();
+
     if (text === "" || $.trim(text) === "") {
 
         e.preventDefault();
         return false;
     }
-
+    lastMessage = text
     // text = TexToHTML(text)
     let fmt = true
     if (text.startsWith("###")) {
@@ -124,8 +145,16 @@ $("#userInput").on("keyup keypress", (e) => {
     if (keyCode === 13 && !e.originalEvent.shiftKey) {
         userWantsSend(e)
     }
+    //get up key
+    if (e.originalEvent.code==="ArrowUp") {
+        $("#userInput").val(lastMessage)
+    }
+    if (e.originalEvent.code==="ArrowDown") {
+        $("#userInput").val("")
+    }
     return true;
 });
+
 
 $("#sendButton").on("click", (e) => {
     userWantsSend(e)

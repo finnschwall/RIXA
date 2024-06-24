@@ -1,0 +1,30 @@
+system_message: null
+data: {}
+user_info: {}
+tracker:
+- role: !ConversationRole 'USER'
+  content: hello
+  index: 0
+- role: !ConversationRole 'ASSISTANT'
+  content: Hello! How can I assist you today with physics, data analysis, or related
+    topics?
+  index: 1
+  metadata:
+    finish_reason: stop
+    timings:
+      total_time: 1.62
+    tokens:
+      prompt_tokens: 176
+      generated_tokens: 18
+      total_tokens: 194
+    t_per_s:
+      token_total_per_s: 119.56
+  processing:
+    use_document_retrieval: false
+    info_score: 0
+    queries: []
+    enable_function_calling: false
+    included_functions: []
+    allow_response: normal
+    refuse_reason: null
+    report_reason: null

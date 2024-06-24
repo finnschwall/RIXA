@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from account_managment.models import UserTag, RixaUser
+from account_managment.models import RixaUser
 from .models import Invitation, User
 # from django.contrib.auth.admin import UserAdmin
 from django.contrib.sessions.models import Session
@@ -18,7 +18,7 @@ class SessionAdmin(ModelAdmin):
 
 
 class InvitationAdmin(admin.ModelAdmin):
-    list_display = ['code', 'max_uses', 'uses', 'created_at', 'is_available']
+    list_display = ['code', "name", 'max_uses', 'uses', 'created_at', 'is_available']
     search_fields = ['code']
     list_filter = ['created_at']  # , 'is_available']
     readonly_fields = ['uses', 'created_at', 'url']
@@ -47,7 +47,7 @@ class UserAdmin(BaseUserAdmin):
     inlines = [RixaUserInline]
 
 
-admin.site.register(UserTag, UserTagAdmin)
+# admin.site.register(UserTag, UserTagAdmin)
 admin.site.register(Invitation, InvitationAdmin)
 admin.site.register(Session, SessionAdmin)
 # admin.site.unregister(User)

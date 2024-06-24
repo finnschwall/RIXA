@@ -1,3 +1,4 @@
+{% load i18n %}
 <!doctype html>
 {% load static %}
 {% load bootstrap5 %}
@@ -64,6 +65,44 @@
   </div>
 </div>
 
+
+    <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Privacy Notice</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Do not enter any personal or identifiable information about yourself or anyone else!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="acknowledgeBtn">Acknowledged</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = new bootstrap.Modal(document.getElementById('privacyModal'));
+            const acknowledgeBtn = document.getElementById('acknowledgeBtn');
+
+            function checkAcknowledgment() {
+                if (!localStorage.getItem('acknowledged')) {
+                    modal.show();
+                }
+            }
+
+            acknowledgeBtn.addEventListener('click', function() {
+                localStorage.setItem('acknowledged', 'true');
+                modal.hide();
+            });
+
+            checkAcknowledgment();
+        });
+    </script>
 
 
 <script>
@@ -333,6 +372,14 @@ Answers can take up to 2 minutes even when the server is not under load. Please 
                 <li><a class="dropdown-item" id="light_mode">Light</a></li>
             </ul>
         </div>
+{#    {% get_current_language as CURRENT_LANGUAGE %}#}
+{#  <div class="mt-4">#}
+{#    <button id="german" class="languageButton active"#}
+{#            onclick="changeLanguage('de')"><img src="{% static '/icons/germany.png' %}" class="languageImage">#}
+{#    </button>#}
+{#    <button id="english" class="languageButton"#}
+{#            onclick="changeLanguage('en')"><img src="{% static '/icons/united-kingdom.png' %}" class="languageImage"></button>#}
+{#</div>#}
 
 
 
@@ -371,6 +418,7 @@ Answers can take up to 2 minutes even when the server is not under load. Please 
 
     <h5 >Available chat configurations</h5>
         <select class="form-select sidebarButton" aria-label="Conversation ID" id="chatModeSelector">
+
              {% for item in available_chat_modes %}
             <option {% if item == selected_chat_mode %}selected{% endif %}>{{ item }}</option>
             {% endfor %}
@@ -397,10 +445,36 @@ Answers can take up to 2 minutes even when the server is not under load. Please 
 
 
 
+
+
+
 </body>
 {% if always_maximize_chat %}
     <script>
     toggleMaxChat()
     </script>
 {% endif %}
+
+<script>
+  let language_code = "{{CURRENT_LANGUAGE}}"
+  changeLanguageDisplay(language_code)
+
+  function changeLanguage(x){
+    changeLanguageDisplay(x)
+      window.location.href = `/${x}`;
+    sendDataGet({"change_language":x})
+  }
+  function changeLanguageDisplay(x){
+      if(x=="de"){
+        $('#german').addClass("active")
+        $('#english').removeClass("active")
+
+      }
+      else{
+        $('#english').addClass("active")
+        $('#german').removeClass("active")
+
+      }
+  }
+</script>
 

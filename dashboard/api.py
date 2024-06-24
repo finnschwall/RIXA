@@ -28,6 +28,7 @@ class ChannelBridgeAPI(plugin_api.BaseAPI):
         self.channel_layer = channel_layer
         self.channel_name = channel_name
         self.is_remote = False
+        self.request_id = -1
 
     async def send_message(self, func_name, args, kwargs):
         # This function sends a message to the channel layer
@@ -79,6 +80,9 @@ class ConsumerAPI(plugin_api.BaseAPI):
 
     def is_knowledge_enabled(self):
         return self.enable_knowledge_retrieval and self.chat_modes[self.selected_chat_mode]["use_document_retrieval"]
+
+    def get_knowledge_retrieval_domain(self):
+        return self.chat_modes[self.selected_chat_mode]["document_tags"]
 
     def is_function_calls_enabled(self):
         return self.enable_function_calls and self.chat_modes[self.selected_chat_mode]["use_function_calls"]
@@ -138,6 +142,10 @@ class ConsumerAPI(plugin_api.BaseAPI):
     async def update_and_display_tracker_entry(self, tracker_yaml):
         self.scope["session"]["chat_histories"][self.selected_chat] = tracker_yaml
         tracker = ConversationTracker.from_yaml(tracker_yaml)
+        # from pprint import pp
+        # print("----------------")
+        # pp(tracker.tracker, width=150)
+        # print("---------------")
         assistant_msg = tracker[-1]
         await sync_to_async(self.consumer.scope["session"].save)()
         await self.display_in_chat(tracker_entry=assistant_msg, flags="enable_chat")
@@ -195,7 +203,7 @@ class ConsumerAPI(plugin_api.BaseAPI):
         else:
             raise Exception("No valid object specified for displaying!")
 
-    async def display_in_chat(self,tracker_entry=None, text=None, html=None, json_str=None, plotly_obj=None,
+    async def display_in_chat(self,tracker_entry=None, text=None, html=None, plotly_obj=None,
                               role="assistant", citations=None, index=-1,flags=None):
         data = {}
         if flags:
@@ -218,8 +226,6 @@ class ConsumerAPI(plugin_api.BaseAPI):
             plotly_html = plotly_obj#plotly_obj.to_html(include_plotlyjs=False, include_mathjax=False, full_html=False)
             await self.consumer.send(
                 text_data=json.dumps({"role": "HTML", "content": plotly_html, "location": "inline"}))
-        elif json_str:
-            raise Exception("Not working right now. Use text for display.")
         elif text:
             data.update({"role": role, "content": f"{text}", "forced_position": False, "index": index, "citations": citations if citations else ""})
             await self.consumer.send(text_data=json.dumps(data, ensure_ascii=True))

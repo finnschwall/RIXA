@@ -71,14 +71,14 @@ def collect_user_info():
     names = ["time", "user_count", "avg_msg_count", "avg_time_spent", "total_msg_count", "total_time_spent", "core_utilization"]
     msg_counts = []
     time_spent = []
-
+    user_count = 0
     with lock:
         for key, value in SessionStatistics.distinct_user_sessions.items():
             msg_counts.append(value["msg_count"])
             time_spent.append(value["time_spent"])
-
+        user_count = len(SessionStatistics.distinct_user_sessions)
         SessionStatistics.distinct_user_sessions = {}
-    df_sessions = pd.DataFrame(columns=names, data=[[datetime.now(), len(SessionStatistics.distinct_user_sessions),
+    df_sessions = pd.DataFrame(columns=names, data=[[datetime.now(), user_count,
                                                      np.average(msg_counts) if len(msg_counts) != 0 else 0,
                                                      np.average(time_spent) if len(time_spent) != 0 else 0,
                                                       sum(msg_counts), sum(time_spent), core_utilization]])

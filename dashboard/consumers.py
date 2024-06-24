@@ -23,7 +23,7 @@ from .api import ChannelBridgeAPI, ConsumerAPI
 from .models import PluginScope, ChatConfiguration
 
 logger = logging.getLogger()
-user_logger = logging.getLogger("ws_handler")
+user_logger = logging.getLogger("rixa.ws_handler")
 
 connection_lock = threading.Lock()
 
@@ -50,7 +50,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not self.scope["user"].is_authenticated:
             return
         chat_config = self.scope["user"].rixauser.configurations_read.all()
-        chat_config_default = ChatConfiguration.objects.get(name="default")
+        # chat_config_default = ChatConfiguration.objects.get(name="default")
         chat_config = set(chat_config)
         # if chat_config_default not in chat_config:
         #     chat_config.append(chat_config_default)
@@ -112,6 +112,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             SessionStatistics.register_infos(self.scope["user"].username, self.msg_count, (datetime.now() - self.start_time).seconds//60)
         except Exception as e:
+            user_logger.exception("Error while writing user info")
             print(e)
 
 
@@ -137,9 +138,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.msg_count += 1
             tracker = self.consumer_api.get_active_conversation()
             tracker.add_entry(message["content"], "user")
-            await self.channel_layer.send(
-                "plugin_interface",
-                {
+
+            msg = {
                     "type": "generate_response",
                     "channel_name": self.channel_name,
                     "args": (tracker.to_yaml(),),
@@ -147,12 +147,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "allowed_plugins": self.consumer_api.get_current_plugins(),
                     "kwargs": {"enable_function_calling": self.consumer_api.is_function_calls_enabled(),
                                "enable_knowledge_retrieval": self.consumer_api.is_knowledge_enabled(),
+                                "knowledge_retrieval_domain" : self.consumer_api.get_knowledge_retrieval_domain(),
                                "username": self.scope["user"].username, "system_msg": self.consumer_api.get_system_msg()
                                }
                     # "tags": self.consumer_api.get_current_tags(),
                     # "allowed_plugins": self.consumer_api.get_current_plugins(),
                     # "kwargs": {}
                 }
+            await self.channel_layer.send(
+                "plugin_interface",
+                msg
             )
         elif req_type == "change_setting":
             try:

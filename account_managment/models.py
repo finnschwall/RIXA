@@ -7,16 +7,22 @@ from django.utils.crypto import get_random_string
 from dashboard.models import PluginScope, ChatConfiguration
 
 
-class UserTag(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+# class UserTag(models.Model):
+#     name = models.CharField(max_length=100, unique=True)
 
 
 class Invitation(models.Model):
-    code = models.CharField(max_length=20, unique=True, blank=True)
+    code = models.CharField(max_length=20, unique=True, blank=True, primary_key=True)
+    name = models.CharField(max_length=100, blank=True)
     max_uses = models.PositiveIntegerField(default=10)
     uses = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
-    tags = models.ManyToManyField(UserTag, blank=True)
+    # tags = models.ManyToManyField(UserTag, blank=True)
+    configuration_write = models.ManyToManyField(ChatConfiguration, related_name="invitation_configuration_write", blank=True)
+    configurations_read = models.ManyToManyField(ChatConfiguration, related_name="invitation_configurations_read", blank=True)
+    scope_write = models.ManyToManyField(PluginScope, related_name="invitation_scope_write", blank=True)
+    scope_read = models.ManyToManyField(PluginScope, related_name="invitation_scope_read", blank=True)
+
     url = models.URLField(blank=True)
 
     def __str__(self):
@@ -43,7 +49,7 @@ class RixaUser(models.Model):
     scope_write = models.ManyToManyField(PluginScope, related_name="scope_write", blank=True)
     configuration_write = models.ManyToManyField(ChatConfiguration, related_name="configuration_write", blank=True)
     configurations_read = models.ManyToManyField(ChatConfiguration, related_name="configurations_read", blank=True)
-    user_tags = models.ManyToManyField(UserTag, blank=True)
+    # user_tags = models.ManyToManyField(UserTag, blank=True)
     total_messages = models.IntegerField(default=0)
     total_time_spent = models.IntegerField(default=0)
     messages_per_session = models.JSONField(default=None, blank=True, null=True)

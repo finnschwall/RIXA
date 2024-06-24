@@ -206,11 +206,24 @@ window.addEventListener('load', () => {
     scrollToBottomOfResults();
   });
 
-  $("#chats").on('dblclick', event => {
-      if(event.target.className=="botMsg" || event.target.className=="userMsg"){
-          // sub_id_span_
-          msgId=-1
-          msgId = parseInt(event.target.id.substring(12))
+  document.addEventListener('dblclick', function(event) {
+      let isChatElement = false
+      let target_id = event.target.id
+      if(event.target.id.startsWith("sub_id_span_")){
+          isChatElement = true
+      }
+      if(!isChatElement){
+          if(event.target.parentElement.id.startsWith("sub_id_span_")) {
+              isChatElement = true
+              target_id = event.target.parentElement.id
+          }
+      }
+      if(!isChatElement){
+          return
+      }
+
+                msgId=-1
+          msgId = parseInt(target_id.substring(12))
           // console.log(msgId)
           // console.log(event.target)
           // console.log(event.target.id)
@@ -220,6 +233,7 @@ window.addEventListener('load', () => {
               return
           }
           let msg = messageHistory.find(obj => obj.index === msgId)
+        console.log(msg)
 
           let code = "code" in msg ? msg["code"] : "No code used"
           //properly format code
@@ -279,8 +293,84 @@ window.addEventListener('load', () => {
                   $("#btnradio5").prop("checked",true)
           }
 
-      }
-  });
+
+});
+
+  // $("#chats").on('dblclick', event => {
+  //     if(event.target.className=="botMsg" || event.target.className=="userMsg"){
+  //         // sub_id_span_
+  //         msgId=-1
+  //         msgId = parseInt(event.target.id.substring(12))
+  //         // console.log(msgId)
+  //         // console.log(event.target)
+  //         // console.log(event.target.id)
+  //         if(msgId==-1){
+  //             $("#liveToast").show()
+  //             $("#liveToast").delay(8000).hide(1000)
+  //             return
+  //         }
+  //         let msg = messageHistory.find(obj => obj.index === msgId)
+  //
+  //         let code = "code" in msg ? msg["code"] : "No code used"
+  //         //properly format code
+  //           code = code.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  //           code = code.replace(/(?:\r\n|\r|\n)/g, '<br>')
+  //         $("#modalCodeDisplay").html(code)
+  //
+  //         let metadata = "metadata" in msg ? msg["metadata"] : {"There is no metadata available":""}
+  //         metadata["Index"] = msg["index"]
+  //
+  //         $("#messageCloseUp").modal('show')
+  //         $("#messageCloseUpContent").val(msg["content"])//event.target.innerHTML
+  //
+  //         let metaList = ""
+  //         for(let i in metadata){
+  //             if(i == "timings"){
+  //                 let response_time = metadata[i]["total_time"]
+  //                 metaList+=`<li class="list-group-item d-flex justify-content-between align-items-center">
+  //                   Response time
+  //                   <span class="badge bg-primary">${response_time} s</span></li>`
+  //             }
+  //             else if(i == "t_per_s"){
+  //                 continue
+  //                 metaList+=`<li class="list-group-item d-flex justify-content-between align-items-center">
+  //                   Token/s
+  //                   <div style="margin-left: 0.5rem;max-height: 8rem; overflow-y: scroll">${metadata[i]['token_total_per_s']}</div></li>`
+  //             }
+  //             else if(i=="tokens"){
+  //                   metaList+=`<li class="list-group-item d-flex justify-content-between align-items-center">
+  //                       Tokens
+  //                       <div style="margin-left: 0.5rem;max-height: 8rem; overflow-y: scroll">${metadata[i]['total_tokens']}</div></li>`
+  //             }
+  //             else {
+  //                 metaList+=`<li class="list-group-item d-flex justify-content-between align-items-center">
+  //                   ${i}
+  //                   <span class="badge bg-primary">${metadata[i]}</span></li>`
+  //             }
+  //
+  //         }
+  //         $("#metadata_list").html(metaList)
+  //
+  //         let role = "role" in msg ? msg["role"] : "none"
+  //         switch (role){
+  //             case "user":
+  //                 $("#btnradio1").prop("checked",true)
+  //                 break;
+  //             case "assistant":
+  //                 $("#btnradio2").prop("checked",true)
+  //                 break;
+  //             case "system":
+  //                 $("#btnradio3").prop("checked",true)
+  //                 break;
+  //             case "server":
+  //                 $("#btnradio4").prop("checked",true)
+  //                 break;
+  //             default:
+  //                 $("#btnradio5").prop("checked",true)
+  //         }
+  //
+  //     }
+  // });
   
 });
 

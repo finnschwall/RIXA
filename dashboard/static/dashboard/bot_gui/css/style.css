@@ -19,6 +19,22 @@ p{
  }
 
 
+.languageButton {
+    color: transparent;
+    background-color: transparent;
+    border-color: transparent;
+  z-index: 20;
+}
+
+.languageButton.active{
+    border-radius: 3em;
+    box-shadow: 0 0 0 3pt black;
+}
+
+.languageImage {
+    width: 3em
+}
+
 .statusMessage {
   z-index: 5;
   /*position: absolute;*/
