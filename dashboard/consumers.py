@@ -150,9 +150,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                 "knowledge_retrieval_domain" : self.consumer_api.get_knowledge_retrieval_domain(),
                                "username": self.scope["user"].username, "system_msg": self.consumer_api.get_system_msg()
                                }
-                    # "tags": self.consumer_api.get_current_tags(),
-                    # "allowed_plugins": self.consumer_api.get_current_plugins(),
-                    # "kwargs": {}
                 }
             await self.channel_layer.send(
                 "plugin_interface",

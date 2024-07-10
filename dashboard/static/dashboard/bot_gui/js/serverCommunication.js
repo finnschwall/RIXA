@@ -175,6 +175,9 @@ function onOpenHandler(e){
     // showMessage("Connected successfully",5000)
     $("#userInput").prop("disabled",false)
     openChat()
+    resetUI()
+    reconnectTries = 0
+hideBotTyping()
     console.log("Connected to server")
     // let toSend = {"type":"execute_plugin_code",'content': "##draw_plot('x^2')#", "msg_id": lastUsedId, "role": "user"}
     // send(toSend)

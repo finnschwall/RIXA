@@ -228,6 +228,187 @@ Answers can take up to 2 minutes even when the server is not under load. Please 
 {% bootstrap_messages %}
 
 
+<!-- Add this to your existing HTML file -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="settingsOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="settingsOffcanvasLabel">Settings</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">General</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="plugins-tab" data-bs-toggle="tab" data-bs-target="#plugins" type="button" role="tab" aria-controls="plugins" aria-selected="false">Plugins</button>
+            </li>
+        </ul>
+        <div class="tab-content mt-3" id="settingsTabContent">
+            <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                <div class="d-grid gap-1">
+                <!-- Existing static settings go here -->
+                <div class="form-check form-switch  d-none d-lg-block pt-1">
+                    <input class="form-check-input" type="checkbox" id="maximizeChat">
+                    <label class="form-check-label" for="maximizeChat">Maximize</label>
+                </div>
+                <div class="dropdown mt-3">
+                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="switchTheme" data-bs-toggle="dropdown" aria-expanded="false">
+                        Switch theme
+                    </button>
+                    <ul class="dropdown-menu w-100">
+                        <li><a class="dropdown-item" id="dark_mode">Dark</a></li>
+                        <li><a class="dropdown-item" id="light_mode">Light</a></li>
+                    </ul>
+                </div>
+                <button class="btn btn-danger mt-3" onclick="clearConversations()">Delete current conversation</button>
+                <h5>Available chat histories</h5>
+        <select class="form-select sidebarButton" aria-label="Conversation ID">
+          <option value="1">One</option>
+        </select>
+    <button class="btn sidebarButton"  onclick="alert('No effect')">New conversation</button>
+                <div id="authButtons" class="mt-3">
+                    <!-- Login/Logout buttons will be inserted here dynamically -->
+                </div>
+                  <div class="mt-4">
+    <button id="german" class="languageButton active"
+            onclick="changeLanguage('de')"><img src="{% static '/icons/germany.png' %}" class="languageImage">
+    </button>
+    <button id="english" class="languageButton"
+            onclick="changeLanguage('en')"><img src="{% static '/icons/united-kingdom.png' %}" class="languageImage"></button>
+</div>
+                <button class="btn btn-warning mt-3" onclick='$("#bugReport").modal("show")'>Bug report/Feedback</button>
+            </div>
+                </div>
+            <div class="tab-pane fade" id="plugins" role="tabpanel" aria-labelledby="plugins-tab">
+                <div id="pluginSettings"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .plugin-card {
+        margin-bottom: 1rem;
+    }
+    .plugin-card .card-body {
+        padding: 1rem;
+    }
+    .plugin-card .form-group {
+        margin-bottom: 0.5rem;
+    }
+    .offcanvas-body .nav-tabs {
+        margin-bottom: 1rem;
+    }
+    .offcanvas-body .tab-content {
+        height: calc(100% - 3rem);
+        overflow-y: auto;
+    }
+    #general .form-check {
+        padding: 0.5rem 0;
+    }
+    #authButtons .btn {
+        width: 100%;
+    }
+</style>
+
+
+<script>
+$(document).ready(function() {
+    updateAuthButtons();
+    populatePluginSettings();
+    $('#pluginSettings').on('change', 'input, select', function() {
+        const pluginId = $(this).closest('.plugin-card').data('plugin-id');
+        const settingId = $(this).attr('id');
+        const value = $(this).attr('type') === 'checkbox' ? $(this).prop('checked') : $(this).val();
+
+        updatePluginSetting(pluginId, settingId, value);
+    });
+});
+
+function updateAuthButtons() {
+    const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+    const currentPath = "{{ request.path }}";
+
+    if (isAuthenticated) {
+        $('#authButtons').html(`<a class="btn btn-info" href="{% url 'account_user_logout' %}?next=${currentPath}">Logout</a>`);
+    } else {
+        $('#authButtons').html(`<a class="btn btn-info" href="{% url 'account_user_login' %}?next=${currentPath}">Login</a>`);
+    }
+}
+
+function populatePluginSettings() {
+    const pluginSettings = {{ plugin_settings|safe }};
+    let html = '';
+
+    pluginSettings.forEach(plugin => {
+        html += `<div class="card plugin-card" data-plugin-id="${plugin.id}"><div class="card-header">${plugin.name}</div><div class="card-body">`;
+
+        plugin.settings.forEach(setting => {
+            html += `<div class="form-group">`;
+            switch (setting.type) {
+                case 'checkbox':
+                    html += `
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="${setting.id}" ${setting.value ? 'checked' : ''}>
+                            <label class="form-check-label" for="${setting.id}">${setting.name}</label>
+                        </div>
+                    `;
+                    break;
+                case 'text':
+                    html += `
+                        <label for="${setting.id}">${setting.name}</label>
+                        <input type="text" class="form-control" id="${setting.id}" value="${setting.value}">
+                    `;
+                    break;
+                case 'select':
+                    html += `
+                        <label for="${setting.id}">${setting.name}</label>
+                        <select class="form-select" id="${setting.id}">
+                    `;
+                    setting.options.forEach(option => {
+                        html += `<option value="${option}" ${option === setting.value ? 'selected' : ''}>${option}</option>`;
+                    });
+                    html += `</select>`;
+                    break;
+            }
+            html += `</div>`;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+    });
+
+    $('#pluginSettings').html(html);
+}
+
+function updatePluginSetting(pluginId, settingId, value) {
+    // Here you would typically send an AJAX request to update the setting on the server
+    console.log(`Updating setting: Plugin ${pluginId}, Setting ${settingId}, Value ${value}`);
+    // Example AJAX call (uncomment and modify as needed):
+    /*
+    $.ajax({
+        url: '/update_plugin_setting/',
+        method: 'POST',
+        data: {
+            plugin_id: pluginId,
+            setting_id: settingId,
+            value: value
+        },
+        success: function(response) {
+            console.log('Setting updated successfully');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error updating setting:', error);
+        }
+    });
+    */
+}
+</script>
+
+
 
 <div class="modal modal-lg top fade" id="citationDisplay" tabindex="-1" style="height: 100%">
     <div class="modal-dialog">
@@ -350,28 +531,28 @@ Answers can take up to 2 minutes even when the server is not under load. Please 
     }
 </style>
 
-<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Settings</h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-
-        <div class="form-check form-switch d-none d-lg-block pt-1">
-            <input class="form-check-input" type="checkbox" id="maximizeChat">
-            <label class="form-check-label" style="font-size: 1.5rem" for="maximizeChat">Maximize</label>
-        </div>
-
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle sidebarButton" type="button" id="switchTheme" data-bs-toggle="dropdown"
-                    aria-expanded="false" >
-                Switch theme
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" id="dark_mode">Dark</a></li>
-                <li><a class="dropdown-item" id="light_mode">Light</a></li>
-            </ul>
-        </div>
+{#<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">#}
+{#    <div class="offcanvas-header">#}
+{#        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Settings</h5>#}
+{#        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>#}
+{#    </div>#}
+{#    <div class="offcanvas-body">#}
+{##}
+{#        <div class="form-check form-switch d-none d-lg-block pt-1">#}
+{#            <input class="form-check-input" type="checkbox" id="maximizeChat">#}
+{#            <label class="form-check-label" style="font-size: 1.5rem" for="maximizeChat">Maximize</label>#}
+{#        </div>#}
+{##}
+{#        <div class="dropdown">#}
+{#            <button class="btn btn-secondary dropdown-toggle sidebarButton" type="button" id="switchTheme" data-bs-toggle="dropdown"#}
+{#                    aria-expanded="false" >#}
+{#                Switch theme#}
+{#            </button>#}
+{#            <ul class="dropdown-menu">#}
+{#                <li><a class="dropdown-item" id="dark_mode">Dark</a></li>#}
+{#                <li><a class="dropdown-item" id="light_mode">Light</a></li>#}
+{#            </ul>#}
+{#        </div>#}
 {#    {% get_current_language as CURRENT_LANGUAGE %}#}
 {#  <div class="mt-4">#}
 {#    <button id="german" class="languageButton active"#}
@@ -380,52 +561,52 @@ Answers can take up to 2 minutes even when the server is not under load. Please 
 {#    <button id="english" class="languageButton"#}
 {#            onclick="changeLanguage('en')"><img src="{% static '/icons/united-kingdom.png' %}" class="languageImage"></button>#}
 {#</div>#}
-
-
-
-
-        <button class="btn btn-danger sidebarButton"  onclick="clearConversations()">Delete current conversation</button>
-
+{##}
+{##}
+{##}
+{##}
+{#        <button class="btn btn-danger sidebarButton"  onclick="clearConversations()">Delete current conversation</button>#}
+{##}
 {#        <h5>Available chat histories</h5>#}
 {#        <select class="form-select sidebarButton" aria-label="Conversation ID">#}
 {#          <option value="1">One</option>#}
 {#        </select>#}
 {#    <button class="btn sidebarButton"  onclick="alert('No effect')">New conversation</button>#}
-
-
-        {% if user.is_authenticated %}
-            <a class="btn btn-info sidebarButton"  href="{% url 'account_user_logout' %}?next={{ request.path }}">Logout</a>
-        {% else %}
-             <a class="btn btn-info sidebarButton" href="{% url 'account_user_login' %}?next={{ request.path }}">Login</a>
-        {% endif %}
-
-    <button class="btn btn-warning sidebarButton"  onclick='$("#bugReport").modal("show")'>Bug report/Feedback</button>
-
-        <hr>
-        <h4 class="text-warning">Dev options</h4>
-
-        <div class="form-check form-switch d-none d-lg-block pt-1">
-            <input class="form-check-input" type="checkbox" id="enableFunctions" {% if enable_function_calls %}checked{% endif %}>
-            <label class="form-check-label" style="font-size: 1.5rem" for="enableFunctions">Enable functions</label>
-        </div>
-
-         <div class="form-check form-switch d-none d-lg-block pt-1">
-            <input class="form-check-input" type="checkbox" id="enableContext" {% if enable_knowledge_retrieval %}checked{% endif %}>
-            <label class="form-check-label" style="font-size: 1.5rem" for="enableContext">Enable knowledge retrieval</label>
-        </div>
-
-
-
-    <h5 >Available chat configurations</h5>
-        <select class="form-select sidebarButton" aria-label="Conversation ID" id="chatModeSelector">
-
-             {% for item in available_chat_modes %}
-            <option {% if item == selected_chat_mode %}selected{% endif %}>{{ item }}</option>
-            {% endfor %}
-        </select>
-
-    </div>
-</div>
+{##}
+{##}
+{#        {% if user.is_authenticated %}#}
+{#            <a class="btn btn-info sidebarButton"  href="{% url 'account_user_logout' %}?next={{ request.path }}">Logout</a>#}
+{#        {% else %}#}
+{#             <a class="btn btn-info sidebarButton" href="{% url 'account_user_login' %}?next={{ request.path }}">Login</a>#}
+{#        {% endif %}#}
+{##}
+{#    <button class="btn btn-warning sidebarButton"  onclick='$("#bugReport").modal("show")'>Bug report/Feedback</button>#}
+{##}
+{#        <hr>#}
+{#        <h4 class="text-warning">Dev options</h4>#}
+{##}
+{#        <div class="form-check form-switch d-none d-lg-block pt-1">#}
+{#            <input class="form-check-input" type="checkbox" id="enableFunctions" {% if enable_function_calls %}checked{% endif %}>#}
+{#            <label class="form-check-label" style="font-size: 1.5rem" for="enableFunctions">Enable functions</label>#}
+{#        </div>#}
+{##}
+{#         <div class="form-check form-switch d-none d-lg-block pt-1">#}
+{#            <input class="form-check-input" type="checkbox" id="enableContext" {% if enable_knowledge_retrieval %}checked{% endif %}>#}
+{#            <label class="form-check-label" style="font-size: 1.5rem" for="enableContext">Enable knowledge retrieval</label>#}
+{#        </div>#}
+{##}
+{##}
+{##}
+{#    <h5 >Available chat configurations</h5>#}
+{#        <select class="form-select sidebarButton" aria-label="Conversation ID" id="chatModeSelector">#}
+{##}
+{#             {% for item in available_chat_modes %}#}
+{#            <option {% if item == selected_chat_mode %}selected{% endif %}>{{ item }}</option>#}
+{#            {% endfor %}#}
+{#        </select>#}
+{##}
+{#    </div>#}
+{#</div>#}
 
 
 

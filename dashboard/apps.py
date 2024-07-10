@@ -112,7 +112,8 @@ async def await_future_execution(future, api_obj, is_chat=False):
 async def plugin_interface():
     channel_layer = get_channel_layer()
     from rixaplugin.test import introspection
-    from rixaplugin.default_plugins import catbot, openai_server, math
+    from rixaplugin.default_plugins import catbot, math
+    from pyalm.chat import llm_server, alm_plugin
     import rixaplugin
     rixaplugin.set_tags("catbot",["cat"])
     rixaplugin.set_tags("math", ["physics"])
@@ -134,7 +135,7 @@ async def plugin_interface():
             if obj["type"] == "generate_response":
                 client_api.request_id = ChannelBridgeAPI.get_request_id("generate_text", args=obj["args"],
                                                                         kwargs=obj["kwargs"])
-                future = await rixaplugin.async_execute("generate_text", args=obj["args"], kwargs=obj["kwargs"],
+                future = await rixaplugin.async_execute("generate_text","alm_plugin", args=obj["args"], kwargs=obj["kwargs"],
                                                         api_obj=client_api, return_future=True)
                 asyncio.create_task(await_future_execution(future, client_api, is_chat=True))
         except Exception as e:
