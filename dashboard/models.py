@@ -58,6 +58,7 @@ class ChatConfiguration(models.Model):
     # tags = models.ManyToManyField(SelectionTag)
     available_to_all = models.BooleanField(default=False)
     system_message = models.TextField(blank=True)
+    first_message = models.TextField(blank=True)
     included_scopes = models.ManyToManyField(PluginScope, blank=True)
     use_function_calls = models.BooleanField(default=False)
     included_plugins = models.JSONField(default=generate_default_plugins, blank=True)

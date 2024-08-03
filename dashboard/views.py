@@ -95,6 +95,7 @@ def edit_chat_configuration(request,):
 @login_required(login_url="about")
 def home(request):
     user_settings = request.session.get("settings", None)
+
     if user_settings:
         enable_function_calls = user_settings.get("enable_function_calls", True)
         enable_knowledge_retrieval = user_settings.get("enable_knowledge_retrieval", True)
@@ -115,52 +116,15 @@ CALLABLE PLUGINS: ERROR<br>"""
     globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True).values_list('name', flat=True))
     user_available_chat_modes = set(request.user.rixauser.configurations_read.values_list('name', flat=True))
     available_chat_modes = list(globally_available_configs.union(user_available_chat_modes))
-    plugin_settings = [
-        {
-            'name': 'Plugin A12',
-            'id': 'plugin_id',
-            'settings': [
-                {
-                    'name': 'Setting Name',
-                    'id': 'setting_id',
-                    'type': 'checkbox',
-                    'value': 'current_value',
-                    'default': 'default_value',
-                    'options': ['option1', 'option2']
-                },
-                {
-                    'name': 'Setting 2',
-                    'id': '2',
-                    'type': 'select',
-                    'value': 'option2',
-                    'default': 'option2',
-                    'options': ['option1', 'option2']
-                },
-                {
-                    'name': 'Setting 3',
-                    'id': '3',
-                    'type': 'text',
-                    'value': 'option2',
-                    'default': 'option2',
-                    'options': ['option1', 'option2']
-                },
-            ]
-        },
-        {
-            'name': 'Other plugin',
-            'id': 'plugin_id2',
-            'settings': [
-                {
-                    'name': 'Setting Name',
-                    'id': 'setting_id_4',
-                    'type': 'checkbox',
-                    'value': 'current_value',
-                    'default': 'default_value',
-                    'options': ['option1', 'option2']
-                },
-            ]
-        },
-    ]
+
+    plugin_settings = _memory.get_all_variables()
+    user_settings = request.session.get("plugin_variables", {})
+    for key, val in user_settings.items():
+        if key in plugin_settings:
+            for varkey, varval in val.items():
+                if varkey in plugin_settings[key]:
+                    plugin_settings[key][varkey]["value"] = varval
+
 
     context = {"chat_disabled": settings.DISABLE_CHAT, "website_title": settings.WEBSITE_TITLE,
                "chat_title": settings.CHAT_TITLE, "always_maximize_chat": settings.ALWAYS_MAXIMIZE_CHAT,
@@ -169,7 +133,7 @@ CALLABLE PLUGINS: ERROR<br>"""
                "available_chat_modes": available_chat_modes, "selected_chat": str(request.session.get("selected_chat", 0)),
                "selected_chat_mode" :selected_chat_mode,
                "server_status": server_status,
-               "plugin_settings":plugin_settings}
+               "plugin_settings":json.dumps(plugin_settings)}
     return render(request, 'home.html', context)
 
 

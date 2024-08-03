@@ -13,4 +13,4 @@ class ChatConfigurationForm(forms.ModelForm):
 
     class Meta:
         model = ChatConfiguration
-        fields = ['system_message', 'included_plugins',"use_document_retrieval", 'document_tags']
+        fields = ['system_message', "first_message",'included_plugins', "use_document_retrieval", 'document_tags']

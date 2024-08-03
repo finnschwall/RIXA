@@ -50,27 +50,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not self.scope["user"].is_authenticated:
             return
         chat_config = self.scope["user"].rixauser.configurations_read.all()
-        # chat_config_default = ChatConfiguration.objects.get(name="default")
         chat_config = set(chat_config)
-        # if chat_config_default not in chat_config:
-        #     chat_config.append(chat_config_default)
         globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True))
         chat_config = chat_config.union(globally_available_configs)
         chat_config = list(chat_config)
-
 
         chat_modes = {}
         for config in chat_config:
             entry = {"use_document_retrieval": config.use_document_retrieval, "document_tags": config.document_tags,
                      "plugins": config.included_plugins, "use_function_calls": config.use_function_calls,
                      "tags": list(config.included_scopes.all().values_list('name', flat=True)),
-                     "system_msg": config.system_message}
+                     "system_msg": config.system_message,
+                     "first_message": config.first_message if config.first_message != "" else None}
+
             chat_modes[config.name] = entry
             # plugins_in_chat_mode[config.name] = config.included_plugins#[i.included_plugins for i in config.included_plugins]
         # tags_in_chat_mode = {}
         # for config in chat_config:
         #     tags_in_chat_mode[config.name] = list(config.included_scopes.all().values_list('name', flat=True))
-
         return chat_modes
 
 
@@ -130,8 +127,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "code": message["content"],
                     "tags": self.consumer_api.get_current_tags(),
                     "allowed_plugins": self.consumer_api.get_current_plugins(),
-                    # finish this i.e properly call plugin system with set plugins and plugins
-
+                    "plugin_variables": self.consumer_api.get_plugin_variables(),
+                }
+            )
+        elif req_type == "call_plugin_function":
+            await self.channel_layer.send(
+                "plugin_interface",
+                {
+                    "type": "call_plugin_function",
+                    "channel_name": self.channel_name,
+                    "function_name": message["function_name"],
+                    "tags": self.consumer_api.get_current_tags(),
+                    "allowed_plugins": self.consumer_api.get_current_plugins(),
+                    "plugin_variables": self.consumer_api.get_plugin_variables(),
+                    "args" : message.get("args", []),
+                    "kwargs": message.get("kwargs", {}),
                 }
             )
         elif req_type == "usr_msg":
@@ -145,6 +155,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "args": (tracker.to_yaml(),),
                     "tags": self.consumer_api.get_current_tags(),
                     "allowed_plugins": self.consumer_api.get_current_plugins(),
+                "plugin_variables": self.consumer_api.get_plugin_variables(),
                     "kwargs": {"enable_function_calling": self.consumer_api.is_function_calls_enabled(),
                                "enable_knowledge_retrieval": self.consumer_api.is_knowledge_enabled(),
                                 "knowledge_retrieval_domain" : self.consumer_api.get_knowledge_retrieval_domain(),
@@ -163,9 +174,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.consumer_api.enable_knowledge_retrieval = message["value"]
                 if message["setting"] == "selected_chat_mode":
                     self.consumer_api.selected_chat_mode = message["value"]
+                    await self.consumer_api.new_chat()
+                    for i in self.consumer_api.get_active_conversation():
+                        await self.consumer_api.display_in_chat(tracker_entry=i)
+
                 await sync_to_async(self.scope["session"].save)()
             except Exception as e:
                 user_logger.exception("Error while changing settings")
+        elif req_type == "update_plugin_setting":
+            try:
+                plugin_id = message["plugin_id"]
+                setting_id = message["setting_id"]
+                value = message["value"]
+                self.consumer_api.update_plugin_variable(plugin_id, setting_id, value)
+                await sync_to_async(self.scope["session"].save)()
+            except Exception as e:
+                user_logger.exception(f"USER {self.scope['user'].username}: Error while changing plugin settings")
+                await self.consumer_api.show_message(str(e), theme="error")
         elif req_type == "bug_report":
 
             try:
@@ -198,12 +223,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         f.write(image)
             except Exception as e:
                 user_logger.exception("Error while submitting bug report")
-                await self.consumer_api.show_message("Error while submitting bug report. This should not happen",
+                await self.consumer_api.show_message(f"USER {self.scope['user'].username}: Error while submitting bug report. This should not happen",
                                                      theme="error")
 
         elif req_type == "delete_current_tracker":
-            self.consumer_api.delete_current_tracker()
+            # self.consumer_api.delete_current_tracker()
+            await self.consumer_api.new_chat()
+            for i in self.consumer_api.get_active_conversation():
+                await self.consumer_api.display_in_chat(tracker_entry=i)
             await sync_to_async(self.scope["session"].save)()
+
+
 
 
 def get_folder_size(folder_path):

@@ -73,6 +73,9 @@ function addMessage(content, fmt=true) {
     lastUsedId = content["index"]
     let msg_id = content["index"]
     let message = content["content"]
+    if("translated_content" in content){
+        message = content["translated_content"]
+    }
     if(fmt) {
         message = formatForChat(message)
     }

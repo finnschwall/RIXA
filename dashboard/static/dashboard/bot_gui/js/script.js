@@ -76,7 +76,7 @@ function showCitation(msgIndex, citationIndex){
 
 
 function showMessage(message, timeout=5000, theme="info"){
-    console.log(message, timeout, theme)
+    console.info("Displaying message:", message, timeout, theme)
     $("#toast_text").html(message)
     $("#toast_title").text(theme.charAt(0).toUpperCase() + theme.slice(1))
     $("#toast_title").text(theme.charAt(0).toUpperCase() + theme.slice(1))
@@ -165,6 +165,7 @@ window.addEventListener('load', () => {
 
   $("#chatModeSelector").change(function(){
     send({"type":"change_setting" , "setting":"selected_chat_mode", "value": this.value})
+      resetChatMessages()
   });
 
  $('#enableContext').change(function() {
@@ -222,11 +223,8 @@ window.addEventListener('load', () => {
           return
       }
 
-                msgId=-1
+      msgId=-1
           msgId = parseInt(target_id.substring(12))
-          // console.log(msgId)
-          // console.log(event.target)
-          // console.log(event.target.id)
           if(msgId==-1){
               $("#liveToast").show()
               $("#liveToast").delay(8000).hide(1000)

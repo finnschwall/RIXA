@@ -11,7 +11,7 @@ import markdown2
 #
 
 import logging
-
+from rixaplugin import _memory
 from asgiref.sync import sync_to_async, async_to_sync
 
 logger = logging.getLogger("ServerAPI")
@@ -24,7 +24,10 @@ class ChannelBridgeAPI(plugin_api.BaseAPI):
     The instantiated objects of this class usually do not reside in the same process as the websocket consumer.
     """
 
-    def __init__(self, channel_layer, channel_name,):
+    def __init__(self, channel_layer, channel_name, request_id=-1, identity=None, scope=None, plugin_variables={}):
+        # call the parent constructor
+        super().__init__(request_id, identity, scope)
+        self.plugin_variables = plugin_variables
         self.channel_layer = channel_layer
         self.channel_name = channel_name
         self.is_remote = False
@@ -68,15 +71,50 @@ class ConsumerAPI(plugin_api.BaseAPI):
                                                  "enable_function_calls": True,
                                                  "enable_knowledge_retrieval": True,
                                                  }
+        if not self.scope["session"].get("plugin_variables"):
+            self.scope["session"]["plugin_variables"] = {}
         self.chat_modes = chat_modes
+
         # self.selected_chat = self.scope["session"]["settings"]["selected_chat"]
         # self.chat_mode = self.scope["session"]["settings"]["selected_chat_mode"]
 
         # tracker = ConversationTracker.from_yaml(example_chat)
         # self.scope["session"]["chat_histories"] = [tracker.to_yaml()]
 
+    def update_plugin_variable(self, plugin_id, setting_id, value):
+        plugin_settings = _memory.get_all_variables()
+        if plugin_id not in plugin_settings:
+            raise ValueError(f"Plugin '{plugin_id}' does not exist")
+        if setting_id not in plugin_settings[plugin_id]:
+            raise ValueError(f"Setting '{setting_id}' does not exist for plugin '{plugin_id}'")
+        type_mapping = {
+            'int': int,
+            'float': float,
+            'str': str,
+            'bool': bool
+        }
+        if "type" in plugin_settings[plugin_id][setting_id] and plugin_settings[plugin_id][setting_id]["type"] in type_mapping:
+            if type(value) != type_mapping[plugin_settings[plugin_id][setting_id]["type"]]:
+                raise ValueError(f"Setting '{setting_id}' for plugin '{plugin_id}' must be of type {plugin_settings[plugin_id][setting_id]['type']}")
+            # raise ValueError(f"Setting '{setting_id}' for plugin '{plugin_id}' must be of type {plugin_settings[plugin_id][setting_id]['type']}")
+        if "options" in plugin_settings[plugin_id][setting_id] and plugin_settings[plugin_id][setting_id]["options"] and\
+                value not in plugin_settings[plugin_id][setting_id]["options"]:
+            raise ValueError(f"Setting '{setting_id}' for plugin '{plugin_id}' must be one of the following options: {plugin_settings[plugin_id][setting_id]['options']}")
+
+        if plugin_id not in self.scope["session"]["plugin_variables"]:
+            self.scope["session"]["plugin_variables"][plugin_id] = {setting_id: value}
+        else:
+            self.scope["session"]["plugin_variables"][plugin_id][setting_id] = value
+
+    def get_plugin_variables(self):
+        return self.scope["session"]["plugin_variables"]
+
+
     def get_system_msg(self):
         return self.chat_modes[self.selected_chat_mode]["system_msg"]
+
+    def get_first_message(self):
+        return self.chat_modes[self.selected_chat_mode]["first_message"]
 
     def is_knowledge_enabled(self):
         return self.enable_knowledge_retrieval and self.chat_modes[self.selected_chat_mode]["use_document_retrieval"]
@@ -142,13 +180,18 @@ class ConsumerAPI(plugin_api.BaseAPI):
     async def update_and_display_tracker_entry(self, tracker_yaml):
         self.scope["session"]["chat_histories"][self.selected_chat] = tracker_yaml
         tracker = ConversationTracker.from_yaml(tracker_yaml)
-        # from pprint import pp
-        # print("----------------")
-        # pp(tracker.tracker, width=150)
-        # print("---------------")
         assistant_msg = tracker[-1]
         await sync_to_async(self.consumer.scope["session"].save)()
         await self.display_in_chat(tracker_entry=assistant_msg, flags="enable_chat")
+
+    async def new_chat(self):
+        #delete tracker and create a new one. Add directly the first message if it exists
+        tracker = ConversationTracker()
+        if self.get_first_message():
+            tracker.add_entry(self.get_first_message(), "assistant")
+        self.scope["session"]["chat_histories"] = [tracker.to_yaml()]
+        await sync_to_async(self.consumer.scope["session"].save)()
+
 
     async def add_tracker_entry(self, role, content, metadata=None, function_calls=None, feedback=None, sentiment=None, add_keys=None):
         tracker = ConversationTracker()

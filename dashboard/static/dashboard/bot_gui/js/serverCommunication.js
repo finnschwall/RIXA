@@ -54,15 +54,19 @@ async function send(message) {
 }
 
 
-function callFunction(data) {
+// function callFunction(data) {
+//
+//  let funcName = data["function"];
+//  let funcArgs = data["arguments"] || [];
+//  // var funcKWArgs = data["keywordArguments"] || {};
+//  // window[funcName].apply(args, [])
+//  window[funcName].apply(this, [].concat(funcArgs));
+// }
 
- let funcName = data["function"];
- let funcArgs = data["arguments"] || [];
- // var funcKWArgs = data["keywordArguments"] || {};
- // window[funcName].apply(args, [])
- window[funcName].apply(this, [].concat(funcArgs));
+
+function callPluginFunction(plugin_name, function_name, args, kwargs) {
+    send({"type": "call_plugin_function", "plugin_name": plugin_name, "function_name": function_name, "args": args, "kwargs": kwargs})
 }
-
 
 
  // Call the function with args and kwargs
@@ -71,7 +75,8 @@ let firstDisplay = false
 function onMessageHandler(e) {
     const data = JSON.parse(e.data);
     if(data["type"]==="f_call"){
-        callFunction(data);
+        alert("Currently not working")
+        // callFunction(data);
     }
     if("flags" in data){
         for(let i in data["flags"]){
@@ -131,6 +136,7 @@ function onMessageHandler(e) {
             addMessage(data)
         }
         else if(data["role"]==="tracker_entry"){
+            console.info("Received tracker entry", data["tracker"])
             addMessage(data["tracker"])
         }
         else if(data["role"]==="partial"){
@@ -150,13 +156,17 @@ function onMessageHandler(e) {
 
 };
 
+function resetChatMessages(){
+    $("#chats").html("")
+    messageHistory = []
+    lastUsedId = -1
+}
+
 function resetUI(){
     for(let i=0; i<container_count; i++){
         $(`#content_main_${i}`).html("")
         $(`#content_main_${i}`).show()
     }
-
-    //
     // $(`#content_main_${lastUsedDisplay}`).show()
     // lastUsedDisplay++
     // lastUsedDisplay%=container_count
@@ -172,17 +182,13 @@ function onErrorHandler(e){
 }
 
 function onOpenHandler(e){
-    // showMessage("Connected successfully",5000)
     $("#userInput").prop("disabled",false)
     openChat()
     resetUI()
+    resetChatMessages()
     reconnectTries = 0
-hideBotTyping()
-    console.log("Connected to server")
-    // let toSend = {"type":"execute_plugin_code",'content': "##draw_plot('x^2')#", "msg_id": lastUsedId, "role": "user"}
-    // send(toSend)
-
-
+    hideBotTyping()
+    console.info("Connected to server")
 }
 
 function onCloseHandler(e) {

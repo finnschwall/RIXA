@@ -27,7 +27,7 @@
     <script src="{% static 'js/jshelpers.js' %}"></script>
 
     <script src="{% static 'js/jquery.json-viewer.js' %}"></script>
-     <link href="{% static 'js/jquery.json-viewer.css' %}" rel="stylesheet">
+    <link href="{% static 'js/jquery.json-viewer.css' %}" rel="stylesheet">
 
     <script>
         function getPath(path) {
@@ -43,175 +43,177 @@
             "vapor": "https://bootswatch.com/5/vapor/bootstrap.min.css",
             "cyborg": "https://bootswatch.com/5/cyborg/bootstrap.min.css"
         }
-        $("#stylesheet").attr("href",themes["{{ theme }}"])
+        $("#stylesheet").attr("href", themes["{{ theme }}"])
     </script>
 </head>
 
 <body>
 
 
-
-
 <div class="toast-container  top-0 start-50 translate-middle-x mt-2">
-  <div id="liveToast" class="toast text-bg-info" id="toast_div" role="alert" aria-live="assertive"  aria-atomic="true" data-bs-autohide="false">
-    <div class="toast-header text-bg-info" id="toast_header_div">
-      <strong class="me-auto" id="toast_title">Bootstrap</strong>
-{#      <small>11 mins ago</small>#}
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    <div id="liveToast" class="toast text-bg-info" id="toast_div" role="alert" aria-live="assertive" aria-atomic="true"
+         data-bs-autohide="false">
+        <div class="toast-header text-bg-info" id="toast_header_div">
+            <strong class="me-auto" id="toast_title">Bootstrap</strong>
+            {#      <small>11 mins ago</small>#}
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast_text">
+            Hello, world! This is a toast message.
+        </div>
     </div>
-    <div class="toast-body" id="toast_text">
-      Hello, world! This is a toast message.
-    </div>
-  </div>
 </div>
 
 
-    <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalLabel">Privacy Notice</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Do not enter any personal or identifiable information about yourself or anyone else!
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="acknowledgeBtn">Acknowledged</button>
-                </div>
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Privacy Notice</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Do not enter any personal or identifiable information about yourself or anyone else!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="acknowledgeBtn">Acknowledged</button>
             </div>
         </div>
     </div>
-
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const modal = new bootstrap.Modal(document.getElementById('privacyModal'));
-            const acknowledgeBtn = document.getElementById('acknowledgeBtn');
-
-            function checkAcknowledgment() {
-                if (!localStorage.getItem('acknowledged')) {
-                    modal.show();
-                }
-            }
-
-            acknowledgeBtn.addEventListener('click', function() {
-                localStorage.setItem('acknowledged', 'true');
-                modal.hide();
-            });
-
-            checkAcknowledgment();
-        });
-    </script>
+</div>
 
 
 <script>
-    let container_count = 2
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = new bootstrap.Modal(document.getElementById('privacyModal'));
+        const acknowledgeBtn = document.getElementById('acknowledgeBtn');
+
+        function checkAcknowledgment() {
+            if (!localStorage.getItem('acknowledged')) {
+                modal.show();
+            }
+        }
+
+        acknowledgeBtn.addEventListener('click', function () {
+            localStorage.setItem('acknowledged', 'true');
+            modal.hide();
+        });
+
+        checkAcknowledgment();
+    });
 </script>
-<div class="container-fluid" style="position:absolute; height: 100%; padding: 1em 1em 1em 2em" >
-    <div class="row" style="height: 100%; width: 100%" id ="main_content_container">
-        <div class="col-7" id ="server_content_displayer">
 
-{#            <div id="content_main_0" class="row"style="height: calc(100%); overflow-y: scroll">#}
-{##}
-{#            </div>#}
 
-            <div id="content_main_0" class="row"style="height: calc(50%); overflow-y: scroll">
+<script>
+    let container_count = 1
+</script>
+<div class="container-fluid" style="position:absolute; height: 100%; padding: 1em 1em 1em 2em">
+    <div class="row" style="height: 100%; width: 100%" id="main_content_container">
+        <div class="col-7" id="server_content_displayer">
+
+            <div id="content_main_0" class="row" style="height: calc(100%); overflow-y: scroll">
                 <div class="col-12 text-center">
-        <h2 class="text-info">Important notes</h2>
+                    <h2 class="text-info">Important notes</h2>
                     <p>
                         Do not enter any personal information or anything that could make you identifiable!<br><br>
-                        RIXA is usually very confident in its answers. But the confidence is no indication of correctness!<br>
+                        RIXA is usually very confident in its answers. But the confidence is no indication of
+                        correctness!<br>
                         Citations are not a guarantee for correct answers as the knowledge mechanism is AI based as well<br>
                         Do not take any provided information as a fact without verifying it with a reliable source<br>
-                        If you wish to get a citation try to describe the information you are looking for as detailed as possible<br>
+                        If you wish to get a citation try to describe the information you are looking for as detailed as
+                        possible<br>
                         Also avoid any spelling mistakes or abbreviations<br>
-                         <br>
-                        Above the chat window is a settings icon. Here all control elements reside, like resetting the conversation or changing the theme, etc.<br>
-                        Try to reset the chat after a maximum of 10-15 messages. Answer quality may degrade significantly after that<br>
-                        Should you encounter an error or think something should be improved, a submit bug/feedback button is in the settings menu<br>
-                    </p>
-    </div>
-            </div>
-
-            <div id="content_main_1" class="row text-center" style="height: calc(50%); overflow-y: scroll;">
-                Double clicking on a message will give detailed info about it. Sometimes its tricky to trigger, especially on unusual screen sizes<br>
-                        Try clicking different parts of the message.<br>
                         <br>
-                        The system is currently in a testing phase. Errors are to be expected. Most of them can be solved by reloading the page and starting a new conversation.<br>
-Answers can take up to 2 minutes even when the server is not under load. Please be patient.<br><br>
-                <h2 class="text-warning">System info</h2>
-                <p>{{ server_status | safe}}</p>
-
-
+                        Above the chat window is a settings icon. Here all control elements reside, like resetting the
+                        conversation or changing the theme, etc.<br>
+                        Try to reset the chat after a maximum of 10-15 messages. Answer quality may degrade
+                        significantly after that<br>
+                        Should you encounter an error or think something should be improved, a submit bug/feedback
+                        button is in the settings menu<br>
+                    </p>
+                    Double clicking on a message will give detailed info about it. Sometimes its tricky to trigger,
+                    especially on unusual screen sizes<br>
+                    Try clicking different parts of the message.<br>
+                    <br>
+                    The system is currently in a testing phase. Errors are to be expected. Most of them can be solved by
+                    reloading the page and starting a new conversation.<br>
+                    Answers can take up to 2 minutes even when the server is not under load. Please be patient.<br><br>
+                    <h2 class="text-warning">System info</h2>
+                    <p>{{ server_status | safe }}</p>
+                </div>
             </div>
+
+
         </div>
 
-{#<div style="position: absolute; right: 1%; top: 1%; z-index: 10"></div>#}
+        {#<div style="position: absolute; right: 1%; top: 1%; z-index: 10"></div>#}
         {% if chat_disabled == False %}
-        <div id="chat_container" class="col" style="height: 100%; border: 20px red;">
+            <div id="chat_container" class="col" style="height: 100%; border: 20px red;">
 
-            <div id="widget_container" class="widget shadow shadow-lg rounded-3 border-0">
-                <div id="chat_top_bar" class="container-fluid">
-                    <div class="row rounded-top" style="background: var(--bs-primary); height: 3rem">
-                        <div class="col" style="justify-content: center; display: flex; align-items: center">
-                             <button class="btn btn-info rounded-circle"  style="color: red; height: 2rem; width: 2rem; z-index: 30" type="button" data-bs-toggle="offcanvas"
-                                    data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
-                                <i class="bi bi-gear-fill" style="color: var(--bs-primary); position:relative; top: -.9rem; left: -0.75rem; font-size: 1.5rem"></i>
-                            </button>
-                        </div>
-                        <div class="col-8"
-                             style="justify-content: center; display: flex; align-items: center; font-size: 1.6rem">
-                            <span style="display: inline-flex; color:floralwhite">{{ chat_title }}</span>
-                        </div>
-
-                        <div class="col" style="justify-content: center; display: flex; align-items: center"
-                             id="close_shortcut">
-{#                            <button type="button" class="btn-close" ></button>#}
-                            <img src="{% static 'icons/delete-button.png' %}" style="width: 1.5rem;height:1.5rem">
-                        </div>
-                    </div>
-                </div>
-
-
-
-                <!--Chatbot contents goes here -->
-                <div class="chats" id="chats">
-                    <div class="clearfix"></div>
-                </div>
-
-
-                <div class="chat_input_container  border-top">
-                    <div id="textareaContainer" class="row" style="height: 100%">
-                        <div class="col-9" id="userInputDiv">
-                            <textarea class="form-control chat_input" id="userInput" placeholder="Type a message"
-                            ></textarea>
-                        </div>
-                        <div class="col" style="display: flex; align-items: center; justify-content: center">
-                            <div id="sendButtonDiv" class="btn btn-primary"
-                                 style="height: 2.5em; width: 2.5em; display: flex; align-items: center; justify-content: center">
-                                <i id="sendButton" class="bi bi-send-fill" style="font-size: 1.5em;"></i>
+                <div id="widget_container" class="widget shadow shadow-lg rounded-3 border-0">
+                    <div id="chat_top_bar" class="container-fluid">
+                        <div class="row rounded-top" style="background: var(--bs-primary); height: 3rem">
+                            <div class="col" style="justify-content: center; display: flex; align-items: center">
+                                <button class="btn btn-info rounded-circle"
+                                        style="color: red; height: 2rem; width: 2rem; z-index: 30" type="button"
+                                        data-bs-toggle="offcanvas"
+                                        data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+                                    <i class="bi bi-gear-fill"
+                                       style="color: var(--bs-primary); position:relative; top: -.9rem; left: -0.75rem; font-size: 1.5rem"></i>
+                                </button>
+                            </div>
+                            <div class="col-8"
+                                 style="justify-content: center; display: flex; align-items: center; font-size: 1.6rem">
+                                <span style="display: inline-flex; color:floralwhite">{{ chat_title }}</span>
                             </div>
 
+                            <div class="col" style="justify-content: center; display: flex; align-items: center"
+                                 id="close_shortcut">
+                                {#                            <button type="button" class="btn-close" ></button>#}
+                                <img src="{% static 'icons/delete-button.png' %}" style="width: 1.5rem;height:1.5rem">
+                            </div>
                         </div>
+                    </div>
+
+
+                    <!--Chatbot contents goes here -->
+                    <div class="chats" id="chats">
+                        <div class="clearfix"></div>
+                    </div>
+
+
+                    <div class="chat_input_container  border-top">
+                        <div id="textareaContainer" class="row" style="height: 100%">
+                            <div class="col-9" id="userInputDiv">
+                            <textarea class="form-control chat_input" id="userInput" placeholder="Type a message"
+                            ></textarea>
+                            </div>
+                            <div class="col" style="display: flex; align-items: center; justify-content: center">
+                                <div id="sendButtonDiv" class="btn btn-primary"
+                                     style="height: 2.5em; width: 2.5em; display: flex; align-items: center; justify-content: center">
+                                    <i id="sendButton" class="bi bi-send-fill" style="font-size: 1.5em;"></i>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="spinner_overlay"
+                     style="display: none; position: absolute; top: 0; right: 0%; height: 100%; width: 45%; z-index: 20; justify-content: center; align-items: center;">
+                    <div class="spinner-border text-warning" role="status" style="width: 6rem; height: 6rem">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
 
             </div>
-    <div id="spinner_overlay" style="display: none; position: absolute; top: 0; right: 0%; height: 100%; width: 45%; z-index: 20; justify-content: center; align-items: center;">
-        <div class="spinner-border text-warning" role="status" style="width: 6rem; height: 6rem">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-
-        </div>
         {% endif %}
     </div>
 </div>
 
 <img class="position-fixed bottom-0 end-0 shadow-lg rounded-circle mb-1 me-1 "
-                 id="profile_pic" src="{% static 'dashboard/bot_gui/img/botAvatar.png' %}"
-                 style="height: 10%; width: auto;display: none; z-index: 10">
+     id="profile_pic" src="{% static 'dashboard/bot_gui/img/botAvatar.png' %}"
+     style="height: 10%; width: auto;display: none; z-index: 10">
 
 {#<div style="position: absolute; right: 1%; top: 1%; z-index: 10">#}
 {#    <button class="btn btn-primary rounded-circle" type="button" data-bs-toggle="offcanvas"#}
@@ -227,8 +229,6 @@ Answers can take up to 2 minutes even when the server is not under load. Please 
 
 {% bootstrap_messages %}
 
-
-<!-- Add this to your existing HTML file -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="settingsOffcanvasLabel">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="settingsOffcanvasLabel">Settings</h5>
@@ -237,48 +237,64 @@ Answers can take up to 2 minutes even when the server is not under load. Please 
     <div class="offcanvas-body">
         <ul class="nav nav-tabs" id="settingsTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">General</button>
+                <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general"
+                        type="button" role="tab" aria-controls="general" aria-selected="true">General
+                </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="plugins-tab" data-bs-toggle="tab" data-bs-target="#plugins" type="button" role="tab" aria-controls="plugins" aria-selected="false">Plugins</button>
+                <button class="nav-link" id="plugins-tab" data-bs-toggle="tab" data-bs-target="#plugins" type="button"
+                        role="tab" aria-controls="plugins" aria-selected="false">Plugins
+                </button>
             </li>
         </ul>
         <div class="tab-content mt-3" id="settingsTabContent">
             <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
                 <div class="d-grid gap-1">
-                <!-- Existing static settings go here -->
-                <div class="form-check form-switch  d-none d-lg-block pt-1">
-                    <input class="form-check-input" type="checkbox" id="maximizeChat">
-                    <label class="form-check-label" for="maximizeChat">Maximize</label>
-                </div>
-                <div class="dropdown mt-3">
-                    <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="switchTheme" data-bs-toggle="dropdown" aria-expanded="false">
-                        Switch theme
+                    <!-- Existing static settings go here -->
+                    <div class="form-check form-switch  d-none d-lg-block pt-1">
+                        <input class="form-check-input" type="checkbox" id="maximizeChat">
+                        <label class="form-check-label" for="maximizeChat">Maximize</label>
+                    </div>
+                    <div class="dropdown mt-3">
+                        <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="switchTheme"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            Switch theme
+                        </button>
+                        <ul class="dropdown-menu w-100">
+                            <li><a class="dropdown-item" id="dark_mode">Dark</a></li>
+                            <li><a class="dropdown-item" id="light_mode">Light</a></li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-danger mt-3" onclick="clearConversations()">Delete current conversation
                     </button>
-                    <ul class="dropdown-menu w-100">
-                        <li><a class="dropdown-item" id="dark_mode">Dark</a></li>
-                        <li><a class="dropdown-item" id="light_mode">Light</a></li>
-                    </ul>
-                </div>
-                <button class="btn btn-danger mt-3" onclick="clearConversations()">Delete current conversation</button>
-                <h5>Available chat histories</h5>
-        <select class="form-select sidebarButton" aria-label="Conversation ID">
-          <option value="1">One</option>
+                    <h5>Available chat histories</h5>
+                    <select class="form-select sidebarButton" aria-label="Conversation ID">
+                        <option value="1">One</option>
+                    </select>
+                        <h5 >Available chat configurations</h5>
+        <select class="form-select sidebarButton" aria-label="Conversation ID" id="chatModeSelector">
+
+             {% for item in available_chat_modes %}
+            <option {% if item == selected_chat_mode %}selected{% endif %}>{{ item }}</option>
+            {% endfor %}
         </select>
-    <button class="btn sidebarButton"  onclick="alert('No effect')">New conversation</button>
-                <div id="authButtons" class="mt-3">
-                    <!-- Login/Logout buttons will be inserted here dynamically -->
+                    <button class="btn sidebarButton" onclick="alert('No effect')">New conversation</button>
+                    <div id="authButtons" class="mt-3">
+                        <!-- Login/Logout buttons will be inserted here dynamically -->
+                    </div>
+                    <div class="mt-4">
+                        <button id="german" class="languageButton active"
+                                onclick="changeLanguage('de')"><img src="{% static '/icons/germany.png' %}"
+                                                                    class="languageImage">
+                        </button>
+                        <button id="english" class="languageButton"
+                                onclick="changeLanguage('en')"><img src="{% static '/icons/united-kingdom.png' %}"
+                                                                    class="languageImage"></button>
+                    </div>
+                    <button class="btn btn-warning mt-3" onclick='$("#bugReport").modal("show")'>Bug report/Feedback
+                    </button>
                 </div>
-                  <div class="mt-4">
-    <button id="german" class="languageButton active"
-            onclick="changeLanguage('de')"><img src="{% static '/icons/germany.png' %}" class="languageImage">
-    </button>
-    <button id="english" class="languageButton"
-            onclick="changeLanguage('en')"><img src="{% static '/icons/united-kingdom.png' %}" class="languageImage"></button>
-</div>
-                <button class="btn btn-warning mt-3" onclick='$("#bugReport").modal("show")'>Bug report/Feedback</button>
             </div>
-                </div>
             <div class="tab-pane fade" id="plugins" role="tabpanel" aria-labelledby="plugins-tab">
                 <div id="pluginSettings"></div>
             </div>
@@ -291,22 +307,28 @@ Answers can take up to 2 minutes even when the server is not under load. Please 
     .plugin-card {
         margin-bottom: 1rem;
     }
+
     .plugin-card .card-body {
         padding: 1rem;
     }
+
     .plugin-card .form-group {
         margin-bottom: 0.5rem;
     }
+
     .offcanvas-body .nav-tabs {
         margin-bottom: 1rem;
     }
+
     .offcanvas-body .tab-content {
         height: calc(100% - 3rem);
         overflow-y: auto;
     }
+
     #general .form-check {
         padding: 0.5rem 0;
     }
+
     #authButtons .btn {
         width: 100%;
     }
@@ -314,100 +336,97 @@ Answers can take up to 2 minutes even when the server is not under load. Please 
 
 
 <script>
-$(document).ready(function() {
-    updateAuthButtons();
-    populatePluginSettings();
-    $('#pluginSettings').on('change', 'input, select', function() {
-        const pluginId = $(this).closest('.plugin-card').data('plugin-id');
-        const settingId = $(this).attr('id');
-        const value = $(this).attr('type') === 'checkbox' ? $(this).prop('checked') : $(this).val();
-
-        updatePluginSetting(pluginId, settingId, value);
+    $(document).ready(function () {
+        updateAuthButtons();
+        populatePluginSettings();
+        $('#pluginSettings').on('change', 'input, select', function () {
+            const pluginId = $(this).closest('.plugin-card').data('plugin-id');
+            let settingId = $(this).attr('id');
+            if(!settingId.startsWith(pluginId)){
+                alert("Error: Setting ID does not match plugin ID. No change has been made")
+                return
+            }
+            settingId = settingId.slice(pluginId.length + 1)
+            const value = $(this).attr('type') === 'checkbox' ? $(this).prop('checked') : $(this).val();
+            updatePluginSetting(pluginId, settingId, value);
+        });
     });
-});
 
-function updateAuthButtons() {
-    const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
-    const currentPath = "{{ request.path }}";
+    function updateAuthButtons() {
+        const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+        const currentPath = "{{ request.path }}";
 
-    if (isAuthenticated) {
-        $('#authButtons').html(`<a class="btn btn-info" href="{% url 'account_user_logout' %}?next=${currentPath}">Logout</a>`);
-    } else {
-        $('#authButtons').html(`<a class="btn btn-info" href="{% url 'account_user_login' %}?next=${currentPath}">Login</a>`);
+        if (isAuthenticated) {
+            $('#authButtons').html(`<a class="btn btn-info" href="{% url 'account_user_logout' %}?next=${currentPath}">Logout</a>`);
+        } else {
+            $('#authButtons').html(`<a class="btn btn-info" href="{% url 'account_user_login' %}?next=${currentPath}">Login</a>`);
+        }
     }
-}
 
-function populatePluginSettings() {
-    const pluginSettings = {{ plugin_settings|safe }};
-    let html = '';
+    function populatePluginSettings() {
+        const pluginSettings = {{ plugin_settings|safe }};
+        let html = '';
 
-    pluginSettings.forEach(plugin => {
-        html += `<div class="card plugin-card" data-plugin-id="${plugin.id}"><div class="card-header">${plugin.name}</div><div class="card-body">`;
-
-        plugin.settings.forEach(setting => {
-            html += `<div class="form-group">`;
-            switch (setting.type) {
-                case 'checkbox':
-                    html += `
+        for (const [pluginId, plugin] of Object.entries(pluginSettings)) {
+            if(Object.keys(plugin).length === 0 && plugin.constructor === Object){
+                continue
+            }
+            html += `<div class="card plugin-card" data-plugin-id="${pluginId}"><div class="card-header">${pluginId}</div><div class="card-body">`;
+            for (const [settingId,setting] of Object.entries(plugin)) {
+                html += `<div class="form-group">`;
+                let isReadOnly = setting.writable === 1 ? false : true;
+                if("options" in setting && setting.options !== null && setting.options.length > 0){
+                    setting.type = "select"
+                }
+                let elementID = pluginId + "_" + setting.name
+                switch (setting.type) {
+                    case 'bool':
+                        html += `
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="${setting.id}" ${setting.value ? 'checked' : ''}>
-                            <label class="form-check-label" for="${setting.id}">${setting.name}</label>
+                            <input class="form-check-input" type="checkbox" id="${elementID}" ${setting.value ? 'checked' : ''} ${isReadOnly ? "disabled" : ""}>
+                            <label class="form-check-label" for="${elementID}">${setting.user_facing_name}</label>
                         </div>
                     `;
-                    break;
-                case 'text':
-                    html += `
-                        <label for="${setting.id}">${setting.name}</label>
-                        <input type="text" class="form-control" id="${setting.id}" value="${setting.value}">
+                        break;
+                    case 'int':
+                        html += `
+                        <label for="${elementID}">${setting.name}</label>
+                        <input type="number" class="form-control" id="${elementID}" value="${setting.value}" ${isReadOnly ? "disabled" : ""}>
                     `;
-                    break;
-                case 'select':
-                    html += `
-                        <label for="${setting.id}">${setting.name}</label>
-                        <select class="form-select" id="${setting.id}">
+                        break;
+                    case 'str':
+                        html += `
+                        <label for="${elementID}">${setting.name}</label>
+                        <input type="text" class="form-control" id="${elementID}" value="${setting.value}" ${isReadOnly ? "disabled" : ""}>
                     `;
-                    setting.options.forEach(option => {
-                        html += `<option value="${option}" ${option === setting.value ? 'selected' : ''}>${option}</option>`;
-                    });
-                    html += `</select>`;
-                    break;
-            }
-            html += `</div>`;
-        });
+                        break;
+                    case 'select':
+                        html += `
+                        <label for="${elementID}">${setting.name}</label>
+                        <select class="form-select" id="${elementID}">
+                    `;
+                        setting.options.forEach(option => {
+                            html += `<option value="${option}" ${option === setting.value ? 'selected' : ''}>${option}</option>`;
+                        });
+                        html += `</select>`;
+                        break;
+                }
+                html += `</div>`;
+            };
 
-        html += `
+            html += `
                 </div>
             </div>
         `;
-    });
+        };
 
-    $('#pluginSettings').html(html);
-}
+        $('#pluginSettings').html(html);
+    }
 
-function updatePluginSetting(pluginId, settingId, value) {
-    // Here you would typically send an AJAX request to update the setting on the server
-    console.log(`Updating setting: Plugin ${pluginId}, Setting ${settingId}, Value ${value}`);
-    // Example AJAX call (uncomment and modify as needed):
-    /*
-    $.ajax({
-        url: '/update_plugin_setting/',
-        method: 'POST',
-        data: {
-            plugin_id: pluginId,
-            setting_id: settingId,
-            value: value
-        },
-        success: function(response) {
-            console.log('Setting updated successfully');
-        },
-        error: function(xhr, status, error) {
-            console.error('Error updating setting:', error);
-        }
-    });
-    */
-}
+    function updatePluginSetting(pluginId, settingId, value) {
+        send({"type": "update_plugin_setting", "plugin_id": pluginId, "setting_id": settingId, "value": value});
+    }
 </script>
-
 
 
 <div class="modal modal-lg top fade" id="citationDisplay" tabindex="-1" style="height: 100%">
@@ -432,28 +451,31 @@ function updatePluginSetting(pluginId, settingId, value) {
         <div class="modal-content d-block text-start">
             <div class="modal-body">
                 <h3>Bug report/Feedback</h3>
-                <div class="text-warning mb-1">When submitting a bug report/feedback all data regarding this conversation will be collected and manually evaluated<br></div>
+                <div class="text-warning mb-1">When submitting a bug report/feedback all data regarding this
+                    conversation will be collected and manually evaluated<br></div>
 
-                You can view all currently tracked bugs <a href="https://github.com/finnschwall/rixaplugin/issues">here</a>,
-<a href="https://github.com/finnschwall/RIXA/issues">here</a> and <a href="https://github.com/finnschwall/PyALM/issues">here</a>.
+                You can view all currently tracked bugs <a
+                    href="https://github.com/finnschwall/rixaplugin/issues">here</a>,
+                <a href="https://github.com/finnschwall/RIXA/issues">here</a> and <a
+                    href="https://github.com/finnschwall/PyALM/issues">here</a>.
                 That's just if you're interested. For support or something more pressing write rixa@iosb.fraunhofer.de
-                 <div class="mt-3">
-                        <label for="messageCloseUpContent" class="form-label">Bug report/Feedback</label>
-                        <textarea class="form-control" id="bugReportContent" rows="5" style="overflow-y: auto"
-                                  placeholder="Please describe the issue/improvable aspect as detailed as possible. Especially for bugs it is important that the situation is reproducible."></textarea>
-                    </div>
-                    <div class="mt-3">
-                        <h4>Upload of screenshot or similar</h4>
-                        Not required but can be helpful for e.g. UI issues<br>
-                        <label for="messageCloseUpContent" class="form-label">Attachment</label>
-                        <input type="file" id="bugReportAttachment" name="attachment" accept="image/*">
-                    </div>
-{#                  <form id="upload-form">#}
-{#       <input type="text" name="message">#}
-{#       <input type="file" id="image-input" name="image">#}
-{#   </form>#}
-
+                <div class="mt-3">
+                    <label for="messageCloseUpContent" class="form-label">Bug report/Feedback</label>
+                    <textarea class="form-control" id="bugReportContent" rows="5" style="overflow-y: auto"
+                              placeholder="Please describe the issue/improvable aspect as detailed as possible. Especially for bugs it is important that the situation is reproducible."></textarea>
                 </div>
+                <div class="mt-3">
+                    <h4>Upload of screenshot or similar</h4>
+                    Not required but can be helpful for e.g. UI issues<br>
+                    <label for="messageCloseUpContent" class="form-label">Attachment</label>
+                    <input type="file" id="bugReportAttachment" name="attachment" accept="image/*">
+                </div>
+                {#                  <form id="upload-form">#}
+                {#       <input type="text" name="message">#}
+                {#       <input type="file" id="image-input" name="image">#}
+                {#   </form>#}
+
+            </div>
             <div class="modal-footer" style="display: flex; justify-content: space-evenly">
 
                 <button type="button" class="btn btn-secondary" onclick="$('#bugReport').modal('toggle')">
@@ -468,8 +490,6 @@ function updatePluginSetting(pluginId, settingId, value) {
 </div>
 
 
-
-
 <div class="modal modal-lg top fade" id="messageCloseUp" tabindex="-1" style="height: 100%">
     <div class="modal-dialog">
         <div class="modal-content d-block text-start">
@@ -481,7 +501,7 @@ function updatePluginSetting(pluginId, settingId, value) {
                 </ul>
 
                 <h3 class="mt-3">Used code</h3>
-                <div class="mt-2" id="modalCodeDisplay" >
+                <div class="mt-2" id="modalCodeDisplay">
                     No code used
                 </div>
 
@@ -501,7 +521,8 @@ function updatePluginSetting(pluginId, settingId, value) {
 
                 <div class="mt-3">
                     <label for="messageCloseUpContent" class="form-label">Message content</label>
-                    <textarea class="form-control" id="messageCloseUpContent" rows="5" style="overflow-y: auto"></textarea>
+                    <textarea class="form-control" id="messageCloseUpContent" rows="5"
+                              style="overflow-y: auto"></textarea>
                 </div>
 
             </div>
@@ -525,7 +546,7 @@ function updatePluginSetting(pluginId, settingId, value) {
 </div>
 
 <style>
-    .sidebarButton{
+    .sidebarButton {
         width: 100%;
         margin-top: 1em;
     }
@@ -609,53 +630,47 @@ function updatePluginSetting(pluginId, settingId, value) {
 {#</div>#}
 
 
-
 <div class="position-fixed top-0 end-50 pt-3" style="z-index: 11">
-  <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header">
-      <strong class="me-auto">System</strong>
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close" onclick="$('#liveToast').hide()"></button>
+    <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">System</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"
+                    onclick="$('#liveToast').hide()"></button>
+        </div>
+        <div class="toast-body">
+            The message you clicked on is not part of the conversation tracker.
+        </div>
     </div>
-    <div class="toast-body">
-       The message you clicked on is not part of the conversation tracker.
-    </div>
-  </div>
 </div>
-
-
-
-
-
-
 
 
 </body>
 {% if always_maximize_chat %}
     <script>
-    toggleMaxChat()
+        toggleMaxChat()
     </script>
 {% endif %}
 
 <script>
-  let language_code = "{{CURRENT_LANGUAGE}}"
-  changeLanguageDisplay(language_code)
+    let language_code = "{{CURRENT_LANGUAGE}}"
+    changeLanguageDisplay(language_code)
 
-  function changeLanguage(x){
-    changeLanguageDisplay(x)
-      window.location.href = `/${x}`;
-    sendDataGet({"change_language":x})
-  }
-  function changeLanguageDisplay(x){
-      if(x=="de"){
-        $('#german').addClass("active")
-        $('#english').removeClass("active")
+    function changeLanguage(x) {
+        changeLanguageDisplay(x)
+        window.location.href = `/${x}`;
+        sendDataGet({"change_language": x})
+    }
 
-      }
-      else{
-        $('#english').addClass("active")
-        $('#german').removeClass("active")
+    function changeLanguageDisplay(x) {
+        if (x == "de") {
+            $('#german').addClass("active")
+            $('#english').removeClass("active")
 
-      }
-  }
+        } else {
+            $('#english').addClass("active")
+            $('#german').removeClass("active")
+
+        }
+    }
 </script>
 
