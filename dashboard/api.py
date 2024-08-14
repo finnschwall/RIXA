@@ -219,8 +219,9 @@ class ConsumerAPI(plugin_api.BaseAPI):
     async def sync_session_storage_db(self):
         await sync_to_async(self.scope["session"].save)()
 
-    async def show_message(self, message, timeout=5000, theme="info"):
+    async def show_message(self, message,  theme="info", timeout=5000):
         # Generated from ../rixawebserver/dashboard/static/dashboard/bot_gui/js/script.js:5
+        print(message, timeout, theme)
         return await self.consumer.send(
             text_data=json.dumps({"function": "showMessage", "type": "f_call", "arguments": [message, timeout, theme]}))
 

@@ -54,14 +54,15 @@ async function send(message) {
 }
 
 
-// function callFunction(data) {
-//
-//  let funcName = data["function"];
-//  let funcArgs = data["arguments"] || [];
-//  // var funcKWArgs = data["keywordArguments"] || {};
-//  // window[funcName].apply(args, [])
-//  window[funcName].apply(this, [].concat(funcArgs));
-// }
+function callFunction(data) {
+
+ let funcName = data["function"];
+ let funcArgs = data["arguments"] || [];
+ // var funcKWArgs = data["keywordArguments"] || {};
+ // window[funcName].apply(args, [])
+    console.log("Calling function", funcName, funcArgs)
+ window[funcName].apply(this, [].concat(funcArgs));
+}
 
 
 function callPluginFunction(plugin_name, function_name, args, kwargs) {
@@ -75,8 +76,10 @@ let firstDisplay = false
 function onMessageHandler(e) {
     const data = JSON.parse(e.data);
     if(data["type"]==="f_call"){
-        alert("Currently not working")
-        // callFunction(data);
+        console.log("heres")
+        console.log(data)
+        callFunction(data);
+
     }
     if("flags" in data){
         for(let i in data["flags"]){
