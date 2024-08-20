@@ -111,12 +111,12 @@ async def await_future_execution(future, api_obj, is_chat=False):
 async def plugin_interface():
     channel_layer = get_channel_layer()
     from rixaplugin.test import introspection
-    from rixaplugin.default_plugins import catbot, math#, websearch
+    #from rixaplugin.default_plugins import catbot, math#, websearch
+    from pyalm.chat import alm_plugin
 
-    from pyalm.chat import llm_server, alm_plugin
     import rixaplugin
-    rixaplugin.set_tags("catbot",["default"])
-    rixaplugin.set_tags("math", ["physics"])
+    #rixaplugin.set_tags("catbot",["default"])
+    #rixaplugin.set_tags("math", ["physics"])
     # rixaplugin.set_tags("websearch", ["websearch"])
     rixaplugin.init_plugin_system(PMF.SERVER | PMF.THREAD | PMF.LOCAL, settings.NUM_WORKER_THREADS, settings.DEBUG)
     while True:
