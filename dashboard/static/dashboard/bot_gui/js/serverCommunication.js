@@ -76,8 +76,6 @@ let firstDisplay = false
 function onMessageHandler(e) {
     const data = JSON.parse(e.data);
     if(data["type"]==="f_call"){
-        console.log("heres")
-        console.log(data)
         callFunction(data);
 
     }
@@ -166,6 +164,7 @@ function resetChatMessages(){
 }
 
 function resetUI(){
+    console.trace()
     for(let i=0; i<container_count; i++){
         $(`#content_main_${i}`).html("")
         $(`#content_main_${i}`).show()
@@ -187,7 +186,10 @@ function onErrorHandler(e){
 function onOpenHandler(e){
     $("#userInput").prop("disabled",false)
     openChat()
-    resetUI()
+    if(reconnectTries>0) {
+        showMessage(`Connection to server re-established`, 2000, "success")
+        resetUI()
+    }
     resetChatMessages()
     reconnectTries = 0
     hideBotTyping()

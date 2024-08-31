@@ -119,6 +119,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         req_type = message["type"]
 
         if req_type == "execute_plugin_code":
+
             await self.channel_layer.send(
                 "plugin_interface",
                 {
@@ -126,11 +127,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "channel_name": self.channel_name,
                     "code": message["content"],
                     "tags": self.consumer_api.get_current_tags(),
-                    "allowed_plugins": self.consumer_api.get_current_plugins(),
+                    "allowed_plugins": self.consumer_api.get_current_plugins() ,
                     "plugin_variables": self.consumer_api.get_plugin_variables(),
                 }
             )
         elif req_type == "call_plugin_function":
+
             await self.channel_layer.send(
                 "plugin_interface",
                 {
@@ -143,6 +145,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "args" : message.get("args", []),
                     "kwargs": message.get("kwargs", {}),
                 }
+
             )
         elif req_type == "usr_msg":
             self.msg_count += 1

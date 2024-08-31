@@ -134,7 +134,7 @@ async def plugin_interface():
                                                         return_future=True)
                 asyncio.create_task(await_future_execution(future, client_api))
             if obj["type"] == "execute_plugin_code":
-                scope["force_include_plugin"] = ["introspection"]
+                scope["force_include_plugin"] = ["introspection","knowledge_db"]
                 client_api = ChannelBridgeAPI(channel_layer, obj["channel_name"], scope=scope,
                                               plugin_variables=plugin_variables)
                 asyncio.create_task(await_code_execution(obj["code"][2:-1], client_api))

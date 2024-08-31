@@ -107,12 +107,12 @@ def home(request):
     executor_work = (_memory.executor.get_active_task_count()/_memory.executor.get_max_task_count())*100
     task_queue_count = _memory.executor.get_queued_task_count()
     server_status = f"""Last updated (webserver): {datetime.fromtimestamp(latest_time).strftime('%Y-%m-%d %H:%M:%S')}<br>
-DB: {"UNSTABLE. NO DATA PERSISTENCE GUARANTEE" if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3" else "OK"}<br>
+DB: {"SQLITE" if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3" else "OK"}<br>
 CHAT UTILIZATION: {executor_work:.1f}<br>
 QUEUED TASKS: {task_queue_count}<br>
-BACKEND CONNECTION?: {'openai_server' in _memory.plugins}<br>
-LLM BACKENDS: ERROR<br>
-CALLABLE PLUGINS: ERROR<br>"""
+LLM BACKENDS: MISSING<br>
+CALLABLE PLUGINS: {_memory.get_all_plugin_names()}<br>
+GONE SKYNET?: NO(t yet)<br>"""
     globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True).values_list('name', flat=True))
     user_available_chat_modes = set(request.user.rixauser.configurations_read.values_list('name', flat=True))
     available_chat_modes = list(globally_available_configs.union(user_available_chat_modes))

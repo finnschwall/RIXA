@@ -57,6 +57,7 @@ class ChatConfiguration(models.Model):
     name = models.CharField(max_length=100, unique=True)
     # tags = models.ManyToManyField(SelectionTag)
     available_to_all = models.BooleanField(default=False)
+    chat_title = models.CharField(max_length=70, blank=True)
     system_message = models.TextField(blank=True)
     first_message = models.TextField(blank=True)
     included_scopes = models.ManyToManyField(PluginScope, blank=True)

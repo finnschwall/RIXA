@@ -274,5 +274,5 @@ class ConsumerAPI(plugin_api.BaseAPI):
             data.update({"role": role, "content": f"{text}", "forced_position": False, "index": index, "citations": citations if citations else ""})
             await self.consumer.send(text_data=json.dumps(data, ensure_ascii=True))
         else:
-            raise Exception("No valid object specified for displaying!")
+            await self.consumer.send(text_data=json.dumps({"role":role, "content": "Warning: An API call was made to display something in the chat. However no content was supplied."}, ensure_ascii=True))
 
