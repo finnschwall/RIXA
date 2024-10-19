@@ -7,16 +7,15 @@
 <meta content="white" media="(prefers-color-scheme: light)" name="theme-color"/>
 <meta content="black" media="(prefers-color-scheme: dark)" name="theme-color"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>API Documentation | RIXA 0.2.1 documentation</title>
-<meta content="API Documentation | RIXA 0.2.1 documentation" property="og:title"/>
-<meta content="API Documentation | RIXA 0.2.1 documentation" name="twitter:title"/>
+<title>Plugin system integration | RIXA 0.2.1 documentation</title>
+<meta content="Plugin system integration | RIXA 0.2.1 documentation" property="og:title"/>
+<meta content="Plugin system integration | RIXA 0.2.1 documentation" name="twitter:title"/>
 <link href="../_static/pygments.css?v=8d216cef" rel="stylesheet" type="text/css"/>
 <link href="../_static/theme.css?v=edd7d3d2" rel="stylesheet" type="text/css"/>
 <link href="../_static/bugfix.css?v=ad93a5b4" rel="stylesheet" type="text/css"/>
 <link href="../search.html" rel="search" title="Search"/>
 <link href="../genindex.html" rel="index" title="Index"/>
-<link href="module_plugin_integration.html" rel="next" title="Plugin system integration"/>
-<link href="module_settings.html" rel="prev" title="Settings Documentation"/>
+<link href="module_api.html" rel="prev" title="API Documentation"/>
 <script>
     <!-- Prevent Flash of wrong theme -->
       const userPreference = localStorage.getItem('darkMode');
@@ -78,8 +77,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../structure.html">Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../websockets.html">WebSocket Communication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_settings.html">Settings Documentation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">API Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_plugin_integration.html">Plugin system integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_api.html">API Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Plugin system integration</a></li>
 </ul>
 </nav>
 </div>
@@ -99,58 +98,91 @@
 <path d="M240 856h120V616h240v240h120V496L480 316 240 496v360Zm-80 80V456l320-240 320 240v480H520V696h-80v240H160Zm320-350Z"></path>
 </svg>
 </a>
-<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap">API Documentation</span>
+<div class="mr-1">/</div><span aria-current="page" class="font-medium text-foreground overflow-hidden text-ellipsis whitespace-nowrap">Plugin system integration</span>
 </nav>
 <div id="content" role="main">
-<section id="module-dashboard.api">
-<span id="api-documentation"></span><h1>API Documentation<a class="headerlink" href="#module-dashboard.api" title="Link to this heading">¶</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="dashboard.api.ChannelBridgeAPI">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dashboard.api.</span></span><span class="sig-name descname"><span class="pre">ChannelBridgeAPI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channel_layer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">request_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plugin_variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.api.ChannelBridgeAPI" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.api.ChannelBridgeAPI'">¶</a></dt>
-<dd><p>A translation layer between the plugin API and the channel layer</p>
-<p>Picks up calls that should not go to the consumer (e.g. log calls).
-The instantiated objects of this class usually do not reside in the same process as the websocket consumer.</p>
+<section id="plugin-system-integration">
+<h1>Plugin system integration<a class="headerlink" href="#plugin-system-integration" title="Link to this heading">¶</a></h1>
+<p>The integration of the plugin system into the server is handled here.
+All other documentation regarding the plugin system is to be found
+<a class="reference external" href="https://github.com/finnschwall/rixaplugin">rixaplugin</a></p>
+<dl class="py class" id="module-dashboard.apps">
+<dt class="sig sig-object py" id="dashboard.apps.DashboardConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dashboard.apps.</span></span><span class="sig-name descname"><span class="pre">DashboardConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_module</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.apps.DashboardConfig" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.apps.DashboardConfig'">¶</a></dt>
+<dd><p>This class is the configuration class for the dashboard app.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dashboard.apps.DashboardConfig.default_auto_field">
+<span class="sig-name descname"><span class="pre">default_auto_field</span></span><a class="headerlink" href="#dashboard.apps.DashboardConfig.default_auto_field" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.apps.DashboardConfig.default_auto_field'">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dashboard.apps.DashboardConfig.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#dashboard.apps.DashboardConfig.name" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.apps.DashboardConfig.name'">¶</a></dt>
+<dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dashboard.api.ChannelBridgeAPI.show_message">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">show_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.api.ChannelBridgeAPI.show_message" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.api.ChannelBridgeAPI.show_message'">¶</a></dt>
-<dd><p>Display a message to the user.</p>
-<p>Will show a box that needs to be acknowledged before the website can be used again.
-There is always just one message box, so if a new message is shown, the old one will be replaced.
-:param message: Message to display
-:param message_type:</p>
+<dt class="sig sig-object py" id="dashboard.apps.DashboardConfig.ready">
+<span class="sig-name descname"><span class="pre">ready</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.apps.DashboardConfig.ready" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.apps.DashboardConfig.ready'">¶</a></dt>
+<dd><p>Override this method in subclasses to run code when Django starts.</p>
 </dd></dl>
 </dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="dashboard.api.ConsumerAPI">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dashboard.api.</span></span><span class="sig-name descname"><span class="pre">ConsumerAPI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">consumer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chat_modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.api.ConsumerAPI" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.api.ConsumerAPI'">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="dashboard.api.ConsumerAPI.show_message">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">show_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theme</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'info'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.api.ConsumerAPI.show_message" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.api.ConsumerAPI.show_message'">¶</a></dt>
-<dd><p>Display a message to the user.</p>
-<p>Will show a box that needs to be acknowledged before the website can be used again.
-There is always just one message box, so if a new message is shown, the old one will be replaced.
-:param message: Message to display
-:param message_type:</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.apps.await_code_execution">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dashboard.apps.</span></span><span class="sig-name descname"><span class="pre">await_code_execution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.apps.await_code_execution" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.apps.await_code_execution'">¶</a></dt>
+<dd><p>This function is used to execute code and then display the result in the chat.</p>
 </dd></dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="dashboard.api.ConsumerAPI.sync_session_storage_db">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sync_session_storage_db</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.api.ConsumerAPI.sync_session_storage_db" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.api.ConsumerAPI.sync_session_storage_db'">¶</a></dt>
-<dd><p>Sync the session storage with the database. Use sparingly!</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.apps.await_future_execution">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dashboard.apps.</span></span><span class="sig-name descname"><span class="pre">await_future_execution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">future</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_chat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.apps.await_future_execution" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.apps.await_future_execution'">¶</a></dt>
+<dd><p>This function is used to await the result of a future and then display it in the chat or the web interface.
+Required as plugin execution is always async and the result must be awaited before it can be displayed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>future</strong></p></li>
+<li><p><strong>api_obj</strong> – api_obj of user (i.e. where to send the result)</p></li>
+<li><p><strong>is_chat</strong> – Origin of future</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.apps.patch_users">
+<span class="sig-prename descclassname"><span class="pre">dashboard.apps.</span></span><span class="sig-name descname"><span class="pre">patch_users</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.apps.patch_users" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.apps.patch_users'">¶</a></dt>
+<dd><p>When creating users using the command line, the RixaUser object is not created. This function patches this.
+:return:</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.apps.patched_set_event_loop">
+<span class="sig-prename descclassname"><span class="pre">dashboard.apps.</span></span><span class="sig-name descname"><span class="pre">patched_set_event_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.apps.patched_set_event_loop" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.apps.patched_set_event_loop'">¶</a></dt>
+<dd><p>This functions hooks into djangos main event loop to start the plugin system.
+It also starts a thread to collect statistics.
+:param loop:
+:return:</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dashboard.apps.plugin_interface">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dashboard.apps.</span></span><span class="sig-name descname"><span class="pre">plugin_interface</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dashboard.apps.plugin_interface" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#dashboard.apps.plugin_interface'">¶</a></dt>
+<dd><p>This function listens to the channel layer for messages of type “plugin_interface” and then executes the
+corresponding plugin function or code.</p>
+<p>It is the “heart” of the plugin system.</p>
 </dd></dl>
 </section>
 </div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
 <div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
 <ul>
-<li><a :data-current="activeSection === '#dashboard.api.ChannelBridgeAPI'" class="reference internal" href="#dashboard.api.ChannelBridgeAPI"><code class="docutils literal notranslate"><span class="pre">ChannelBridgeAPI</span></code></a><ul>
-<li><a :data-current="activeSection === '#dashboard.api.ChannelBridgeAPI.show_message'" class="reference internal" href="#dashboard.api.ChannelBridgeAPI.show_message"><code class="docutils literal notranslate"><span class="pre">ChannelBridgeAPI.show_message()</span></code></a></li>
+<li><a :data-current="activeSection === '#dashboard.apps.DashboardConfig'" class="reference internal" href="#dashboard.apps.DashboardConfig"><code class="docutils literal notranslate"><span class="pre">DashboardConfig</span></code></a><ul>
+<li><a :data-current="activeSection === '#dashboard.apps.DashboardConfig.default_auto_field'" class="reference internal" href="#dashboard.apps.DashboardConfig.default_auto_field"><code class="docutils literal notranslate"><span class="pre">DashboardConfig.default_auto_field</span></code></a></li>
+<li><a :data-current="activeSection === '#dashboard.apps.DashboardConfig.name'" class="reference internal" href="#dashboard.apps.DashboardConfig.name"><code class="docutils literal notranslate"><span class="pre">DashboardConfig.name</span></code></a></li>
+<li><a :data-current="activeSection === '#dashboard.apps.DashboardConfig.ready'" class="reference internal" href="#dashboard.apps.DashboardConfig.ready"><code class="docutils literal notranslate"><span class="pre">DashboardConfig.ready()</span></code></a></li>
 </ul>
 </li>
-<li><a :data-current="activeSection === '#dashboard.api.ConsumerAPI'" class="reference internal" href="#dashboard.api.ConsumerAPI"><code class="docutils literal notranslate"><span class="pre">ConsumerAPI</span></code></a><ul>
-<li><a :data-current="activeSection === '#dashboard.api.ConsumerAPI.show_message'" class="reference internal" href="#dashboard.api.ConsumerAPI.show_message"><code class="docutils literal notranslate"><span class="pre">ConsumerAPI.show_message()</span></code></a></li>
-<li><a :data-current="activeSection === '#dashboard.api.ConsumerAPI.sync_session_storage_db'" class="reference internal" href="#dashboard.api.ConsumerAPI.sync_session_storage_db"><code class="docutils literal notranslate"><span class="pre">ConsumerAPI.sync_session_storage_db()</span></code></a></li>
-</ul>
-</li>
+<li><a :data-current="activeSection === '#dashboard.apps.await_code_execution'" class="reference internal" href="#dashboard.apps.await_code_execution"><code class="docutils literal notranslate"><span class="pre">await_code_execution()</span></code></a></li>
+<li><a :data-current="activeSection === '#dashboard.apps.await_future_execution'" class="reference internal" href="#dashboard.apps.await_future_execution"><code class="docutils literal notranslate"><span class="pre">await_future_execution()</span></code></a></li>
+<li><a :data-current="activeSection === '#dashboard.apps.patch_users'" class="reference internal" href="#dashboard.apps.patch_users"><code class="docutils literal notranslate"><span class="pre">patch_users()</span></code></a></li>
+<li><a :data-current="activeSection === '#dashboard.apps.patched_set_event_loop'" class="reference internal" href="#dashboard.apps.patched_set_event_loop"><code class="docutils literal notranslate"><span class="pre">patched_set_event_loop()</span></code></a></li>
+<li><a :data-current="activeSection === '#dashboard.apps.plugin_interface'" class="reference internal" href="#dashboard.apps.plugin_interface"><code class="docutils literal notranslate"><span class="pre">plugin_interface()</span></code></a></li>
 </ul>
 </div>
 </aside>

@@ -5,6 +5,11 @@
 
 Installation guide: <project:install.md>
 
+If you want to create plugins or similar, refer to [rixaplugin](https://github.com/finnschwall/rixaplugin).
+This includes significant parts of the code used here (e.g. logging, plugin communication, etc).
+
+This documentation primarily should help understand 
+
 <br><br><br>
 
 
@@ -15,11 +20,10 @@ Installation guide: <project:install.md>
 :maxdepth: 2
 plugin_tutorial.md
 structure.md
-modules/module_api.rst
-modules/module_conf.rst
+websockets.md
+
 modules/module_settings.md
-todos.md
-issues.md
-modules/module_pyro_client.md
-modules/module_plugin_manager.md
+modules/module_api.rst
+modules/module_plugin_integration.md
+
 ```

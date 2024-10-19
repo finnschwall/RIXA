@@ -7,10 +7,10 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'RIXA'
-copyright = '2023, Finn Schwall, Fraunhofer IOSB'
+copyright = '2024, Finn Schwall, Fraunhofer IOSB'
 author = 'Finn Schwall'
-version = '0.1'
-release = '0.1-alpha1'
+version = '0.2'
+release = '0.2.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -20,7 +20,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath('../..'))
 
-extensions = ['sphinx.ext.autodoc', 'myst_parser', 'sphinxcontrib.mermaid']
+extensions = ['sphinx.ext.autodoc', 'myst_parser']
 
 templates_path = ['_templates']
 exclude_patterns = []

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 
-<html :class="{'dark': darkMode === 'dark' || (darkMode === 'system' &amp;&amp; window.matchMedia('(prefers-color-scheme: dark)').matches)}" class="scroll-smooth" lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') || localStorage.setItem('darkMode', 'system'), activeSection: '' }" x-init="$watch('darkMode', val =&gt; localStorage.setItem('darkMode', val))">
+<html :class="{'dark': darkMode === 'dark' || (darkMode === 'system' &amp;&amp; window.matchMedia('(prefers-color-scheme: dark)').matches)}" class="scroll-smooth" data-content_root="./" lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') || localStorage.setItem('darkMode', 'system'), activeSection: '' }" x-init="$watch('darkMode', val =&gt; localStorage.setItem('darkMode', val))">
 <head>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta charset="utf-8"/>
 <meta content="white" media="(prefers-color-scheme: light)" name="theme-color"/>
-<meta content="black" metia="(prefers-color-scheme: dark)" name="theme-color"/>
+<meta content="black" media="(prefers-color-scheme: dark)" name="theme-color"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Installation | RIXA 0.1-alpha1 documentation</title>
-<meta content="Installation | RIXA 0.1-alpha1 documentation" property="og:title"/>
-<meta content="Installation | RIXA 0.1-alpha1 documentation" name="twitter:title"/>
-<link href="_static/pygments.css" rel="stylesheet"/>
-<link href="_static/theme.d5da1ae72e45df4c5b8e.css" rel="stylesheet"/>
-<link href="_static/bugfix.css" rel="stylesheet"/>
+<title>Installation | RIXA 0.2.1 documentation</title>
+<meta content="Installation | RIXA 0.2.1 documentation" property="og:title"/>
+<meta content="Installation | RIXA 0.2.1 documentation" name="twitter:title"/>
+<link href="_static/pygments.css?v=8d216cef" rel="stylesheet" type="text/css"/>
+<link href="_static/theme.css?v=edd7d3d2" rel="stylesheet" type="text/css"/>
+<link href="_static/bugfix.css?v=ad93a5b4" rel="stylesheet" type="text/css"/>
 <link href="search.html" rel="search" title="Search"/>
 <link href="genindex.html" rel="index" title="Index"/>
 <script>
@@ -27,17 +27,13 @@
       }
       if (!userPreference) {localStorage.setItem('darkMode', mode)}
     </script>
-<script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=a63e111b"></script>
-<script src="_static/doctools.js?v=888ff710"></script>
-<script src="_static/sphinx_highlight.js?v=4825356b"></script>
-<script defer="" src="_static/theme.83923940ee80f2e3f0bf.js"></script>
 </head>
-<body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false }">
-<div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
+<body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
+<div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
       Skip to content
     </a><header class="sticky top-0 z-40 w-full border-b shadow-sm border-border supports-backdrop-blur:bg-background/60 bg-background/95 backdrop-blur"><div class="container flex items-center h-14">
 <div class="hidden mr-4 md:flex">
-<a class="flex items-center mr-6" href="index.html"><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">RIXA 0.1-alpha1 documentation</span>
+<a class="flex items-center mr-6" href="index.html"><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">RIXA 0.2.1 documentation</span>
 </a><nav class="flex items-center space-x-6 text-sm font-medium">
 <a class="transition-colors hover:text-foreground/80 text-foreground/60" href="index.html">Home</a>
 </nav></div><button @click="showSidebar = true" class="inline-flex items-center justify-center h-10 px-0 py-2 mr-2 text-base font-medium transition-colors rounded-md hover:text-accent-foreground hover:bg-transparent md:hidden" type="button">
@@ -47,17 +43,16 @@
 <span class="sr-only">Toggle navigation menu</span>
 </button>
 <div class="flex items-center justify-between flex-1 space-x-2 sm:space-x-4 md:justify-end">
-<div class="flex-1 w-full md:w-auto md:flex-none">
-<form @keydown.k.window.meta="$refs.search.focus()" action="search.html" class="relative flex items-center group" id="searchbox" method="get">
+<div class="flex-1 w-full md:w-auto md:flex-none"><form @keydown.k.window.meta="$refs.search.focus()" action="search.html" class="relative flex items-center group" id="searchbox" method="get">
 <input aria-label="Search the docs" class="inline-flex items-center font-medium transition-colors bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background border border-input hover:bg-accent focus:bg-accent hover:text-accent-foreground focus:text-accent-foreground hover:placeholder-accent-foreground py-2 px-4 relative h-9 w-full justify-start rounded-[0.5rem] text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64" id="search-input" name="q" placeholder="Search ..." type="search" x-ref="search"/>
 <kbd class="pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none text-muted-foreground items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex group-hover:bg-accent group-hover:text-accent-foreground">
 <span class="text-xs">⌘</span>
-      K
-    </kbd>
+    K
+  </kbd>
 </form>
 </div>
 <nav class="flex items-center space-x-1">
-<button @click="darkMode = darkMode === 'light' ? 'dark' : 'light'" class="relative inline-flex items-center justify-center px-0 text-sm font-medium transition-colors rounded-md hover:bg-accent hover:text-accent-foreground h-9 w-9" type="button">
+<button @click="darkMode = darkMode === 'light' ? 'dark' : 'light'" aria-label="Color theme switcher" class="relative inline-flex items-center justify-center px-0 text-sm font-medium transition-colors rounded-md hover:bg-accent hover:text-accent-foreground h-9 w-9" type="button">
 <svg class="absolute transition-all scale-100 rotate-0 dark:-rotate-90 dark:scale-0" fill="currentColor" height="24" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
 <path d="M480 685q45.456 0 77.228-31.772Q589 621.456 589 576q0-45.456-31.772-77.228Q525.456 467 480 467q-45.456 0-77.228 31.772Q371 530.544 371 576q0 45.456 31.772 77.228Q434.544 685 480 685Zm0 91q-83 0-141.5-58.5T280 576q0-83 58.5-141.5T480 376q83 0 141.5 58.5T680 576q0 83-58.5 141.5T480 776ZM80 621.5q-19.152 0-32.326-13.174T34.5 576q0-19.152 13.174-32.326T80 530.5h80q19.152 0 32.326 13.174T205.5 576q0 19.152-13.174 32.326T160 621.5H80Zm720 0q-19.152 0-32.326-13.174T754.5 576q0-19.152 13.174-32.326T800 530.5h80q19.152 0 32.326 13.174T925.5 576q0 19.152-13.174 32.326T880 621.5h-80Zm-320-320q-19.152 0-32.326-13.174T434.5 256v-80q0-19.152 13.174-32.326T480 130.5q19.152 0 32.326 13.174T525.5 176v80q0 19.152-13.174 32.326T480 301.5Zm0 720q-19.152 0-32.326-13.17Q434.5 995.152 434.5 976v-80q0-19.152 13.174-32.326T480 850.5q19.152 0 32.326 13.174T525.5 896v80q0 19.152-13.174 32.33-13.174 13.17-32.326 13.17ZM222.174 382.065l-43-42Q165.5 327.391 166 308.239t13.174-33.065q13.435-13.674 32.587-13.674t32.065 13.674l42.239 43q12.674 13.435 12.555 31.706-.12 18.272-12.555 31.946-12.674 13.674-31.445 13.413-18.772-.261-32.446-13.174Zm494 494.761-42.239-43q-12.674-13.435-12.674-32.087t12.674-31.565Q686.609 756.5 705.38 757q18.772.5 32.446 13.174l43 41.761Q794.5 824.609 794 843.761t-13.174 33.065Q767.391 890.5 748.239 890.5t-32.065-13.674Zm-42-494.761Q660.5 369.391 661 350.62q.5-18.772 13.174-32.446l41.761-43Q728.609 261.5 747.761 262t33.065 13.174q13.674 13.435 13.674 32.587t-13.674 32.065l-43 42.239q-13.435 12.674-31.706 12.555-18.272-.12-31.946-12.555Zm-495 494.761Q165.5 863.391 165.5 844.239t13.674-32.065l43-42.239q13.435-12.674 32.087-12.674t31.565 12.674Q299.5 782.609 299 801.38q-.5 18.772-13.174 32.446l-41.761 43Q231.391 890.5 212.239 890t-33.065-13.174ZM480 576Z"></path>
 </svg>
@@ -70,7 +65,7 @@
 </div>
 </header>
 <div class="flex-1"><div class="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10"><aside :aria-hidden="!showSidebar" :class="{ 'translate-x-0': showSidebar }" class="fixed inset-y-0 left-0 md:top-14 z-50 md:z-30 bg-background md:bg-transparent transition-all duration-100 -translate-x-full md:translate-x-0 ml-0 p-6 md:p-0 md:-ml-2 md:h-[calc(100vh-3.5rem)] w-5/6 md:w-full shrink-0 overflow-y-auto border-r border-border md:sticky" id="left-sidebar">
-<a class="!justify-start text-sm md:!hidden bg-background" href="index.html"><span class="font-bold text-clip whitespace-nowrap">RIXA 0.1-alpha1 documentation</span>
+<a class="!justify-start text-sm md:!hidden bg-background" href="index.html"><span class="font-bold text-clip whitespace-nowrap">RIXA 0.2.1 documentation</span>
 </a>
 <div class="relative overflow-hidden md:overflow-auto my-4 md:my-0 h-[calc(100vh-8rem)] md:h-auto">
 <div class="overflow-y-auto h-full w-full relative pr-6"><nav class="flex md:hidden flex-col font-medium mt-4">
@@ -79,13 +74,10 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="plugin_tutorial.html">Plugin programming quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="structure.html">Structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules/module_api.html">API Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules/module_conf.html">Log documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="websockets.html">WebSocket Communication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/module_settings.html">Settings Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="todos.html">Todos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="issues.html">Issues</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules/module_pyro_client.html">Pyro async client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules/module_plugin_manager.html">Plugin system internals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/module_api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/module_plugin_integration.html">Plugin system integration</a></li>
 </ul>
 </nav>
 </div>
@@ -100,7 +92,7 @@
 <div class="w-full min-w-0 mx-auto">
 <nav aria-label="breadcrumbs" class="flex items-center mb-4 space-x-1 text-sm text-muted-foreground">
 <a class="overflow-hidden text-ellipsis whitespace-nowrap hover:text-foreground" href="index.html">
-<span class="hidden md:inline">RIXA 0.1-alpha1 documentation</span>
+<span class="hidden md:inline">RIXA 0.2.1 documentation</span>
 <svg aria-label="Home" class="md:hidden" fill="currentColor" height="18" stroke="none" viewbox="0 96 960 960" width="18" xmlns="http://www.w3.org/2000/svg">
 <path d="M240 856h120V616h240v240h120V496L480 316 240 496v360Zm-80 80V456l320-240 320 240v480H520V696h-80v240H160Zm320-350Z"></path>
 </svg>
@@ -109,64 +101,64 @@
 </nav>
 <div id="content" role="main">
 <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h1>
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h1>
 <h1><img height="100" src="https://cdn-icons-png.flaticon.com/512/3261/3261386.png" width="100"/>Broken page!</h1>
 <section id="python-version">
-<h2>Python Version<a class="headerlink" href="#python-version" title="Permalink to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#python-version'">¶</a></h2>
+<h2>Python Version<a class="headerlink" href="#python-version" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#python-version'">¶</a></h2>
 <p>The primary python version for the server is <code class="docutils literal notranslate"><span class="pre">3.1.1</span></code>. But it <em>should</em> run on all python versions &gt; 3. More on that in <a class="reference internal" href="#pyenv-target"><span class="xref myst">pyenv</span></a></p>
 </section>
 <section id="preparing-the-environment">
-<h2>Preparing the environment<a class="headerlink" href="#preparing-the-environment" title="Permalink to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#preparing-the-environment'">¶</a></h2>
+<h2>Preparing the environment<a class="headerlink" href="#preparing-the-environment" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#preparing-the-environment'">¶</a></h2>
 <section id="quick-way">
-<h3>Quick way<a class="headerlink" href="#quick-way" title="Permalink to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#quick-way'">¶</a></h3>
+<h3>Quick way<a class="headerlink" href="#quick-way" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#quick-way'">¶</a></h3>
 <p>Likely there is venv on your system. So you can simply install the requirements and then run the server.
 That looks something like this</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Installing requirements for building python"</span>
-sudo<span class="w"> </span>apt<span class="w"> </span>update<span class="p">;</span><span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>build-essential<span class="w"> </span>libssl-dev<span class="w"> </span>zlib1g-dev<span class="w"> </span><span class="se">\</span>
-libbz2-dev<span class="w"> </span>libreadline-dev<span class="w"> </span>libsqlite3-dev<span class="w"> </span>curl<span class="w"> </span><span class="se">\</span>
-libncursesw5-dev<span class="w"> </span>xz-utils<span class="w"> </span>tk-dev<span class="w"> </span>libxml2-dev<span class="w"> </span>libxmlsec1-dev<span class="w"> </span>libffi-dev<span class="w"> </span>liblzma-dev
-
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"Installing pyenv"</span>
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/pyenv/pyenv.git<span class="w"> </span>~/.pyenv
-<span class="nb">cd</span><span class="w"> </span>~/.pyenv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>src/configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>-C<span class="w"> </span>src
-
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"Installing venv support plugin for pyenv"</span>
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/pyenv/pyenv-virtualenv.git<span class="w"> </span><span class="k">$(</span>pyenv<span class="w"> </span>root<span class="k">)</span>/plugins/pyenv-virtualenv
-
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"Setting up bash integration"</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s1">'export PYENV_ROOT="$HOME/.pyenv"'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
-<span class="nb">echo</span><span class="w"> </span><span class="s1">'command -v pyenv &gt;/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
-<span class="nb">echo</span><span class="w"> </span><span class="s1">'eval "$(pyenv init -)"'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
-<span class="nb">echo</span><span class="w"> </span><span class="s1">'eval "$(pyenv virtualenv-init -)"'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
-
-<span class="c1">#load new vars into bash</span>
-<span class="nb">source</span><span class="w"> </span>~/.bashrc
-
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"Installing and setting up RIXA server"</span>
-pyenv<span class="w"> </span>install<span class="w"> </span><span class="m">3</span>.11
-pyenv<span class="w"> </span>shell<span class="w"> </span><span class="m">3</span>.11
-pyenv<span class="w"> </span>virtualenv<span class="w"> </span>rixa_webserver
-pyenv<span class="w"> </span>virtualenv<span class="w"> </span>rixa_plugins
-
-pyenv<span class="w"> </span>activate<span class="w"> </span>rixa_webserver
-git<span class="w"> </span>clone<span class="w"> </span>https://gitlab.cc-asp.fraunhofer.de/xai-hiwi/rixa/rixawebserver.git
-pip3<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev<span class="o">]</span>
-
-pyenv<span class="w"> </span>deactivate
-
-pyenv<span class="w"> </span>activate<span class="w"> </span>rixa_plugins
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"Installing requirements for standard plugins"</span>
-pip3<span class="w"> </span>install<span class="w"> </span>pyro5<span class="w"> </span>sympy<span class="w"> </span>sentence_transformers<span class="w"> </span>pandas<span class="w"> </span>plotly
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"Use this path + '/bins/python3' for the 'venv_path' attribute for all the standard plugins."</span>
-<span class="nb">echo</span><span class="w"> </span>pyenv<span class="w"> </span>prefix<span class="w"> </span>rixa_plugins
-pyenv<span class="w"> </span>deactivate
-</pre></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nb">echo</span><span class="w"> </span><span class="s2">"Installing requirements for building python"</span>
+</span><span id="line-2">sudo<span class="w"> </span>apt<span class="w"> </span>update<span class="p">;</span><span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>build-essential<span class="w"> </span>libssl-dev<span class="w"> </span>zlib1g-dev<span class="w"> </span><span class="se">\</span>
+</span><span id="line-3">libbz2-dev<span class="w"> </span>libreadline-dev<span class="w"> </span>libsqlite3-dev<span class="w"> </span>curl<span class="w"> </span><span class="se">\</span>
+</span><span id="line-4">libncursesw5-dev<span class="w"> </span>xz-utils<span class="w"> </span>tk-dev<span class="w"> </span>libxml2-dev<span class="w"> </span>libxmlsec1-dev<span class="w"> </span>libffi-dev<span class="w"> </span>liblzma-dev
+</span><span id="line-5">
+</span><span id="line-6"><span class="nb">echo</span><span class="w"> </span><span class="s2">"Installing pyenv"</span>
+</span><span id="line-7">git<span class="w"> </span>clone<span class="w"> </span>https://github.com/pyenv/pyenv.git<span class="w"> </span>~/.pyenv
+</span><span id="line-8"><span class="nb">cd</span><span class="w"> </span>~/.pyenv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>src/configure<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>-C<span class="w"> </span>src
+</span><span id="line-9">
+</span><span id="line-10"><span class="nb">echo</span><span class="w"> </span><span class="s2">"Installing venv support plugin for pyenv"</span>
+</span><span id="line-11">git<span class="w"> </span>clone<span class="w"> </span>https://github.com/pyenv/pyenv-virtualenv.git<span class="w"> </span><span class="k">$(</span>pyenv<span class="w"> </span>root<span class="k">)</span>/plugins/pyenv-virtualenv
+</span><span id="line-12">
+</span><span id="line-13"><span class="nb">echo</span><span class="w"> </span><span class="s2">"Setting up bash integration"</span>
+</span><span id="line-14"><span class="nb">echo</span><span class="w"> </span><span class="s1">'export PYENV_ROOT="$HOME/.pyenv"'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+</span><span id="line-15"><span class="nb">echo</span><span class="w"> </span><span class="s1">'command -v pyenv &gt;/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+</span><span id="line-16"><span class="nb">echo</span><span class="w"> </span><span class="s1">'eval "$(pyenv init -)"'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+</span><span id="line-17"><span class="nb">echo</span><span class="w"> </span><span class="s1">'eval "$(pyenv virtualenv-init -)"'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+</span><span id="line-18">
+</span><span id="line-19"><span class="c1">#load new vars into bash</span>
+</span><span id="line-20"><span class="nb">source</span><span class="w"> </span>~/.bashrc
+</span><span id="line-21">
+</span><span id="line-22"><span class="nb">echo</span><span class="w"> </span><span class="s2">"Installing and setting up RIXA server"</span>
+</span><span id="line-23">pyenv<span class="w"> </span>install<span class="w"> </span><span class="m">3</span>.11
+</span><span id="line-24">pyenv<span class="w"> </span>shell<span class="w"> </span><span class="m">3</span>.11
+</span><span id="line-25">pyenv<span class="w"> </span>virtualenv<span class="w"> </span>rixa_webserver
+</span><span id="line-26">pyenv<span class="w"> </span>virtualenv<span class="w"> </span>rixa_plugins
+</span><span id="line-27">
+</span><span id="line-28">pyenv<span class="w"> </span>activate<span class="w"> </span>rixa_webserver
+</span><span id="line-29">git<span class="w"> </span>clone<span class="w"> </span>https://gitlab.cc-asp.fraunhofer.de/xai-hiwi/rixa/rixawebserver.git
+</span><span id="line-30">pip3<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev<span class="o">]</span>
+</span><span id="line-31">
+</span><span id="line-32">pyenv<span class="w"> </span>deactivate
+</span><span id="line-33">
+</span><span id="line-34">pyenv<span class="w"> </span>activate<span class="w"> </span>rixa_plugins
+</span><span id="line-35"><span class="nb">echo</span><span class="w"> </span><span class="s2">"Installing requirements for standard plugins"</span>
+</span><span id="line-36">pip3<span class="w"> </span>install<span class="w"> </span>pyro5<span class="w"> </span>sympy<span class="w"> </span>sentence_transformers<span class="w"> </span>pandas<span class="w"> </span>plotly
+</span><span id="line-37"><span class="nb">echo</span><span class="w"> </span><span class="s2">"Use this path + '/bins/python3' for the 'venv_path' attribute for all the standard plugins."</span>
+</span><span id="line-38"><span class="nb">echo</span><span class="w"> </span>pyenv<span class="w"> </span>prefix<span class="w"> </span>rixa_plugins
+</span><span id="line-39">pyenv<span class="w"> </span>deactivate
+</span></code></pre></div>
 </div>
 </section>
 </section>
 </section>
 </div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
-<div class="sticky top-16 -mt-10 max-h-[calc(var(--vh)-4rem)] overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
+<div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
 <ul>
 <li><a :data-current="activeSection === '#python-version'" class="reference internal" href="#python-version">Python Version</a></li>
 <li><a :data-current="activeSection === '#preparing-the-environment'" class="reference internal" href="#preparing-the-environment">Preparing the environment</a><ul>
@@ -181,10 +173,14 @@ pyenv<span class="w"> </span>deactivate
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2023, Finn Schwall, Fraunhofer IOSB Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 7.1.2</a></p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, Finn Schwall, Fraunhofer IOSB Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
 </div>
+<script src="_static/documentation_options.js?v=37f418d5"></script>
+<script src="_static/doctools.js?v=9bcbadda"></script>
+<script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+<script defer="defer" src="_static/theme.js?v=1808ab49"></script>
 </body>
 </html>

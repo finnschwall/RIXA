@@ -23,6 +23,10 @@ loader_log = logging.getLogger("loader")
 plugin_web_log = logging.getLogger("rixa.plugin_web")
 
 def patch_users():
+    """
+    When creating users using the command line, the RixaUser object is not created. This function patches this.
+    :return:
+    """
     from account_managment.models import RixaUser
     from django.contrib.auth import get_user_model
     User = get_user_model()
@@ -34,6 +38,9 @@ def patch_users():
 
 
 class DashboardConfig(AppConfig):
+    """
+    This class is the configuration class for the dashboard app.
+    """
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'dashboard'
 
@@ -60,6 +67,12 @@ original_set_event_loop = asyncio.set_event_loop
 
 
 def patched_set_event_loop(loop):
+    """
+    This functions hooks into djangos main event loop to start the plugin system.
+    It also starts a thread to collect statistics.
+    :param loop:
+    :return:
+    """
     original_set_event_loop(loop)
     loop.create_task(plugin_interface())
     t = threading.Thread(name='collect_user_info', target=account_managment.visit_statistics.collect_user_info)
@@ -71,6 +84,10 @@ asyncio.set_event_loop = patched_set_event_loop
 
 
 async def await_code_execution(code, api_obj):
+    """
+    This function is used to execute code and then display the result in the chat.
+
+    """
     try:
         fut = await rixaplugin.async_execute_code(code, api_obj=api_obj, return_future=True)
         ret_val = await fut
@@ -89,6 +106,15 @@ async def await_code_execution(code, api_obj):
 
 
 async def await_future_execution(future, api_obj, is_chat=False):
+    """
+    This function is used to await the result of a future and then display it in the chat or the web interface.
+    Required as plugin execution is always async and the result must be awaited before it can be displayed.
+
+    :param future:
+    :param api_obj: api_obj of user (i.e. where to send the result)
+    :param is_chat: Origin of future
+    :return:
+    """
     try:
         ret_val = await future
         if is_chat:
@@ -109,6 +135,12 @@ async def await_future_execution(future, api_obj, is_chat=False):
 
 
 async def plugin_interface():
+    """
+    This function listens to the channel layer for messages of type "plugin_interface" and then executes the
+    corresponding plugin function or code.
+
+    It is the "heart" of the plugin system.
+    """
     channel_layer = get_channel_layer()
     from rixaplugin.test import introspection
     #from rixaplugin.default_plugins import catbot, math#, websearch

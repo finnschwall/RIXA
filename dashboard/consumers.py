@@ -16,6 +16,8 @@ import re
 
 from django.contrib.auth import get_user_model
 
+from rixaplugin import _memory
+
 from RIXAWebserver import settings
 from account_managment.visit_statistics import SessionStatistics
 
@@ -230,11 +232,86 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                                      theme="error")
 
         elif req_type == "delete_current_tracker":
-            # self.consumer_api.delete_current_tracker()
             await self.consumer_api.new_chat()
             for i in self.consumer_api.get_active_conversation():
                 await self.consumer_api.display_in_chat(tracker_entry=i)
             await sync_to_async(self.scope["session"].save)()
+        elif req_type == "get_chat_modes":
+            available_chat_modes = await sync_to_async(get_chat_configs)(self.scope["user"])
+            await self.send(json.dumps({"role": "chat_modes", "content": available_chat_modes}))
+        elif req_type == "get_plugin_settings":
+            # each plugins can have settings. They have global values that are overwritten by user values
+            plugin_settings = _memory.get_all_variables()
+            user_settings = self.scope["session"].get("plugin_variables", {})
+            for key, val in user_settings.items():
+                if key in plugin_settings:
+                    for varkey, varval in val.items():
+                        if varkey in plugin_settings[key]:
+                            plugin_settings[key][varkey]["value"] = varval
+            await self.send(json.dumps({"role": "plugin_settings", "content": plugin_settings}))
+        elif req_type == "user_settings":
+            # settings unrelated to any specific plugin
+            user_settings = self.scope["session"].get("settings", None)
+            if not user_settings:
+                user_logger.critical(f"User {self.scope['user'].username} has no settings")
+                await self.consumer_api.show_message("No user settings found. Please reset the page (usually with F5+ctrl", theme="error")
+            enable_function_calls = user_settings.get("enable_function_calls", True)
+            enable_knowledge_retrieval = user_settings.get("enable_knowledge_retrieval", True)
+            selected_chat_mode = user_settings.get("selected_chat_mode", "default")
+            settings_dict = {"enable_function_calls": enable_function_calls, "enable_knowledge_retrieval": enable_knowledge_retrieval,
+                             "selected_chat_mode": selected_chat_mode}
+            await self.send(json.dumps({"role": "user_settings", "content": settings_dict}))
+        elif req_type == "get_utilization_info":
+            executor_work = (_memory.executor.get_active_task_count() / _memory.executor.get_max_task_count()) * 100
+            task_queue_count = _memory.executor.get_queued_task_count()
+            git_commit = _memory.version
+            database_engine = {"SQLITE" if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3" else "OK"}
+            globally_available_plugins = _memory.get_all_plugin_names()
+            util_dict = {"executor_work": executor_work, "task_queue_count": task_queue_count, "git_commit": git_commit,
+                            "database_engine": database_engine, "globally_available_plugins": globally_available_plugins}
+            await self.send(json.dumps({"role": "utilization_info", "content": util_dict}))
+        elif req_type == "get_global_settings":
+            await self.send(json.dumps({"role": "global_settings", "content": {"chat_disabled": settings.DISABLE_CHAT,
+                                                                             "website_title": settings.WEBSITE_TITLE,
+                                                                             "chat_title": settings.CHAT_TITLE,
+                                                                             "always_maximize_chat": settings.ALWAYS_MAXIMIZE_CHAT,
+                                                                             "theme": settings.BOOTSTRAP_THEME,
+                                                                               "server_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}))
+        elif req_type == "get_chat_start_info":
+            selected_chat_mode = message.get("selected_chat_mode", None)
+
+            chat_start_info = await sync_to_async(get_chat_start_info)(selected_chat_mode)
+            if not chat_start_info:
+                user_logger.error(f"User {self.scope['user'].username} sent a non-existing chat mode: {selected_chat_mode}")
+                await self.consumer_api.show_message("The selected chat mode does not exist. Maybe it has been removed?", theme="error")
+                return
+            await self.send(json.dumps({"role": "plugin_startup_info", "content": chat_start_info}))
+
+        else:
+            user_logger.error(f"Received unknown message type: {req_type} from user {self.scope['user'].username}")
+
+
+def get_chat_start_info(selected_chat_mode):
+    if not selected_chat_mode:
+        return None
+    try:
+        chat_title = ChatConfiguration.objects.get(name=selected_chat_mode).chat_title
+    except:
+        user_logger.exception(f"Tried to retrieve chat start info for non-existing chat mode: {selected_chat_mode}")
+        return None
+    # just a placeholder for now
+    custom_ui = None
+    onboarding_message = None
+    chat_start_dict = {"chat_title": chat_title, "custom_ui": custom_ui, onboarding_message: onboarding_message}
+    return chat_start_dict
+
+
+def get_chat_configs(user):
+    globally_available_configs = set(
+        ChatConfiguration.objects.filter(available_to_all=True).values_list('name', flat=True))
+    user_available_chat_modes = set(user.rixauser.configurations_read.values_list('name', flat=True))
+    available_chat_modes = list(globally_available_configs.union(user_available_chat_modes))
+    return available_chat_modes
 
 
 

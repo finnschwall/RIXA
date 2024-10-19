@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 
-<html :class="{'dark': darkMode === 'dark' || (darkMode === 'system' &amp;&amp; window.matchMedia('(prefers-color-scheme: dark)').matches)}" class="scroll-smooth" lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') || localStorage.setItem('darkMode', 'system'), activeSection: '' }" x-init="$watch('darkMode', val =&gt; localStorage.setItem('darkMode', val))">
+<html :class="{'dark': darkMode === 'dark' || (darkMode === 'system' &amp;&amp; window.matchMedia('(prefers-color-scheme: dark)').matches)}" class="scroll-smooth" data-content_root="./" lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') || localStorage.setItem('darkMode', 'system'), activeSection: '' }" x-init="$watch('darkMode', val =&gt; localStorage.setItem('darkMode', val))">
 <head>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta charset="utf-8"/>
 <meta content="white" media="(prefers-color-scheme: light)" name="theme-color"/>
-<meta content="black" metia="(prefers-color-scheme: dark)" name="theme-color"/>
+<meta content="black" media="(prefers-color-scheme: dark)" name="theme-color"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Plugin programming quickstart | RIXA 0.1-alpha1 documentation</title>
-<meta content="Plugin programming quickstart | RIXA 0.1-alpha1 documentation" property="og:title"/>
-<meta content="Plugin programming quickstart | RIXA 0.1-alpha1 documentation" name="twitter:title"/>
-<link href="_static/pygments.css" rel="stylesheet"/>
-<link href="_static/theme.d5da1ae72e45df4c5b8e.css" rel="stylesheet"/>
-<link href="_static/bugfix.css" rel="stylesheet"/>
+<title>Plugin programming quickstart | RIXA 0.2.1 documentation</title>
+<meta content="Plugin programming quickstart | RIXA 0.2.1 documentation" property="og:title"/>
+<meta content="Plugin programming quickstart | RIXA 0.2.1 documentation" name="twitter:title"/>
+<link href="_static/pygments.css?v=8d216cef" rel="stylesheet" type="text/css"/>
+<link href="_static/theme.css?v=edd7d3d2" rel="stylesheet" type="text/css"/>
+<link href="_static/bugfix.css?v=ad93a5b4" rel="stylesheet" type="text/css"/>
 <link href="search.html" rel="search" title="Search"/>
 <link href="genindex.html" rel="index" title="Index"/>
 <link href="structure.html" rel="next" title="Structure"/>
@@ -29,17 +29,13 @@
       }
       if (!userPreference) {localStorage.setItem('darkMode', mode)}
     </script>
-<script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=a63e111b"></script>
-<script src="_static/doctools.js?v=888ff710"></script>
-<script src="_static/sphinx_highlight.js?v=4825356b"></script>
-<script defer="" src="_static/theme.83923940ee80f2e3f0bf.js"></script>
 </head>
-<body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false }">
-<div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
+<body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
+<div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
       Skip to content
     </a><header class="sticky top-0 z-40 w-full border-b shadow-sm border-border supports-backdrop-blur:bg-background/60 bg-background/95 backdrop-blur"><div class="container flex items-center h-14">
 <div class="hidden mr-4 md:flex">
-<a class="flex items-center mr-6" href="index.html"><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">RIXA 0.1-alpha1 documentation</span>
+<a class="flex items-center mr-6" href="index.html"><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">RIXA 0.2.1 documentation</span>
 </a><nav class="flex items-center space-x-6 text-sm font-medium">
 <a class="transition-colors hover:text-foreground/80 text-foreground/60" href="index.html">Home</a>
 </nav></div><button @click="showSidebar = true" class="inline-flex items-center justify-center h-10 px-0 py-2 mr-2 text-base font-medium transition-colors rounded-md hover:text-accent-foreground hover:bg-transparent md:hidden" type="button">
@@ -49,17 +45,16 @@
 <span class="sr-only">Toggle navigation menu</span>
 </button>
 <div class="flex items-center justify-between flex-1 space-x-2 sm:space-x-4 md:justify-end">
-<div class="flex-1 w-full md:w-auto md:flex-none">
-<form @keydown.k.window.meta="$refs.search.focus()" action="search.html" class="relative flex items-center group" id="searchbox" method="get">
+<div class="flex-1 w-full md:w-auto md:flex-none"><form @keydown.k.window.meta="$refs.search.focus()" action="search.html" class="relative flex items-center group" id="searchbox" method="get">
 <input aria-label="Search the docs" class="inline-flex items-center font-medium transition-colors bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background border border-input hover:bg-accent focus:bg-accent hover:text-accent-foreground focus:text-accent-foreground hover:placeholder-accent-foreground py-2 px-4 relative h-9 w-full justify-start rounded-[0.5rem] text-sm text-muted-foreground sm:pr-12 md:w-40 lg:w-64" id="search-input" name="q" placeholder="Search ..." type="search" x-ref="search"/>
 <kbd class="pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none text-muted-foreground items-center gap-1 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex group-hover:bg-accent group-hover:text-accent-foreground">
 <span class="text-xs">⌘</span>
-      K
-    </kbd>
+    K
+  </kbd>
 </form>
 </div>
 <nav class="flex items-center space-x-1">
-<button @click="darkMode = darkMode === 'light' ? 'dark' : 'light'" class="relative inline-flex items-center justify-center px-0 text-sm font-medium transition-colors rounded-md hover:bg-accent hover:text-accent-foreground h-9 w-9" type="button">
+<button @click="darkMode = darkMode === 'light' ? 'dark' : 'light'" aria-label="Color theme switcher" class="relative inline-flex items-center justify-center px-0 text-sm font-medium transition-colors rounded-md hover:bg-accent hover:text-accent-foreground h-9 w-9" type="button">
 <svg class="absolute transition-all scale-100 rotate-0 dark:-rotate-90 dark:scale-0" fill="currentColor" height="24" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
 <path d="M480 685q45.456 0 77.228-31.772Q589 621.456 589 576q0-45.456-31.772-77.228Q525.456 467 480 467q-45.456 0-77.228 31.772Q371 530.544 371 576q0 45.456 31.772 77.228Q434.544 685 480 685Zm0 91q-83 0-141.5-58.5T280 576q0-83 58.5-141.5T480 376q83 0 141.5 58.5T680 576q0 83-58.5 141.5T480 776ZM80 621.5q-19.152 0-32.326-13.174T34.5 576q0-19.152 13.174-32.326T80 530.5h80q19.152 0 32.326 13.174T205.5 576q0 19.152-13.174 32.326T160 621.5H80Zm720 0q-19.152 0-32.326-13.174T754.5 576q0-19.152 13.174-32.326T800 530.5h80q19.152 0 32.326 13.174T925.5 576q0 19.152-13.174 32.326T880 621.5h-80Zm-320-320q-19.152 0-32.326-13.174T434.5 256v-80q0-19.152 13.174-32.326T480 130.5q19.152 0 32.326 13.174T525.5 176v80q0 19.152-13.174 32.326T480 301.5Zm0 720q-19.152 0-32.326-13.17Q434.5 995.152 434.5 976v-80q0-19.152 13.174-32.326T480 850.5q19.152 0 32.326 13.174T525.5 896v80q0 19.152-13.174 32.33-13.174 13.17-32.326 13.17ZM222.174 382.065l-43-42Q165.5 327.391 166 308.239t13.174-33.065q13.435-13.674 32.587-13.674t32.065 13.674l42.239 43q12.674 13.435 12.555 31.706-.12 18.272-12.555 31.946-12.674 13.674-31.445 13.413-18.772-.261-32.446-13.174Zm494 494.761-42.239-43q-12.674-13.435-12.674-32.087t12.674-31.565Q686.609 756.5 705.38 757q18.772.5 32.446 13.174l43 41.761Q794.5 824.609 794 843.761t-13.174 33.065Q767.391 890.5 748.239 890.5t-32.065-13.674Zm-42-494.761Q660.5 369.391 661 350.62q.5-18.772 13.174-32.446l41.761-43Q728.609 261.5 747.761 262t33.065 13.174q13.674 13.435 13.674 32.587t-13.674 32.065l-43 42.239q-13.435 12.674-31.706 12.555-18.272-.12-31.946-12.555Zm-495 494.761Q165.5 863.391 165.5 844.239t13.674-32.065l43-42.239q13.435-12.674 32.087-12.674t31.565 12.674Q299.5 782.609 299 801.38q-.5 18.772-13.174 32.446l-41.761 43Q231.391 890.5 212.239 890t-33.065-13.174ZM480 576Z"></path>
 </svg>
@@ -72,7 +67,7 @@
 </div>
 </header>
 <div class="flex-1"><div class="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10"><aside :aria-hidden="!showSidebar" :class="{ 'translate-x-0': showSidebar }" class="fixed inset-y-0 left-0 md:top-14 z-50 md:z-30 bg-background md:bg-transparent transition-all duration-100 -translate-x-full md:translate-x-0 ml-0 p-6 md:p-0 md:-ml-2 md:h-[calc(100vh-3.5rem)] w-5/6 md:w-full shrink-0 overflow-y-auto border-r border-border md:sticky" id="left-sidebar">
-<a class="!justify-start text-sm md:!hidden bg-background" href="index.html"><span class="font-bold text-clip whitespace-nowrap">RIXA 0.1-alpha1 documentation</span>
+<a class="!justify-start text-sm md:!hidden bg-background" href="index.html"><span class="font-bold text-clip whitespace-nowrap">RIXA 0.2.1 documentation</span>
 </a>
 <div class="relative overflow-hidden md:overflow-auto my-4 md:my-0 h-[calc(100vh-8rem)] md:h-auto">
 <div class="overflow-y-auto h-full w-full relative pr-6"><nav class="flex md:hidden flex-col font-medium mt-4">
@@ -81,13 +76,10 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Plugin programming quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="structure.html">Structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules/module_api.html">API Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules/module_conf.html">Log documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="websockets.html">WebSocket Communication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/module_settings.html">Settings Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="todos.html">Todos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="issues.html">Issues</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules/module_pyro_client.html">Pyro async client</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules/module_plugin_manager.html">Plugin system internals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/module_api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/module_plugin_integration.html">Plugin system integration</a></li>
 </ul>
 </nav>
 </div>
@@ -102,7 +94,7 @@
 <div class="w-full min-w-0 mx-auto">
 <nav aria-label="breadcrumbs" class="flex items-center mb-4 space-x-1 text-sm text-muted-foreground">
 <a class="overflow-hidden text-ellipsis whitespace-nowrap hover:text-foreground" href="index.html">
-<span class="hidden md:inline">RIXA 0.1-alpha1 documentation</span>
+<span class="hidden md:inline">RIXA 0.2.1 documentation</span>
 <svg aria-label="Home" class="md:hidden" fill="currentColor" height="18" stroke="none" viewbox="0 96 960 960" width="18" xmlns="http://www.w3.org/2000/svg">
 <path d="M240 856h120V616h240v240h120V496L480 316 240 496v360Zm-80 80V456l320-240 320 240v480H520V696h-80v240H160Zm320-350Z"></path>
 </svg>
@@ -111,9 +103,9 @@
 </nav>
 <div id="content" role="main">
 <section id="plugin-programming-quickstart">
-<h1>Plugin programming quickstart<a class="headerlink" href="#plugin-programming-quickstart" title="Permalink to this heading">¶</a></h1>
+<h1>Plugin programming quickstart<a class="headerlink" href="#plugin-programming-quickstart" title="Link to this heading">¶</a></h1>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#introduction'">¶</a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#introduction'">¶</a></h2>
 <p>The plugin system is based on functional programming i.e. it is basically just a complex composition of functions.
 Classes etc. are not really existent here and everything that <em>looks</em> like a class is most of the time not one.</p>
 <p>The reason is simple. The server can have many users and each one of them could make a request at the same time. To keep
@@ -122,7 +114,7 @@ But inside this functions namespace other users or their requests are non-existe
 <p>The plugin system basically is just a way for you to expose functions to the server that it can call.</p>
 </section>
 <section id="setup">
-<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#setup'">¶</a></h2>
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#setup'">¶</a></h2>
 <p>Let’s assume you have some code you want to make available to the server. First add the directory with your code
 (don’t forget the backup) to the conf.py in the plugins app of the RIXA server.</p>
 <p>Inside the virtualenvironment of your new plugin you will need to install <strong>Pyro5</strong>.</p>
@@ -131,35 +123,35 @@ But inside this functions namespace other users or their requests are non-existe
 I strongly advise against running without a venv even if all the packages are on your system path. 
 </blockquote></details>
 <section id="using-jupyterlab-for-development">
-<h3>Using jupyterlab for development<a class="headerlink" href="#using-jupyterlab-for-development" title="Permalink to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#using-jupyterlab-for-development'">¶</a></h3>
+<h3>Using jupyterlab for development<a class="headerlink" href="#using-jupyterlab-for-development" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#using-jupyterlab-for-development'">¶</a></h3>
 <p>If you don’t want to use jupyterlab or any other ipykernel based system and just want to develop using the webserver
 then you can ignore this.</p>
 <p>Otherwise be warned that using the plugin system in jupyter is not really supported. If you encounter errors here you
 are on your own.</p>
 <p>First you will have to install and register an ipykernel for your venv (if you haven’t done so already)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>ipykernel
-python3<span class="w"> </span>-m<span class="w"> </span>ipykernel<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>--name<span class="w"> </span>NAME
-</pre></div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>ipykernel
+</span><span id="line-2">python3<span class="w"> </span>-m<span class="w"> </span>ipykernel<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>--name<span class="w"> </span>NAME
+</span></code></pre></div>
 </div>
 <p>To execute and work with the code you have to use the Pluginloader from the server.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">RIXAWebserver.plugins</span>
-<span class="kn">from</span> <span class="nn">RIXAWebserver.plugins.plugin_manager</span> <span class="kn">import</span> <span class="n">_PluginLoader</span>
-<span class="n">plugin_loader</span> <span class="o">=</span> <span class="n">_PluginLoader</span><span class="p">(</span><span class="n">jupyter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">plugin_loader</span><span class="o">.</span><span class="n">parse_plugin</span><span class="p">(</span><span class="n">FILENAME</span><span class="p">,</span> <span class="n">PATH_TO_FILE</span><span class="p">)</span>
-<span class="n">plugin_loader</span><span class="o">.</span><span class="n">load_discovered_plugins</span><span class="p">()</span>
-</pre></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">import</span> <span class="nn">RIXAWebserver.plugins</span>
+</span><span id="line-2"><span class="kn">from</span> <span class="nn">RIXAWebserver.plugins.plugin_manager</span> <span class="kn">import</span> <span class="n">_PluginLoader</span>
+</span><span id="line-3"><span class="n">plugin_loader</span> <span class="o">=</span> <span class="n">_PluginLoader</span><span class="p">(</span><span class="n">jupyter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="line-4"><span class="n">plugin_loader</span><span class="o">.</span><span class="n">parse_plugin</span><span class="p">(</span><span class="n">FILENAME</span><span class="p">,</span> <span class="n">PATH_TO_FILE</span><span class="p">)</span>
+</span><span id="line-5"><span class="n">plugin_loader</span><span class="o">.</span><span class="n">load_discovered_plugins</span><span class="p">()</span>
+</span></code></pre></div>
 </div>
 <p>You can now execute commands like in the chat using</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plugin_loader</span><span class="o">.</span><span class="n">execute_command</span><span class="p">(</span><span class="n">CMD</span><span class="p">)</span>
-</pre></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">plugin_loader</span><span class="o">.</span><span class="n">execute_command</span><span class="p">(</span><span class="n">CMD</span><span class="p">)</span>
+</span></code></pre></div>
 </div>
 <p>The API works the same as on the server. All display functions will display below the cell where you initialized the loader.
 However (logically) there is no persistent user storage.</p>
 <p>To reload the plugins you’re using you can either restart the kernel or do this</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plugin_loader</span><span class="o">.</span><span class="n">_reset</span><span class="p">():</span>
-<span class="n">plugin_loader</span><span class="o">.</span><span class="n">parse_plugin</span><span class="p">(</span><span class="n">FILENAME</span><span class="p">,</span> <span class="n">PATH_TO_FILE</span><span class="p">)</span>
-<span class="n">plugin_loader</span><span class="o">.</span><span class="n">load_discovered_plugins</span><span class="p">()</span>
-</pre></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">plugin_loader</span><span class="o">.</span><span class="n">_reset</span><span class="p">():</span>
+</span><span id="line-2"><span class="n">plugin_loader</span><span class="o">.</span><span class="n">parse_plugin</span><span class="p">(</span><span class="n">FILENAME</span><span class="p">,</span> <span class="n">PATH_TO_FILE</span><span class="p">)</span>
+</span><span id="line-3"><span class="n">plugin_loader</span><span class="o">.</span><span class="n">load_discovered_plugins</span><span class="p">()</span>
+</span></code></pre></div>
 </div>
 <p>Should you encounter problems restart the kernel. The reset function isn’t meant for continuous use.</p>
 <style>
@@ -190,7 +182,7 @@ instances will cause massive problems. A PC restart may be required if done.</p>
 </section>
 </section>
 <section id="developing-the-plugin">
-<h2>Developing the plugin<a class="headerlink" href="#developing-the-plugin" title="Permalink to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#developing-the-plugin'">¶</a></h2>
+<h2>Developing the plugin<a class="headerlink" href="#developing-the-plugin" title="Link to this heading" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#developing-the-plugin'">¶</a></h2>
 <p>First some warnings.</p>
 <ul class="simple">
 <li><p>Do not generate plugin attributes or variables dynamically</p></li>
@@ -200,11 +192,11 @@ instances will cause massive problems. A PC restart may be required if done.</p>
 to make the connection to the server.</p>
 <p>Each plugin needs to have an entry point, a main init. There can’t be more than one initializer per file.
 It could look like this</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">standard_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"data_path"</span><span class="p">:</span> <span class="s2">"raw_data/train.xls"</span><span class="p">,</span> <span class="s2">"explanation_path"</span><span class="p">:</span> <span class="s2">"raw_data/explanations.txt"</span><span class="p">}</span>
-<span class="nd">@plugin_init</span><span class="p">(</span><span class="n">namespace</span><span class="o">=</span><span class="s2">"CoolData"</span><span class="p">,</span> <span class="n">venv</span><span class="o">=</span><span class="s2">"/usr/data_venv"</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">standard_config</span><span class="p">,</span> <span class="n">config_is_server_managed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">cool_data</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">meta_config</span><span class="p">):</span>
-    <span class="n">do_data_stuff</span><span class="p">()</span>
-</pre></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">standard_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"data_path"</span><span class="p">:</span> <span class="s2">"raw_data/train.xls"</span><span class="p">,</span> <span class="s2">"explanation_path"</span><span class="p">:</span> <span class="s2">"raw_data/explanations.txt"</span><span class="p">}</span>
+</span><span id="line-2"><span class="nd">@plugin_init</span><span class="p">(</span><span class="n">namespace</span><span class="o">=</span><span class="s2">"CoolData"</span><span class="p">,</span> <span class="n">venv</span><span class="o">=</span><span class="s2">"/usr/data_venv"</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">standard_config</span><span class="p">,</span> <span class="n">config_is_server_managed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="line-3"><span class="k">def</span> <span class="nf">cool_data</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">meta_config</span><span class="p">):</span>
+</span><span id="line-4">    <span class="n">do_data_stuff</span><span class="p">()</span>
+</span></code></pre></div>
 </div>
 <p>We have now defined and created a new plugin. The specifics of the parameters are in the API doc. If we were to enter</p>
 <blockquote>
@@ -212,12 +204,12 @@ It could look like this</p>
 </div></blockquote>
 <p>in the chat or in our jupyterlab plugin_loader.execute_command we would see a new entry called ‘cool_data’.
 Now let’s add some functionality. Suppose we want to be able to show the user datapoints. That would be as simple as</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cool_data</span><span class="o">.</span><span class="n">plugin_method</span><span class="p">()</span>
-<span class="nd">@argument</span><span class="p">(</span><span class="s1">'index'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">api</span><span class="o">.</span><span class="n">arg_type</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">get_data_point</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-    <span class="n">row</span> <span class="o">=</span> <span class="n">get_row_somehow</span><span class="p">(</span><span class="n">cool_data</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
-    <span class="n">api</span><span class="o">.</span><span class="n">display_html</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">to_html</span><span class="p">())</span>
-</pre></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nd">@cool_data</span><span class="o">.</span><span class="n">plugin_method</span><span class="p">()</span>
+</span><span id="line-2"><span class="nd">@argument</span><span class="p">(</span><span class="s1">'index'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">api</span><span class="o">.</span><span class="n">arg_type</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
+</span><span id="line-3"><span class="k">def</span> <span class="nf">get_data_point</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+</span><span id="line-4">    <span class="n">row</span> <span class="o">=</span> <span class="n">get_row_somehow</span><span class="p">(</span><span class="n">cool_data</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+</span><span id="line-5">    <span class="n">api</span><span class="o">.</span><span class="n">display_html</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">to_html</span><span class="p">())</span>
+</span></code></pre></div>
 </div>
 <p>Now a user can simply enter</p>
 <blockquote>
@@ -229,7 +221,7 @@ Now let’s add some functionality. Suppose we want to be able to show the user 
 </section>
 </section>
 </div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
-<div class="sticky top-16 -mt-10 max-h-[calc(var(--vh)-4rem)] overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
+<div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
 <ul>
 <li><a :data-current="activeSection === '#introduction'" class="reference internal" href="#introduction">Introduction</a></li>
 <li><a :data-current="activeSection === '#setup'" class="reference internal" href="#setup">Setup</a><ul>
@@ -245,10 +237,14 @@ Now let’s add some functionality. Suppose we want to be able to show the user 
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2023, Finn Schwall, Fraunhofer IOSB Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 7.1.2</a></p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, Finn Schwall, Fraunhofer IOSB Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
 </div>
+<script src="_static/documentation_options.js?v=37f418d5"></script>
+<script src="_static/doctools.js?v=9bcbadda"></script>
+<script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+<script defer="defer" src="_static/theme.js?v=1808ab49"></script>
 </body>
 </html>

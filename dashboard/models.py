@@ -29,6 +29,10 @@ def generate_default_document_tags():
 
 
 class PluginScope(models.Model):
+    """
+    Scopes are used to control which chat scopes can access which plugins.
+    E.g. the private plugin of user A can be made accessible to user B by adding B to the scope to which As plugin belongs.
+    """
     name = models.CharField(max_length=100, unique=True)
 
     def save(self, *args, **kwargs):
@@ -54,6 +58,9 @@ class PluginScope(models.Model):
 
 
 class ChatConfiguration(models.Model):
+    """
+    A chat configuration defines the behavior of a chat.
+    """
     name = models.CharField(max_length=100, unique=True)
     # tags = models.ManyToManyField(SelectionTag)
     available_to_all = models.BooleanField(default=False)

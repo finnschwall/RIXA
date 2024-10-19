@@ -12,6 +12,7 @@ from account_managment.models import RixaUser
 from dashboard.forms import ChatConfigurationForm
 from dashboard.models import ChatConfiguration
 from django.http import HttpResponseNotFound
+
 from urllib.parse import urlparse
 import functools
 def conditional_decorator(decorator, condition):
@@ -91,7 +92,7 @@ def edit_chat_configuration(request,):
         return render(request, 'edit_chat_configuration.html', {'is_form': False, "available_configs": names_list})
 
 
-# @conditional_decorator(login_required(login_url="about"), settings.REQUIRE_LOGIN_CHAT)
+
 @login_required(login_url="about")
 def home(request):
     user_settings = request.session.get("settings", None)
@@ -117,6 +118,9 @@ GONE SKYNET?: NO(t yet)<br>"""
     user_available_chat_modes = set(request.user.rixauser.configurations_read.values_list('name', flat=True))
     available_chat_modes = list(globally_available_configs.union(user_available_chat_modes))
 
+
+
+
     plugin_settings = _memory.get_all_variables()
     user_settings = request.session.get("plugin_variables", {})
     for key, val in user_settings.items():
@@ -124,7 +128,6 @@ GONE SKYNET?: NO(t yet)<br>"""
             for varkey, varval in val.items():
                 if varkey in plugin_settings[key]:
                     plugin_settings[key][varkey]["value"] = varval
-
 
     context = {"chat_disabled": settings.DISABLE_CHAT, "website_title": settings.WEBSITE_TITLE,
                "chat_title": settings.CHAT_TITLE, "always_maximize_chat": settings.ALWAYS_MAXIMIZE_CHAT,

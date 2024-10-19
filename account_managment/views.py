@@ -18,7 +18,7 @@ from django.conf import settings
 from django.utils import translation
 import pandas as pd
 import plotly.graph_objects as go
-
+from django.views.decorators.csrf import ensure_csrf_cookie
 @login_required
 def user_statistics_view(request):
     import plotly.express as px
@@ -160,7 +160,7 @@ def account_managment(request):
     return render(request, 'home_account.html', context)
 
 
-
+@ensure_csrf_cookie
 def register_user(request):
     if request.user.is_authenticated:
         messages.info(request, "You are already logged in.")
@@ -263,7 +263,7 @@ def register_user(request):
 #                                       " won't get resolved in the near future)")
 #         return render(request, 'register.html', {'form': UserCreationForm})
 
-
+@ensure_csrf_cookie
 def user_login(request):
     if request.user.is_authenticated:
         messages.info(request, "You are already logged in.")
