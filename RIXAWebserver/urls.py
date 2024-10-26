@@ -32,6 +32,7 @@ urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
     path("dashboard/", include("dashboard.urls"), name="dashboard"),
     path("account_managment/", include("account_managment.urls")),
+    path("management/", include("management.urls")),
     path('login/', lambda request: redirect('/account_managment/user_login/')),
     path('logout/', lambda request: redirect('/account_managment/user_logout/')),
     path('', RedirectView.as_view(url='dashboard/'))

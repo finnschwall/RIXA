@@ -5,7 +5,6 @@ import json
 
 from channels.db import database_sync_to_async
 from pyalm import ConversationTracker
-import markdown2
 # class ChannelsAPI(plugin_api.BaseAPI):
 #     def __init__(self):
 #
@@ -13,6 +12,8 @@ import markdown2
 import logging
 from rixaplugin import _memory
 from asgiref.sync import sync_to_async, async_to_sync
+
+from RIXAWebserver import settings
 
 logger = logging.getLogger("ServerAPI")
 
@@ -229,7 +230,7 @@ class ConsumerAPI(plugin_api.BaseAPI):
         await self.consumer.send(text_data=json.dumps(message))
 
     async def display(self, html=None, json_str=None, plotly_obj=None, text=None, auto_place=True, place_index=-1,
-                      size=5):
+                      size=5, custom_msg =None):
         if html:
             html = html.replace("\\n", "<br>")
             html = html.replace("\\t", "&nbsp;")
@@ -244,6 +245,11 @@ class ConsumerAPI(plugin_api.BaseAPI):
         elif text:
             await self.consumer.send(text_data=json.dumps(
                 {"role": "HTML", "content": f"<p>{text}</p>", "forced_position": not auto_place}))
+        elif custom_msg:
+            if settings.DEBUG:
+                await self.consumer.send(text_data=custom_msg)
+            else:
+                logger.error("Custom messages are only allowed in debug mode")
         else:
             raise Exception("No valid object specified for displaying!")
 

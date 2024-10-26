@@ -76,14 +76,15 @@ INSTALLED_APPS = [
     'daphne',
     'account_managment.apps.AccountManagmentConfig',
     'dashboard.apps.DashboardConfig',
+    'management.apps.ManagementConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bootstrap5',
-    'rosetta',
+    "bootstrap5"
+    # 'rosetta',
 
 ]
 

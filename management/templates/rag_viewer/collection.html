@@ -1,0 +1,160 @@
+{% extends 'rag_viewer/base.html' %}
+{% load rag_filters %}
+
+{% block title %}{{ collection_name }} - RAG Database Viewer{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{{ collection_name }}</h1>
+
+<!-- Query Form -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Get Random Entries</h5>
+        <form method="get" class="mb-3">
+            <div class="input-group">
+                <input type="number" name="n" class="form-control" placeholder="Number of random entries" value="{{ n_results }}">
+                <button type="submit" class="btn btn-primary">Get Random Entries</button>
+            </div>
+        </form>
+
+        <h5 class="card-title">Search Collection</h5>
+        <form method="get" class="mb-3">
+            <div class="input-group">
+                <input type="text" name="query" class="form-control" placeholder="Enter your query" value="{{ query }}">
+                <input type="number" name="n" class="form-control" placeholder="Number of results" value="{{ n_results }}">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+
+<h5 class="card-title">Search by metadata</h5>
+        <form method="get" class="mb-3" id="searchForm">
+            <div id="searchFields">
+                <div class="input-group mb-2">
+                    <input type="text" name="key[]" class="form-control" placeholder="Key">
+                    <input type="text" name="value[]" class="form-control" placeholder="Value">
+                    <button type="button" class="btn btn-danger remove-field" onclick="removeField(this)">-</button>
+                </div>
+            </div>
+            <div class="mb-2">
+                <button type="button" class="btn btn-secondary" onclick="addField()">Add Field</button>
+            </div>
+            <div class="input-group">
+                <input type="number" name="n" class="form-control" placeholder="Number of results" value="{{ n_results }}">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+    <script>
+function addField() {
+    const fieldDiv = document.createElement('div');
+    fieldDiv.className = 'input-group mb-2';
+    fieldDiv.innerHTML = `
+        <input type="text" name="key[]" class="form-control" placeholder="Key">
+        <input type="text" name="value[]" class="form-control" placeholder="Value">
+        <button type="button" class="btn btn-danger remove-field" onclick="removeField(this)">-</button>
+    `;
+    document.getElementById('searchFields').appendChild(fieldDiv);
+}
+
+function removeField(button) {
+    const fieldsContainer = document.getElementById('searchFields');
+    if (fieldsContainer.children.length > 1) {
+        button.parentElement.remove();
+    }
+}
+
+document.getElementById('searchForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Create URL with parameters
+    const formData = new FormData(this);
+    const params = new URLSearchParams();
+
+    // Group keys and values
+    const keys = formData.getAll('key[]');
+    const values = formData.getAll('value[]');
+
+    // Add only non-empty key-value pairs to URL
+    keys.forEach((key, index) => {
+        if (key.trim() && values[index].trim()) {
+            params.append('key', key);
+            params.append('value', values[index]);
+        }
+    });
+
+    // Add number of results
+    params.append('n', formData.get('n'));
+
+    // Redirect with search parameters
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+});
+</script>
+
+    {% if failed %}
+<div class="alert alert-danger" role="alert">
+    Your query did not return any results.
+</div>
+{% endif %}
+
+<!-- Query Results -->
+{% if query_results %}
+<h2 class="mb-3">Search Results</h2>
+<div class="results-container">
+    {% with docs_meta=query_results.documents|zip_with:query_results.metadatas %}
+
+    {% for doc_meta, distance in docs_meta|zip_with:query_results.distances %}
+    <div class="card result-card">
+        <div class="card-body">
+            <span class="badge bg-info distance-badge">Distance: {{ distance|floatformat:3 }}</span>
+
+            <h5 class="card-title">Document Content</h5>
+            <pre class="card-text">{{ doc_meta.0 }}</pre>
+
+            <h6 class="mt-3">Metadata</h6>
+            <table class="table table-sm metadata-table">
+                <tbody>
+                    {% for key, value in doc_meta.1.items %}
+                    <tr>
+                        <th scope="row">{{ key }}</th>
+                        <td>{{ value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+    {% endwith %}
+</div>
+{% endif %}
+
+    {% if random_results %}
+<h2 class="mb-3 mt-4">Random Elements</h2>
+<div class="results-container">
+
+    {% for doc, meta in random_results.documents|zip_with:random_results.metadatas %}
+    <div class="card result-card">
+        <div class="card-body">
+            <h5 class="card-title">Document Content</h5>
+            <pre class="card-text">{{ doc }}</pre>
+
+            <h6 class="mt-3">Metadata</h6>
+            <table class="table table-sm metadata-table">
+                <tbody>
+                    {% for key, value in meta.items %}
+                    <tr>
+                        <th scope="row">{{ key }}</th>
+                        <td>{{ value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
