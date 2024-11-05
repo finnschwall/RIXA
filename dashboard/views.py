@@ -141,7 +141,7 @@ GONE SKYNET?: NO(t yet)<br>"""
 
 
 @login_required(login_url="about")
-def home_new(request):
+def home_old(request):
     user_settings = request.session.get("settings", None)
 
     if user_settings:
@@ -162,6 +162,7 @@ LLM BACKENDS: MISSING<br>
 CALLABLE PLUGINS: {_memory.get_all_plugin_names()}<br>
 GONE SKYNET?: NO(t yet)<br>"""
     globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True).values_list('name', flat=True))
+
     user_available_chat_modes = set(request.user.rixauser.configurations_read.values_list('name', flat=True))
     available_chat_modes = list(globally_available_configs.union(user_available_chat_modes))
 
@@ -184,7 +185,7 @@ GONE SKYNET?: NO(t yet)<br>"""
                "selected_chat_mode" :selected_chat_mode,
                "server_status": server_status,
                "plugin_settings":json.dumps(plugin_settings)}
-    return render(request, 'home_new.html', context)
+    return render(request, 'home_old.html', context)
 
 
 def about(request):

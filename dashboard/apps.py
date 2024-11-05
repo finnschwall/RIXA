@@ -142,7 +142,7 @@ async def plugin_interface():
     It is the "heart" of the plugin system.
     """
     channel_layer = get_channel_layer()
-    from rixaplugin.test import introspection
+    from rixaplugin.test import introspection, test_api
     #from rixaplugin.default_plugins import catbot, math#, websearch
     from pyalm.chat import alm_plugin
 
@@ -166,7 +166,7 @@ async def plugin_interface():
                                                         return_future=True)
                 asyncio.create_task(await_future_execution(future, client_api))
             if obj["type"] == "execute_plugin_code":
-                scope["force_include_plugin"] = ["introspection","knowledge_db"]
+                scope["force_include_plugin"] = ["introspection","knowledge_db", "test_api"]
                 client_api = ChannelBridgeAPI(channel_layer, obj["channel_name"], scope=scope,
                                               plugin_variables=plugin_variables)
                 asyncio.create_task(await_code_execution(obj["code"][2:-1], client_api))

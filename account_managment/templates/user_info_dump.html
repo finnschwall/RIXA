@@ -1,0 +1,42 @@
+{% extends "base_account.html" %}
+{% load static %}
+{% load i18n %}
+{% load bootstrap5 %}
+{% block title %}User info{% endblock %}
+{% block content %}
+
+
+<div class="container container-sm text-center" >
+    <h1>All info available on {{ user.username }}</h1>
+
+<div class="container container-md ">
+    {% for x,y  in user_info.items %}
+        <div>{{x}}: {{y}}</div>
+    {%endfor%}
+</div>
+    <h2>Current permissions</h2>
+    {% if request.user.is_superuser %}
+        <p>All (you are superuser)</p>
+    {%else%}
+        <p>{{perms.account_managment}}</p>
+    {%endif%}
+
+    <h2>Groups:</h2>
+    <p>
+        {%for x in user.groups.all%}
+            {{x}},
+        {%endfor%}
+        {%if not user.groups.all%}
+            No groups
+        {%endif%}
+    </p>
+
+<h2>Chats</h2>
+    {% for x in conversations %}
+        <h3>Chat from {{x.1}}</h3>
+        <pre style="text-align: left">{{ x.0 }}</pre>
+    {%endfor%}
+</div>
+
+
+{% endblock %}

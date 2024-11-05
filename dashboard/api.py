@@ -1,4 +1,5 @@
 import math
+from datetime import time
 
 import rixaplugin.internal.api as plugin_api
 import json
@@ -71,16 +72,16 @@ class ConsumerAPI(plugin_api.BaseAPI):
                                                  "selected_chat_mode": "default",
                                                  "enable_function_calls": True,
                                                  "enable_knowledge_retrieval": True,
+                                                 "current_chat_id": self.generate_chat_id()
                                                  }
         if not self.scope["session"].get("plugin_variables"):
             self.scope["session"]["plugin_variables"] = {}
         self.chat_modes = chat_modes
 
-        # self.selected_chat = self.scope["session"]["settings"]["selected_chat"]
-        # self.chat_mode = self.scope["session"]["settings"]["selected_chat_mode"]
-
-        # tracker = ConversationTracker.from_yaml(example_chat)
-        # self.scope["session"]["chat_histories"] = [tracker.to_yaml()]
+    def generate_chat_id(self):
+        from datetime import datetime
+        time_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S:%f')
+        return self.scope["user"].username + time_str
 
     def update_plugin_variable(self, plugin_id, setting_id, value):
         plugin_settings = _memory.get_all_variables()
@@ -146,7 +147,8 @@ class ConsumerAPI(plugin_api.BaseAPI):
 
     @property
     def selected_chat(self):
-        return self.scope["session"]["settings"]["selected_chat"]
+        return 0
+        # return self.scope["session"]["settings"]["selected_chat"]
 
     @selected_chat.setter
     def selected_chat(self, value):
@@ -178,27 +180,42 @@ class ConsumerAPI(plugin_api.BaseAPI):
         tracker = ConversationTracker.from_yaml(tracker_yaml)
         return tracker
 
+
+
     async def update_and_display_tracker_entry(self, tracker_yaml):
         self.scope["session"]["chat_histories"][self.selected_chat] = tracker_yaml
         tracker = ConversationTracker.from_yaml(tracker_yaml)
         assistant_msg = tracker[-1]
-        await sync_to_async(self.consumer.scope["session"].save)()
+        # await sync_to_async(self.consumer.scope["session"].save)()
+        await self.write_chat_to_db(tracker_yaml, tracker)
         await self.display_in_chat(tracker_entry=assistant_msg, flags="enable_chat")
+
+    @database_sync_to_async
+    def write_chat_to_db(self, tracker_yaml, tracker):
+        from .models import Conversation
+        self.consumer.scope["session"].save()
+
+        chat = Conversation.objects.update_or_create(id=self.scope["session"]["settings"]["current_chat_id"],
+        defaults={"user":self.scope["user"], "tracker_yaml":tracker_yaml,"model_name":tracker.metadata.get("model_name","UNKNOWN")})
+        # chat.save()
 
     async def new_chat(self):
         #delete tracker and create a new one. Add directly the first message if it exists
+        self.scope["session"]["settings"]["current_chat_id"] = self.generate_chat_id()
         tracker = ConversationTracker()
         if self.get_first_message():
             tracker.add_entry(self.get_first_message(), "assistant")
         self.scope["session"]["chat_histories"] = [tracker.to_yaml()]
         await sync_to_async(self.consumer.scope["session"].save)()
 
-
     async def add_tracker_entry(self, role, content, metadata=None, function_calls=None, feedback=None, sentiment=None, add_keys=None):
         tracker = ConversationTracker()
         tracker.load_from_yaml(self.scope["session"]["chat_histories"][-1], is_file=False)
         tracker.add_entry(content, role, metadata, function_calls, feedback, sentiment, add_keys)
-        self.scope["session"]["chat_histories"][-1] = tracker.to_yaml()
+        tracker_yaml = tracker.to_yaml()
+        self.scope["session"]["chat_histories"][-1] = tracker_yaml
+
+
 
     async def clear_conversations(self):
         tracker = ConversationTracker()
@@ -222,7 +239,6 @@ class ConsumerAPI(plugin_api.BaseAPI):
 
     async def show_message(self, message,  theme="info", timeout=5000):
         # Generated from ../rixawebserver/dashboard/static/dashboard/bot_gui/js/script.js:5
-        print(message, timeout, theme)
         return await self.consumer.send(
             text_data=json.dumps({"function": "showMessage", "type": "f_call", "arguments": [message, timeout, theme]}))
 
@@ -246,7 +262,7 @@ class ConsumerAPI(plugin_api.BaseAPI):
             await self.consumer.send(text_data=json.dumps(
                 {"role": "HTML", "content": f"<p>{text}</p>", "forced_position": not auto_place}))
         elif custom_msg:
-            if settings.DEBUG:
+            if settings.DEBUG or True:
                 await self.consumer.send(text_data=custom_msg)
             else:
                 logger.error("Custom messages are only allowed in debug mode")

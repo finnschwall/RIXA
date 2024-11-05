@@ -10,12 +10,13 @@ import pandas as pd
 from django.db.models.signals import post_save, post_delete
 from rixaplugin.internal.networking import create_keys
 import logging
-
+from pyalm import ConversationTracker, ConversationRoles
+from django.contrib import admin
 database_log = logging.getLogger("rixa.database")
 
 
 def generate_default_plugins():
-    return list([ _memory.plugins[i]["name"] for i in _memory.plugins])
+    return list([_memory.plugins[i]["name"] for i in _memory.plugins])
 
 
 def generate_default_document_tags():
@@ -80,3 +81,79 @@ class ChatConfiguration(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Conversation(models.Model):
+    id = models.TextField(primary_key=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='conversations'
+    )
+    tracker_yaml = models.TextField()
+    timestamp = models.DateTimeField(auto_now=True)
+    model_name = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Identifier of the LLM used"
+    )
+
+    def clean(self):
+        try:
+            ConversationTracker.from_yaml(self.tracker_yaml)
+        except Exception as e:
+            raise ValidationError(f"Invalid conversation YAML: {str(e)}")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    def get_tracker(self):
+        return ConversationTracker.from_yaml(self.tracker_yaml)
+
+    def update_from_tracker(self, tracker):
+        self.tracker_yaml = tracker.to_yaml()
+        self.save()
+
+    def __str__(self):
+        return f"Conversation {self.id} by {self.user.username} ({self.timestamp})"
+
+    def get_readable_conversation(self):
+        try:
+            tracker = self.get_tracker()
+            conversation_lines = []
+            for entry in tracker:
+                role = entry.get("role", "unknown")
+                content = entry.get("content", "")
+                metadata = entry.get("metadata", {})
+                metadata_info = ", ".join(f"{key}: {value}" for key, value in metadata.items())
+                conversation_lines.append(f"{role}: {content}\nMETA: {metadata_info}")
+            return "\n\n".join(conversation_lines)
+        except Exception as e:
+            return f"Error parsing conversation: {str(e)}"
+
+    class Meta:
+        ordering = ['-timestamp']
+        unique_together = ['id', 'user']
+        verbose_name = "Conversation"
+        verbose_name_plural = "Conversations"
+
+@admin.register(Conversation)
+class ConversationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'timestamp', 'model_name', 'short_conversation')
+    list_filter = ('user', 'model_name', 'timestamp')
+    readonly_fields = ('id', 'user', 'timestamp', 'model_name', 'readable_conversation', 'tracker_yaml')
+
+    def short_conversation(self, obj):
+        return obj.get_readable_conversation()[:75] + '...'
+
+    short_conversation.short_description = 'Conversation Preview'
+
+    def readable_conversation(self, obj):
+        return obj.get_readable_conversation()
+
+    readable_conversation.short_description = 'Readable Conversation'
+
+    def get_readonly_fields(self, request, obj=None):
+        return ['readable_conversation'] + [f.name for f in self.model._meta.fields]

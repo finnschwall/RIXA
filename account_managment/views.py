@@ -12,7 +12,7 @@ from django.contrib.auth import logout
 from django.urls import reverse
 
 from account_managment.models import RixaUser
-from dashboard.models import PluginScope
+from dashboard.models import PluginScope, Conversation
 from .models import User, Invitation
 from django.conf import settings
 from django.utils import translation
@@ -196,18 +196,20 @@ def register_user(request):
         user = User.objects.create_user(username, password=password)
 
         if user is not None:
-
             if user.is_active:
-                # if invitation.tags.exists():
-                #     print(dir(user))
-                #     user.rixauser.tags.add(*invitation.tags.all())
-                user.save()
                 rixa_user = RixaUser(user=user)
                 rixa_user.save()
-                # if invitation.tags.exists():
-                #     rixa_user.allowed_tags.add(*invitation.tags.all())
-                #     rixa_user.save()
+                if invitation.configurations_read.exists():
+                    rixa_user.configurations_read.add(*invitation.configurations_read.all())
+                if invitation.configuration_write.exists():
+                    rixa_user.configuration_write.add(*invitation.configuration_write.all())
+                if invitation.scope_write.exists():
+                    rixa_user.scope_write.add(*invitation.scope_write.all())
+                if invitation.scope_read.exists():
+                    rixa_user.scope_read.add(*invitation.scope_read.all())
+
                 invitation.uses += 1
+                rixa_user.save()
                 invitation.save()
                 login(request, user)
                 return HttpResponseRedirect(reverse("account_main"))
@@ -226,6 +228,20 @@ def register_user(request):
                                       "The server can not verify the security of the connection.")
         return render(request, 'register.html', {'form': UserCreationForm})
 
+def help_view(request):
+    return render(request, 'help.html', {})
+
+@login_required
+def user_info_dump(request):
+    user_dic = dict(request.user._wrapped.__dict__)
+    rixa_user_dic = dict(request.user.rixauser.__dict__)
+    for i in ["_state", "password", "id", "first_name", "last_name", "user_id", "messages_per_session"]:
+        rixa_user_dic.pop(i, None)
+        user_dic.pop(i, None)
+    # get all Conversation objects belonging to this user
+    user_conversations = Conversation.objects.filter(user=request.user)
+    conversations = [[conv.get_readable_conversation(), conv.timestamp] for conv in user_conversations]
+    return render(request, 'user_info_dump.html', {"user_info": user_dic | rixa_user_dic, "conversations":conversations})
 
 # def register_user(request):
 #     if request.method == 'POST':
