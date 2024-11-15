@@ -6,7 +6,6 @@ from .models import Invitation, User
 # from django.contrib.auth.admin import UserAdmin
 from django.contrib.sessions.models import Session
 from django.urls import path
-from .views import user_statistics_view
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 

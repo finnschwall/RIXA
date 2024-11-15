@@ -3,7 +3,7 @@ import os
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg, F
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden, HttpResponseServerError
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden, HttpResponseServerError, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -19,8 +19,114 @@ from django.utils import translation
 import pandas as pd
 import plotly.graph_objects as go
 from django.views.decorators.csrf import ensure_csrf_cookie
+
+
+def load_statistics():
+    return pd.read_csv(settings.WORKING_DIRECTORY + "/statistics/main.csv", sep=";")
+
+
+def get_interval_data(df, start_date, end_date, interval, metric, agg_function):
+    # Convert time column to datetime
+    df['time'] = pd.to_datetime(df['time'])
+
+    # Filter by date range
+    mask = (df['time'] >= start_date) & (df['time'] <= end_date)
+    df_filtered = df.loc[mask]
+
+    # Group by time interval
+    if interval.endswith('s'):
+        secs = int(interval[:-1])
+        df_grouped = df_filtered.groupby(pd.Grouper(key='time', freq=f'{secs}S'))
+    if interval.endswith('min'):
+        mins = int(interval[:-3])
+        df_grouped = df_filtered.groupby(pd.Grouper(key='time', freq=f'{mins}Min'))
+    elif interval.endswith('hour'):
+        hours = int(interval[:-4])
+        df_grouped = df_filtered.groupby(pd.Grouper(key='time', freq=f'{hours}H'))
+    elif interval == 'day':
+        df_grouped = df_filtered.groupby(pd.Grouper(key='time', freq='D'))
+    # Apply aggregation function
+    if agg_function == 'average':
+        result = df_grouped[metric].mean()
+    elif agg_function == 'median':
+        result = df_grouped[metric].median()
+    elif agg_function == 'maximum':
+        result = df_grouped[metric].max()
+    elif agg_function == 'cumulative':
+        result = df_grouped[metric].sum()
+        # result = df_grouped[metric].last() - df_grouped[metric].first()
+
+    return result.reset_index()
+
+
+def statistics_view(request):
+    # Load the most recent statistics
+    df = load_statistics()
+    latest_stats = df.iloc[-1].to_dict()
+
+    # Convert timestamp to datetime for template
+    latest_stats['time'] = pd.to_datetime(latest_stats['time'])
+    time_str = latest_stats['time'].strftime('%Y-%m-%d %H:%M:%S:%f')
+    units = {"vram_usage" : " %", "ram_usage": " %", "cpu_load_avg_1m": " %",
+            "gpu_utilization": " %", "proc_ram_usage": " mb", "relative_cpu_time": " %",
+             "total_disk_time":" s", "total_disk_activity": " mb", "total_mb_transmitted": " mb"}
+    for unit in units:
+        if unit in latest_stats:
+            latest_stats[unit] = str(latest_stats[unit]) + units[unit]
+
+    # Available metrics for plotting
+    metrics = [col for col in df.columns if col not in ['time']]
+
+    # Intervals for selection
+    intervals = ["30s","5min",'15min', '30min', '1hour', '2hour', '6hour', 'day']
+
+    # Aggregation functions
+    agg_functions = ['average', 'median', 'maximum', 'cumulative']
+
+
+    return render(request, 'statistics.html', {
+        'latest_stats': latest_stats,
+        "time":time_str[:-4],
+        'metrics': metrics,
+        'intervals': intervals,
+        'agg_functions': agg_functions,
+    })
+
+
+def get_plot_data(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        start_date = pd.to_datetime(data['start_date'])
+        end_date = pd.to_datetime(data['end_date'])
+        metric = data['metric']
+        interval = data['interval']
+        agg_function = data['agg_function']
+
+        df = load_statistics()
+        result_df = get_interval_data(df, start_date, end_date, interval, metric, agg_function)
+
+        # Create plotly figure
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=result_df['time'],
+            y=result_df[metric],
+            mode='lines+markers',
+            name=f'{agg_function} {metric}'
+        ))
+
+        fig.update_layout(
+            title=f'{agg_function.capitalize()} {metric} per {interval}',
+            xaxis_title='Time',
+            yaxis_title=metric,
+            hovermode='x unified'
+        )
+        return JsonResponse({
+            'plot': fig.to_json()
+        })
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
 @login_required
-def user_statistics_view(request):
+def user_statistics_view2(request):
     import plotly.express as px
     try:
         df = pd.read_csv(settings.WORKING_DIRECTORY + "/statistics/user_info.csv", sep=";")

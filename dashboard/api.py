@@ -61,6 +61,7 @@ class ChannelBridgeAPI(plugin_api.BaseAPI):
 
 
 class ConsumerAPI(plugin_api.BaseAPI):
+    total_tokens = 0
     def __init__(self, consumer=None, chat_modes=None):
         self.consumer = consumer
         self.scope = consumer.scope
@@ -180,6 +181,12 @@ class ConsumerAPI(plugin_api.BaseAPI):
         tracker = ConversationTracker.from_yaml(tracker_yaml)
         return tracker
 
+    async def set_tracker(self, tracker_yaml):
+        tracker = ConversationTracker.from_yaml(tracker_yaml)
+        self.scope["session"]["chat_histories"][self.selected_chat] = tracker_yaml
+        for i in tracker:
+            await self.display_in_chat(tracker_entry=i, flags="enable_chat")
+        await sync_to_async(self.consumer.scope["session"].save)()
 
 
     async def update_and_display_tracker_entry(self, tracker_yaml):
@@ -187,6 +194,7 @@ class ConsumerAPI(plugin_api.BaseAPI):
         tracker = ConversationTracker.from_yaml(tracker_yaml)
         assistant_msg = tracker[-1]
         # await sync_to_async(self.consumer.scope["session"].save)()
+        ConsumerAPI.total_tokens += assistant_msg["metadata"].get("total_tokens", 0)
         await self.write_chat_to_db(tracker_yaml, tracker)
         await self.display_in_chat(tracker_entry=assistant_msg, flags="enable_chat")
 
@@ -245,22 +253,21 @@ class ConsumerAPI(plugin_api.BaseAPI):
     async def send_custom_message(self, message):
         await self.consumer.send(text_data=json.dumps(message))
 
-    async def display(self, html=None, json_str=None, plotly_obj=None, text=None, auto_place=True, place_index=-1,
-                      size=5, custom_msg =None):
+    async def display(self, html=None, json_str=None, plotly_obj=None, text=None, custom_msg =None):
         if html:
             html = html.replace("\\n", "<br>")
             html = html.replace("\\t", "&nbsp;")
             await self.consumer.send(text_data=json.dumps(
-                {"role": "HTML", "content": html, "forced_position": not auto_place}))
+                {"role": "HTML", "content": html}))
         elif plotly_obj:
             plotly_html = plotly_obj.to_html(include_plotlyjs=False, include_mathjax=False, full_html=False)
             await self.consumer.send(
-                text_data=json.dumps({"role": "HTML", "content": plotly_html, "forced_position": not auto_place}))
+                text_data=json.dumps({"role": "HTML", "content": plotly_html}))
         elif json_str:
             await self.consumer.send(text_data=json.dumps({"role": "JSON", "content": json_str}))
         elif text:
             await self.consumer.send(text_data=json.dumps(
-                {"role": "HTML", "content": f"<p>{text}</p>", "forced_position": not auto_place}))
+                {"role": "HTML", "content": f"<p>{text}</p>"}))
         elif custom_msg:
             if settings.DEBUG or True:
                 await self.consumer.send(text_data=custom_msg)

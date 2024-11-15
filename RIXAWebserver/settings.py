@@ -68,8 +68,8 @@ Needs to be properly configured before deploying.
 
 PRIMARY_URL = config("PRIMARY_URL", default="localhost:8000")
 
-STATISTICS_COLLECTION_INTERVAL = config("STATISTICS_COLLECTION_INTERVAL", default=30, cast=int)
-"""Interval in minutes in which the server collects statistics about user activity."""
+STATISTICS_COLLECTION_INTERVAL = config("STATISTICS_COLLECTION_INTERVAL", default=10, cast=int)
+"""Interval in seconds in which the server collects statistics about user activity."""
 KNOWLEDGE_DB_LOC = config("KNOWLEDGE_DB_LOC", default=None, cast=str)
 # do not touch
 INSTALLED_APPS = [
@@ -234,7 +234,7 @@ AUTH_USER_MODEL = 'account_managment.User'
 
 LOGIN_URL = "account_user_login"
 
-NUM_WORKER_THREADS = config("NUM_WORKER_THREADS", default=4, cast=int)
+NUM_SERVER_WORKER_THREADS = config("NUM_WORKER_THREADS", default=4, cast=int)
 
 PATCH_USER_MODEL = config("PATCH_USER_MODEL", default=False, cast=bool)
 """Patch users that have been created via the admin interface or other means."""

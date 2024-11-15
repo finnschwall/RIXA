@@ -35,6 +35,7 @@ urlpatterns = i18n_patterns(
     path("management/", include("management.urls")),
     path('login/', lambda request: redirect('/account_managment/user_login/')),
     path('logout/', lambda request: redirect('/account_managment/user_logout/')),
+    path("statistics/", lambda request: redirect('/account_managment/statistics/')),
     path('', RedirectView.as_view(url='dashboard/'))
 )
 if 'rosetta' in settings.INSTALLED_APPS:

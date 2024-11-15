@@ -19,7 +19,7 @@ from django.contrib.auth import get_user_model
 from rixaplugin import _memory
 
 from RIXAWebserver import settings
-from account_managment.visit_statistics import SessionStatistics
+# from account_managment.visit_statistics import SessionStatistics
 
 from .api import ChannelBridgeAPI, ConsumerAPI
 from .models import PluginScope, ChatConfiguration
@@ -32,13 +32,14 @@ connection_lock = threading.Lock()
 
 class ChatConsumer(AsyncWebsocketConsumer):
     active_connections = 0
+    sent_messages = 0
 
     async def connect(self):
         await self.accept()
         chat_modes = await self.get_user_info()
-
         self.consumer_api = ConsumerAPI(self, chat_modes)
 
+        # await self.consumer_api.new_chat()
         for i in self.consumer_api.get_active_conversation():
             await self.consumer_api.display_in_chat(tracker_entry=i)
 
@@ -46,11 +47,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             ChatConsumer.active_connections += 1
         self.msg_count = 0
         self.start_time = datetime.now()
+        self.is_admin = self.scope["user"].is_staff
+
 
     @database_sync_to_async
     def get_user_info(self):
         if not self.scope["user"].is_authenticated:
-            return
+            if not settings.DEBUG:
+                return
+            else:
+                self.scope["user"] = get_user_model().objects.get(username="finn")
         chat_config = self.scope["user"].rixauser.configurations_read.all()
         chat_config = set(chat_config)
         globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True))
@@ -109,7 +115,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.scope["user"].rixauser.messages_per_session = json.dumps(messages_per_session_json)
             self.scope["user"].rixauser.save()
 
-            SessionStatistics.register_infos(self.scope["user"].username, self.msg_count, (datetime.now() - self.start_time).seconds//60)
+            # SessionStatistics.register_infos(self.scope["user"].username, self.msg_count, (datetime.now() - self.start_time).seconds//60)
         except Exception as e:
             user_logger.exception("Error while writing user info")
             print(e)
@@ -151,8 +157,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
         elif req_type == "usr_msg":
             self.msg_count += 1
+            ChatConsumer.sent_messages += 1
             tracker = self.consumer_api.get_active_conversation()
-            tracker.add_entry(message["content"], "user")
+            tracker.add_entry(message["content"], "user", metadata={"timestamp": datetime.now().isoformat()})
 
             msg = {
                     "type": "generate_response",
@@ -286,7 +293,41 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 await self.consumer_api.show_message("The selected chat mode does not exist. Maybe it has been removed?", theme="error")
                 return
             await self.send(json.dumps({"role": "plugin_startup_info", "content": chat_start_info}))
+        elif req_type == "confirm_datapoint" or req_type == "decline_datapoint":
+            await self.channel_layer.send(
+                "plugin_interface",
+                {
+                    "type": "call_plugin_function",
+                    "channel_name": self.channel_name,
+                    "function_name": "next_datapoint",
+                    "tags": self.consumer_api.get_current_tags(),
+                    "allowed_plugins": self.consumer_api.get_current_plugins(),
+                    "plugin_variables": self.consumer_api.get_plugin_variables(),
+                    "args": message.get("args", []),
+                    "kwargs": message.get("kwargs", {}),
+                }
 
+            )
+        elif req_type == "upload_tracker":
+            if not self.is_admin:
+                return
+            try:
+                tracker = message["tracker"]
+                tracker = base64.b64decode(tracker).decode('utf-8')
+                await self.consumer_api.set_tracker(tracker)
+            except Exception as e:
+                user_logger.exception("Error while uploading conversation tracker")
+                await self.consumer_api.show_message("Error while uploading conversation tracker", theme="error")
+        elif req_type == "fake_message":
+            if not self.is_admin:
+                return
+            role = message["role"]
+            message = message["content"]
+            tracker = self.consumer_api.get_active_conversation()
+            tracker.add_entry(message, role, metadata={"timestamp": datetime.now().isoformat(), "total_tokens":-1})
+            await self.consumer_api.display_in_chat(tracker_entry=tracker[-1])
+        elif req_type == "send_example_error":
+            await self.consumer_api.show_message("This is an example error message", theme="error")
         else:
             user_logger.error(f"Received unknown message type: {req_type} from user {self.scope['user'].username}")
 

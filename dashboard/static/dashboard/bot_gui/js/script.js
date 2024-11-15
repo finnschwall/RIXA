@@ -3,6 +3,17 @@ $(".widget").toggle();
 
 let msgId=-1
 
+
+function uploadTracker(tracker_yaml){
+    resetChatMessages()
+    send({"type":"upload_tracker", "tracker": tracker_yaml})
+}
+
+function fakeMessage(msg, role="assistant"){
+    // role can be user or assistant
+    send({"type":"fake_message", "content": msg, "role": role})
+}
+
 function submitBugReport(){
     let bugReport = $("#bugReportContent").val()
     if(bugReport.length < 10){
@@ -55,6 +66,8 @@ function submitBugReport(){
     $("#bugReport").modal('hide')
     showMessage("Bug report submitted successfully", 5000, "info")
 }
+
+
 
 function showCitation(msgIndex, citationIndex){
     let msg = messageHistory.find(obj => obj.index === msgIndex)

@@ -12,12 +12,15 @@ from django.http import HttpResponseNotFound
 import pprint
 
 from dashboard.consumers import ChatConsumer
-from dashboard.models import ChatConfiguration, PluginScope
+from dashboard.models import ChatConfiguration, PluginScope, Conversation
 
 process = psutil.Process()
 import datetime
 
 from rixaplugin import _memory
+
+
+
 
 
 class ChatConfigurationAdmin(admin.ModelAdmin):

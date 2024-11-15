@@ -12,6 +12,7 @@ from rixaplugin.internal.networking import create_keys
 import logging
 from pyalm import ConversationTracker, ConversationRoles
 from django.contrib import admin
+from django import forms
 database_log = logging.getLogger("rixa.database")
 
 
@@ -90,7 +91,7 @@ class Conversation(models.Model):
         on_delete=models.CASCADE,
         related_name='conversations'
     )
-    tracker_yaml = models.TextField()
+    tracker_yaml = models.TextField(editable=True)
     timestamp = models.DateTimeField(auto_now=True)
     model_name = models.CharField(
         max_length=100,
@@ -139,11 +140,13 @@ class Conversation(models.Model):
         verbose_name = "Conversation"
         verbose_name_plural = "Conversations"
 
+
 @admin.register(Conversation)
 class ConversationAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'timestamp', 'model_name', 'short_conversation')
     list_filter = ('user', 'model_name', 'timestamp')
-    readonly_fields = ('id', 'user', 'timestamp', 'model_name', 'readable_conversation', 'tracker_yaml')
+    # fields = ("tracker_yaml",)
+    readonly_fields = ('id', 'user', 'timestamp', 'model_name', 'readable_conversation')
 
     def short_conversation(self, obj):
         return obj.get_readable_conversation()[:75] + '...'
@@ -155,5 +158,5 @@ class ConversationAdmin(admin.ModelAdmin):
 
     readable_conversation.short_description = 'Readable Conversation'
 
-    def get_readonly_fields(self, request, obj=None):
-        return ['readable_conversation'] + [f.name for f in self.model._meta.fields]
+    # def get_readonly_fields(self, request, obj=None):
+    #     return ['readable_conversation'] + [f.name for f in self.model._meta.fields]

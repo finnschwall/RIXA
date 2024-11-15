@@ -166,7 +166,6 @@ function resetChatMessages(){
 }
 
 function resetUI(){
-    console.trace()
     for(let i=0; i<container_count; i++){
         $(`#content_main_${i}`).html("")
         $(`#content_main_${i}`).show()

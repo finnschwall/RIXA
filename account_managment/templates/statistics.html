@@ -1,0 +1,205 @@
+<!-- templates/statistics.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <script src="{% static 'js/plotly-2.20.0.min.js' %}" async charset="utf-8"></script>
+<div>
+{#    class="container mx-auto px-4 py-8">#}
+    <h1 class="text-2xl font-bold mb-6">System Statistics ({{ time }})</h1>
+
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .stat-card {
+        background: #ffffff;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card h3 {
+        margin: 0 0 0.5rem 0;
+        color: #333;
+    }
+
+    .stat-card p {
+        margin: 0;
+        color: #666;
+    }
+</style>
+
+<div class="stats-grid">
+    {% for key, value in latest_stats.items %}
+        {% if key != 'time' %}
+            <div class="stat-card">
+                <h3>{{ key|title }}</h3>
+                <p>{{ value }}</p>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+    <!-- Historical Data Plot -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Historical Data</h2>
+
+        <div>
+    <label class="block text-sm font-medium text-gray-700">Predefined Date Ranges</label>
+    <select id="predefined-date-range" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+        <option value="1min">1 Minute</option>
+        <option value="10min">10 Minutes</option>
+        <option value="1hour" selected="selected">1 Hour</option>
+        <option value="1day">1 Day</option>
+        <option value="1month">1 Month</option>
+    </select>
+</div>
+
+        <!-- Controls -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Date Range</label>
+                <input type="datetime-local" id="start-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                <input type="datetime-local" id="end-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Metric</label>
+                <select id="metric" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    {% for metric in metrics %}
+                    <option value="{{ metric }}">{{ metric|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Interval</label>
+                <select id="interval" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    {% for interval in intervals %}
+                    <option value="{{ interval }}">{{ interval }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Aggregation</label>
+                <select id="agg-function" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    {% for func in agg_functions %}
+                    <option value="{{ func }}">{{ func|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <button id="update-plot" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            Update Plot
+        </button>
+
+        <div id="plot-container" class="mt-6">
+            <!-- Plot will be rendered here -->
+        </div>
+    </div>
+</div>
+
+
+
+    <script>
+document.getElementById('update-plot').addEventListener('click', function() {
+    const startDate = document.getElementById('start-date').value;
+    const endDate = document.getElementById('end-date').value;
+    const metric = document.getElementById('metric').value;
+    const interval = document.getElementById('interval').value;
+    const aggFunction = document.getElementById('agg-function').value;
+
+    fetch('/de/account_managment/statistics/plot/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            start_date: startDate,
+            end_date: endDate,
+            metric: metric,
+            interval: interval,
+            agg_function: aggFunction
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("got data")
+        const plotData = JSON.parse(data.plot);
+        Plotly.newPlot('plot-container', plotData.data, plotData.layout);
+    });
+});
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.getElementById('predefined-date-range').addEventListener('change', function() {
+    let now = new Date();
+    const timezoneOffset = now.getTimezoneOffset() * 60000;
+    let startDate;
+
+    switch (this.value) {
+        case '1min':
+            startDate = new Date(now.getTime() - (1 * 60 * 1000));
+            break;
+        case '10min':
+            startDate = new Date(now.getTime() - (10 * 60 * 1000));
+            break;
+        case '1hour':
+            startDate = new Date(now.getTime() - (1 * 60 * 60 * 1000));
+            break;
+        case '1day':
+            startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+            break;
+        case '1month':
+            startDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+            break;
+        default:
+            startDate = new Date(now.getTime() - (1 * 60 * 60 * 1000));
+    }
+
+    startDate = new Date(startDate.getTime() - timezoneOffset);
+    now = new Date(now.getTime() - timezoneOffset);
+
+    document.getElementById('start-date').value = startDate.toISOString().slice(0, 16);
+    document.getElementById('end-date').value = now.toISOString().slice(0, 16);
+});
+
+// Set default date range to last hour
+
+let now = new Date();
+const timezoneOffset = now.getTimezoneOffset() * 60000;
+let lastHour = new Date(now.getTime() - (1 * 60 * 60 * 1000))
+lastHour = new Date(lastHour.getTime() - timezoneOffset);
+now = new Date(now.getTime() - timezoneOffset);
+
+document.getElementById('start-date').value = lastHour.toISOString().slice(0, 16);
+document.getElementById('end-date').value = now.toISOString().slice(0, 16);
+</script>
+
+{% endblock %}
+
+
+
+

@@ -11,6 +11,8 @@ urlpatterns = [
     path('user_info_dump', views.user_info_dump, name='user_info_dump'),
     path("help", views.help_view, name="help"),
     path(r'main', views.account_managment, name='account_main'),
-    path(r"statistics", views.user_statistics_view, name=""),
+    path('statistics/', views.statistics_view, name='statistics'),
+    path('statistics/plot/', views.get_plot_data, name='statistics_plot'),
+    # path(r"statistics", views.user_statistics_view, name=""),
     path('', RedirectView.as_view(url='main'))
 ]
