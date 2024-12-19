@@ -25,6 +25,7 @@ for root, dirs, files in os.walk(".."):
             if file_time > latest_time:
                 latest_time = file_time
 
+
 # @conditional_decorator(login_required(login_url="about"), settings.REQUIRE_LOGIN_CHAT)
 @login_required(login_url="about")
 def edit_chat_configuration(request,):
@@ -54,7 +55,6 @@ def edit_chat_configuration(request,):
         return render(request, 'edit_chat_configuration.html', {'is_form': False, "available_configs": names_list})
 
 
-
 @login_required(login_url="about")
 def home(request):
     user_settings = request.session.get("settings", None)
@@ -79,9 +79,6 @@ GONE SKYNET?: NO(t yet)<br>"""
     globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True).values_list('name', flat=True))
     user_available_chat_modes = set(request.user.rixauser.configurations_read.values_list('name', flat=True))
     available_chat_modes = list(globally_available_configs.union(user_available_chat_modes))
-
-
-
 
     plugin_settings = _memory.get_all_variables()
     user_settings = request.session.get("plugin_variables", {})

@@ -116,7 +116,7 @@ document.getElementById('update-plot').addEventListener('click', function() {
     const interval = document.getElementById('interval').value;
     const aggFunction = document.getElementById('agg-function').value;
 
-    fetch('/de/account_managment/statistics/plot/', {
+    fetch('/de/account_management/statistics/plot/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

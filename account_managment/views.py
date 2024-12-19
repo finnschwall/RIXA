@@ -59,6 +59,7 @@ def get_interval_data(df, start_date, end_date, interval, metric, agg_function):
     return result.reset_index()
 
 
+@login_required
 def statistics_view(request):
     # Load the most recent statistics
     df = load_statistics()
@@ -78,7 +79,7 @@ def statistics_view(request):
     metrics = [col for col in df.columns if col not in ['time']]
 
     # Intervals for selection
-    intervals = ["30s","5min",'15min', '30min', '1hour', '2hour', '6hour', 'day']
+    intervals = ["5s","30s","5min",'15min', '30min', '1hour', '2hour', '6hour', 'day']
 
     # Aggregation functions
     agg_functions = ['average', 'median', 'maximum', 'cumulative']
@@ -93,6 +94,7 @@ def statistics_view(request):
     })
 
 
+@login_required
 def get_plot_data(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -318,7 +320,7 @@ def register_user(request):
                 rixa_user.save()
                 invitation.save()
                 login(request, user)
-                return HttpResponseRedirect(reverse("account_main"))
+                return HttpResponseRedirect(reverse("home"))
             else:
                 user.save()
                 invitation.uses += 1
@@ -349,41 +351,6 @@ def user_info_dump(request):
     conversations = [[conv.get_readable_conversation(), conv.timestamp] for conv in user_conversations]
     return render(request, 'user_info_dump.html', {"user_info": user_dic | rixa_user_dic, "conversations":conversations})
 
-# def register_user(request):
-#     if request.method == 'POST':
-#         if request.POST['password1'] != request.POST['password2']:
-#             messages.error(request, "Passwords don't match")
-#             return render(request, 'register.html', {'form': UserCreationForm})
-#
-#         username = request.POST['username']
-#         user_exists = True
-#         try:
-#             User.objects.get_by_natural_key(username)
-#         except:
-#             user_exists = False
-#         if user_exists:
-#             messages.error(request, "Username already exists")
-#             return render(request, 'register.html', {'form': UserCreationForm})
-#         password = request.POST['password1']
-#         additional_info = request.POST["additional_info"]
-#         user = User.objects.create_user(username, password=password)
-#         user.is_active = False
-#         if user is not None:
-#             if user.is_active:
-#                 login(request, user)
-#                 return HttpResponseRedirect(reverse("account_main"))
-#             else:
-#                 messages.warning(request, "Thanks for registering!\nYour account should get activated within a day.")
-#                 return HttpResponseRedirect(reverse("game_home"))
-#         else:
-#             messages.error(request, "Something went wrong...")
-#             return render(request, 'register.html', {'form': UserCreationForm})
-#     else:
-#         if not request.is_secure():
-#             messages.warning(request, "Do not use a password you use on another site under any circumstances! "
-#                                       "The server can not verify the security of the connection. (This error probably"
-#                                       " won't get resolved in the near future)")
-#         return render(request, 'register.html', {'form': UserCreationForm})
 
 @ensure_csrf_cookie
 def user_login(request):
@@ -399,9 +366,9 @@ def user_login(request):
                 login(request, user)
                 if "next" in request.GET:
                     return HttpResponseRedirect(request.GET.get('next'))
-                return HttpResponseRedirect(reverse("account_main"))
+                return HttpResponseRedirect(reverse("home"))
             else:
-                messages.error(request, "Your account is not (yet) activated.")
+                messages.error(request, "Your account is currently deactivated. This may be due to an undergoing study or maintenance.")
                 return render(request, 'login.html', {'form': AuthenticationForm})
         else:
             messages.error(request, "Invalid username or password")

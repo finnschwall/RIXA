@@ -56,7 +56,7 @@ dependencies = [
 
 [tool.setuptools.package-dir]
 rixa = ""
-"rixa.plugins" = "plugins"
+#"rixa.plugins" = "plugins"
 "rixa.rixaserver" = "rixaserver"
 
 [project.scripts]

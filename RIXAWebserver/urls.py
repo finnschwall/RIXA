@@ -31,11 +31,11 @@ from django.conf.urls.static import static
 urlpatterns = i18n_patterns(
     path('admin/', admin.site.urls),
     path("dashboard/", include("dashboard.urls"), name="dashboard"),
-    path("account_managment/", include("account_managment.urls")),
+    path("account_management/", include("account_managment.urls")),
     path("management/", include("management.urls")),
     path('login/', lambda request: redirect('/account_managment/user_login/')),
     path('logout/', lambda request: redirect('/account_managment/user_logout/')),
-    path("statistics/", lambda request: redirect('/account_managment/statistics/')),
+    path("statistics/", lambda request: redirect('/account_management/statistics/')),
     path('', RedirectView.as_view(url='dashboard/'))
 )
 if 'rosetta' in settings.INSTALLED_APPS:

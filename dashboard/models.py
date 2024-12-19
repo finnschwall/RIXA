@@ -74,6 +74,7 @@ class ChatConfiguration(models.Model):
     included_plugins = models.JSONField(default=generate_default_plugins, blank=True)
     use_document_retrieval = models.BooleanField(default=False)
     document_tags = models.JSONField(default=generate_default_document_tags, blank=True)
+    custom_user_settings = models.JSONField(default=dict, blank=True)
 
     def delete(self, *args, **kwargs):
         if self.name == 'default':

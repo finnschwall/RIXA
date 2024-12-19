@@ -31,7 +31,7 @@ class Invitation(models.Model):
     def save(self, *args, **kwargs):
         if not self.code:
             self.code = get_random_string(20)
-        self.url = settings.PRIMARY_URL + "/account_managment/signup/?registration_id=" + str(self.code)
+        self.url = settings.PRIMARY_URL + "/account_management/signup/?registration_id=" + str(self.code)
         super().save(*args, **kwargs)
 
     @property

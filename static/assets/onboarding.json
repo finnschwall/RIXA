@@ -1,0 +1,19 @@
+[
+  {
+    "target": "body",
+    "placement": "center",
+    "content": "Welcome to RIXA, in the next steps we want to explain a bit about how you can use RIXA."
+  },
+  {
+    "target": "#delete_conversation",
+    "content": "This is where you can reset your conversation with the chatbot. Keep in mind that clearing the conversation, if you want to switch topic, makes the chatbot work faster and more reliably."
+  },
+  {
+    "target": "#account",
+    "content": "By clicking here you can manage your profile!"
+  },
+  {
+    "target": "#feedback",
+    "content": "If something goes wrong, you can report a bug here. We will try to fix it as soon as possible. You can also suggest new features/an improvement here."
+  }
+]

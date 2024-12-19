@@ -37,20 +37,20 @@ def collect_user_info():
     while True:
         time.sleep(max_between_time.seconds)
         # GPU Data
-        tot_free_vrams = []
-        tot_vrams = []
-        performance_states = []
-        gpu_utilizations = []
-        gpu_names = []
-        command = "nvidia-smi --query-gpu=memory.free,memory.total,pstate,utilization.gpu,gpu_name --format=csv"
-        smi_info = sp.check_output(command.split()).decode('ascii').split('\n')[:-1][1:]
-        for gpu_info in smi_info:
-            tot_free_vram, tot_vram, performance_state, gpu_utilization, gpu_name = gpu_info.split(", ")
-            performance_states.append(round((12 - int(performance_state[1:])) / 12 * 100))
-            tot_free_vrams.append(int(tot_free_vram[:-4]))
-            tot_vrams.append(int(tot_vram[:-4]))
-            gpu_utilizations.append(int(gpu_utilization[:-1]))
-            gpu_names.append(gpu_name)
+        # tot_free_vrams = []
+        # tot_vrams = []
+        # performance_states = []
+        # gpu_utilizations = []
+        # gpu_names = []
+        # command = "nvidia-smi --query-gpu=memory.free,memory.total,pstate,utilization.gpu,gpu_name --format=csv"
+        # smi_info = sp.check_output(command.split()).decode('ascii').split('\n')[:-1][1:]
+        # for gpu_info in smi_info:
+        #     tot_free_vram, tot_vram, performance_state, gpu_utilization, gpu_name = gpu_info.split(", ")
+        #     performance_states.append(round((12 - int(performance_state[1:])) / 12 * 100))
+        #     tot_free_vrams.append(int(tot_free_vram[:-4]))
+        #     tot_vrams.append(int(tot_vram[:-4]))
+        #     gpu_utilizations.append(int(gpu_utilization[:-1]))
+        #     gpu_names.append(gpu_name)
 
         # CPU data
         vm = psutil.virtual_memory()
@@ -59,8 +59,6 @@ def collect_user_info():
 
         cur_ps = psutil.Process()
         with cur_ps.oneshot():
-            proc_cpu_time_total = round(sum(cur_ps.cpu_times()), 3)
-            proc_ram_usage = round(cur_ps.memory_info().rss / 1024 ** 2)
             p_time = (datetime.now() - datetime.fromtimestamp(cur_ps.create_time())).total_seconds()
             tot_cpu_time = cur_ps.cpu_times()[0]
 
@@ -72,10 +70,6 @@ def collect_user_info():
 
         #disk data
         disk_io = psutil.disk_io_counters()
-        read_bytes = disk_io.read_bytes
-        write_bytes = disk_io.write_bytes
-        read_time = disk_io.read_time
-        write_time = disk_io.write_time
         total_mb_disk = (disk_io.read_bytes + disk_io.write_bytes)/(1024**2)
         total_disk_time = (disk_io.read_time + disk_io.write_time)/1000
 
@@ -93,7 +87,7 @@ def collect_user_info():
         max_tasks = rixaplugin._memory.executor.get_max_task_count()
         task_queue_count = rixaplugin._memory.executor.get_queued_task_count()
         df_dict = {"time": datetime.now().isoformat(), "active_users": active_users,
-                   "vram_usage": round(100-np.sum(tot_free_vrams)/np.sum(tot_vrams)*100,1), "gpu_utilization": np.mean(gpu_utilizations),
+                   # "vram_usage": round(100-np.sum(tot_free_vrams)/np.sum(tot_vrams)*100,1), "gpu_utilization": np.mean(gpu_utilizations),
                    "ram_usage": ram_percent, "cpu_load_avg_1m": cpu_load_avg_1m, "rel_proc_cpu_time": round(tot_cpu_time * 100 / p_time,1),
                    "total_messages_sent": total_messages_sent,  "total_processed_tokens": total_tokens, "current_active_tasks": current_active_tasks, "task_queue_count": task_queue_count,
                    "total_mb_transmitted": round(total_mb_transmitted,1), "net_err_total": err_total,

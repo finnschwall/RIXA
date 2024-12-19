@@ -56,7 +56,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if not settings.DEBUG:
                 return
             else:
-                self.scope["user"] = get_user_model().objects.get(username="finn")
+                self.scope["user"] = get_user_model().objects.get(username="finnadmin")
         chat_config = self.scope["user"].rixauser.configurations_read.all()
         chat_config = set(chat_config)
         globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True))
@@ -118,7 +118,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # SessionStatistics.register_infos(self.scope["user"].username, self.msg_count, (datetime.now() - self.start_time).seconds//60)
         except Exception as e:
             user_logger.exception("Error while writing user info")
-            print(e)
 
 
     async def websocket_receive(self, message):
@@ -186,6 +185,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.consumer_api.enable_knowledge_retrieval = message["value"]
                 if message["setting"] == "selected_chat_mode":
                     self.consumer_api.selected_chat_mode = message["value"]
+                    # HARDCODED
+                    if message["value"] == "anmol":
+                        await self.send(json.dumps({"role": "global_settings", "content": {"show_banner": True}}))
                     await self.consumer_api.new_chat()
                     for i in self.consumer_api.get_active_conversation():
                         await self.consumer_api.display_in_chat(tracker_entry=i)
@@ -216,6 +218,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 headers = self.scope["headers"]
                 client = self.scope.get("client", "no client info")
                 user_settings = self.scope["session"].get("settings", "no settings available")
+                if "image" in message:
+                    format, imgstr = message["image"].split(';base64,')
+                    ext = format.split('/')[-1]
+                    image = base64.b64decode(imgstr)
+                    with open(settings.WORKING_DIRECTORY + f"/bug_reports/{username}_{current_time}.{ext}", "wb") as f:
+                        f.write(image)
+                    del message["image"]
                 with open(settings.WORKING_DIRECTORY + f"/bug_reports/{username}_{current_time}.txt", "w") as f:
                     total_text = f"Bugreport submitted by {username} at {current_time}\n\n"
                     total_text += f"Report:\n-----\n{report}\n-----\n\n"
@@ -227,12 +236,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     total_text += f"Headers:\n{pprint.pformat(headers, indent=4)}\n\n"
                     total_text += f"Client infos:\n{pprint.pformat(message, indent=4)}"
                     f.write(total_text)
-                if "image" in message:
-                    format, imgstr = message["image"].split(';base64,')
-                    ext = format.split('/')[-1]
-                    image = base64.b64decode(imgstr)
-                    with open(settings.WORKING_DIRECTORY + f"/bug_reports/{username}_{current_time}.{ext}", "wb") as f:
-                        f.write(image)
+
             except Exception as e:
                 user_logger.exception("Error while submitting bug report")
                 await self.consumer_api.show_message(f"USER {self.scope['user'].username}: Error while submitting bug report. This should not happen",
@@ -265,9 +269,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             enable_function_calls = user_settings.get("enable_function_calls", True)
             enable_knowledge_retrieval = user_settings.get("enable_knowledge_retrieval", True)
             selected_chat_mode = user_settings.get("selected_chat_mode", "default")
+            show_onboarding = user_settings.get("show_onboarding", True)
+
+
             settings_dict = {"enable_function_calls": enable_function_calls, "enable_knowledge_retrieval": enable_knowledge_retrieval,
-                             "selected_chat_mode": selected_chat_mode}
+                             "selected_chat_mode": selected_chat_mode, "show_onboarding": show_onboarding, }
             await self.send(json.dumps({"role": "user_settings", "content": settings_dict}))
+            # HARDCODED
+            if selected_chat_mode == "anmol":
+                await self.send(json.dumps({"role": "global_settings", "content": {"show_banner":True}}))
         elif req_type == "get_utilization_info":
             executor_work = (_memory.executor.get_active_task_count() / _memory.executor.get_max_task_count()) * 100
             task_queue_count = _memory.executor.get_queued_task_count()
@@ -278,12 +288,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             "database_engine": database_engine, "globally_available_plugins": globally_available_plugins}
             await self.send(json.dumps({"role": "utilization_info", "content": util_dict}))
         elif req_type == "get_global_settings":
-            await self.send(json.dumps({"role": "global_settings", "content": {"chat_disabled": settings.DISABLE_CHAT,
-                                                                             "website_title": settings.WEBSITE_TITLE,
-                                                                             "chat_title": settings.CHAT_TITLE,
-                                                                             "always_maximize_chat": settings.ALWAYS_MAXIMIZE_CHAT,
-                                                                             "theme": settings.BOOTSTRAP_THEME,
-                                                                               "server_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}}))
+            await self.send(json.dumps({"role": "global_settings", "content": {
+                                                                                # "chat_disabled": settings.DISABLE_CHAT,
+                                                                             # "website_title": settings.WEBSITE_TITLE,
+                                                                             # "chat_title": settings.CHAT_TITLE,
+                                                                             # "always_maximize_chat": settings.ALWAYS_MAXIMIZE_CHAT,
+                                                                             # "theme": settings.BOOTSTRAP_THEME,
+                                                                             #   "server_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+
+                                                                               }}))
         elif req_type == "get_chat_start_info":
             selected_chat_mode = message.get("selected_chat_mode", None)
 
@@ -292,6 +305,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 user_logger.error(f"User {self.scope['user'].username} sent a non-existing chat mode: {selected_chat_mode}")
                 await self.consumer_api.show_message("The selected chat mode does not exist. Maybe it has been removed?", theme="error")
                 return
+
             await self.send(json.dumps({"role": "plugin_startup_info", "content": chat_start_info}))
         elif req_type == "confirm_datapoint" or req_type == "decline_datapoint":
             await self.channel_layer.send(
@@ -328,6 +342,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.consumer_api.display_in_chat(tracker_entry=tracker[-1])
         elif req_type == "send_example_error":
             await self.consumer_api.show_message("This is an example error message", theme="error")
+        elif req_type == "onboarding_closed":
+            user_settings = self.scope["session"].get("settings", None)
+            if user_settings:
+                user_settings["show_onboarding"] = False
+                self.scope["session"]["settings"] = user_settings
+                await sync_to_async(self.scope["session"].save)()
         else:
             user_logger.error(f"Received unknown message type: {req_type} from user {self.scope['user'].username}")
 

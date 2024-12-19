@@ -2,7 +2,7 @@ const roomName = "room1"
 let ws_scheme = window.location.protocol == "https:" ? "wss://" : "ws://";
 const websocketURL =  ws_scheme + window.location.host+ '/ws/chat/'+ roomName+'/'
 
-console.log(websocketURL)
+// console.log(websocketURL)
 let reconnectTries = 0
 const maxTries = 3
 let chatSocket
