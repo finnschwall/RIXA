@@ -414,12 +414,21 @@ DEFAULT_PLUGIN_VENV = config("DEFAULT_PLUGIN_VENV", default=None)
 
 DISABLE_CHAT = config("DISABLE_CHAT", default=False, cast=bool)
 
-REQUIRE_LOGIN_CHAT = config("REQUIRE_LOGIN_CHAT", default=False, cast=bool)
+# REQUIRE_LOGIN_CHAT = config("REQUIRE_LOGIN_CHAT", default=False, cast=bool)
+# delete when no errors are found
+
+DEFAULT_BACKGROUND_MESSAGE = "## Welcome"
+
+ENABLE_RAG_MANAGEMENT_SITES = config("ENABLE_RAG_MANAGEMENT_SITES", default=False, cast=bool)
 
 WEBSITE_TITLE = config("WEBSITE_TITLE", default="Home")
 CHAT_TITLE = config("CHAT_TITLE", default="XAI Buddy")
 ALWAYS_MAXIMIZE_CHAT = config("ALWAYS_MAXIMIZE_CHAT", default=False, cast=bool)
 
-INTERCEPT_CHAT = config("INTERCEPT_CHAT", default=False, cast=bool)
+# INTERCEPT_CHAT = config("INTERCEPT_CHAT", default=False, cast=bool)
+# delete when no errors are found
+
+ENABLE_CHAT_TELEMETRY = config("ENABLE_CHAT_TELEMETRY", cast=bool, default=True)
+ENABLE_TAB_SWITCH_TELEMETRY = config("ENABLE_TAB_SWITCH_TELEMETRY", cast=bool, default=False)
 
 ALL_SETTINGS = config.repository.data

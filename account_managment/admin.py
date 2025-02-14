@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from account_managment.models import RixaUser
+from account_managment.models import RixaUser, Message
 from .models import Invitation, User
 # from django.contrib.auth.admin import UserAdmin
 from django.contrib.sessions.models import Session
@@ -45,6 +45,13 @@ class RixaUserInline(admin.StackedInline):
 class UserAdmin(BaseUserAdmin):
     inlines = [RixaUserInline]
 
+
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('title','content', 'created_at', 'expiration_date')
+    list_filter = ('created_at', 'expiration_date')
+    search_fields = ('content',)
+
+admin.site.register(Message, MessageAdmin)
 
 # admin.site.register(UserTag, UserTagAdmin)
 admin.site.register(Invitation, InvitationAdmin)

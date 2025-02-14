@@ -3,14 +3,18 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 # from . import database
-from rixarag import database
+from django.conf import settings
+if settings.ENABLE_RAG_MANAGEMENT_SITES:
+    from rixarag import database
 
 
 @login_required(login_url="about")
 def index(request):
     """Home page view showing collection selection."""
+    if not settings.ENABLE_RAG_MANAGEMENT_SITES:
+        return HttpResponse("RAG management sites are disabled")
     collections = database.list_collections()
     collection_info = []
     for collection in collections:
@@ -23,6 +27,8 @@ def index(request):
 def view_collection(request, collection_name):
     """View for displaying random elements and allowing queries within a collection."""
     # Get random elements to display
+    if not settings.ENABLE_RAG_MANAGEMENT_SITES:
+        return HttpResponse("RAG management sites are disabled")
 
     query_results = None
     query = request.GET.get('query', '')
@@ -73,7 +79,8 @@ def view_collection(request, collection_name):
 
 
 def perform_query(request, collection_name):
-    """AJAX view for performing queries."""
+    if not settings.ENABLE_RAG_MANAGEMENT_SITES:
+        return JsonResponse({'error': 'RAG management sites are disabled'}, status=400)
     if request.method == 'POST':
         query = request.POST.get('query', '')
         if query:

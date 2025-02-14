@@ -81,6 +81,7 @@ class PluginAdmin(admin.AdminSite):
                 ["Used (real) memory for server in MB", round(process.memory_info()[0] / 1024 ** 2)],
                 ["Total connections", conns],
                 ["Consumer sockets (active users)", ChatConsumer.active_connections],
+                ["Logged in users", str(ChatConsumer.logged_in_users).replace("{", "").replace("}", "")],
                 ["Total CPU time in s", tot_cpu_time],
                 ["Prop. CPU time single core in %", f"{tot_cpu_time * 100 / p_time:.1f}"]]
 

@@ -97,9 +97,6 @@ async def await_code_execution(code, api_obj):
         await api_obj.display_in_chat(text=f"{e.traceback}")
     except Exception as e:
         err_str = rixalogger.format_exception(e, without_color=True)
-        # tb = traceback.format_exc()
-        # # exception_str = ''.join(traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__))
-        # err_str = "```\n"+tb[:-500]+"\n```"
         plugin_web_log.exception("Error in code execution")
         await api_obj.display_in_chat(text=f"```\n{err_str}\n```")
 
@@ -144,13 +141,10 @@ async def plugin_interface():
     """
     channel_layer = get_channel_layer()
     from rixaplugin.test import introspection, test_api
-    #from rixaplugin.default_plugins import catbot, math#, websearch
     from pyalm.chat import alm_plugin
 
     import rixaplugin
     #rixaplugin.set_tags("catbot",["default"])
-    #rixaplugin.set_tags("math", ["physics"])
-    # rixaplugin.set_tags("websearch", ["websearch"])
     rixaplugin.init_plugin_system(PMF.SERVER | PMF.THREAD | PMF.LOCAL, settings.NUM_SERVER_WORKER_THREADS, settings.DEBUG)
     while True:
         try:

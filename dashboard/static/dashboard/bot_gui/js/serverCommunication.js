@@ -15,10 +15,17 @@ let lastUsedDisplay = 0
 let chat_enabled = true
 
 
-initializeWebSocket()
 
-$("#userInput").prop("disabled",true)
+initializeWebSocket()
+let standalone = false
+try{
+    $("#userInput").prop("disabled",true)
 const toastJS= bootstrap.Toast.getOrCreateInstance($("#liveToast"))
+}
+catch(e){
+    standalone = true
+}
+
 let timeout_id = -1
 
 
@@ -76,6 +83,19 @@ function callPluginFunction(plugin_name, function_name, args, kwargs) {
 let firstDisplay = false
 function onMessageHandler(e) {
     const data = JSON.parse(e.data);
+
+    if(standalone){
+        try{
+            // if(data["role"]==="HTML"){
+                messageHandler(data)
+            // }
+        }
+        catch(e){
+            // console.error(e)
+        }
+        return
+    }
+
     if(data["type"]==="f_call"){
         callFunction(data);
 
@@ -94,6 +114,7 @@ function onMessageHandler(e) {
 
         }
     }
+
 
 
 
@@ -185,6 +206,15 @@ function onErrorHandler(e){
 }
 
 function onOpenHandler(e){
+    if(standalone){
+        try{
+            connectionEstablishedHandler()
+        }
+        catch(e){
+            // console.error(e)
+        }
+        return
+    }
     $("#userInput").prop("disabled",false)
     openChat()
     if(reconnectTries>0) {

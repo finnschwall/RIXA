@@ -5,7 +5,7 @@ import json
 import os
 import pprint
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from asgiref.sync import sync_to_async
 from channels.consumer import AsyncConsumer
@@ -17,13 +17,14 @@ import re
 from django.contrib.auth import get_user_model
 
 from rixaplugin import _memory
-
+from django.db.models import Q
 from RIXAWebserver import settings
+from account_managment.models import Message
 # from account_managment.visit_statistics import SessionStatistics
 
 from .api import ChannelBridgeAPI, ConsumerAPI
 from .models import PluginScope, ChatConfiguration
-
+from django.utils import timezone
 logger = logging.getLogger()
 user_logger = logging.getLogger("rixa.ws_handler")
 
@@ -33,32 +34,52 @@ connection_lock = threading.Lock()
 class ChatConsumer(AsyncWebsocketConsumer):
     active_connections = 0
     sent_messages = 0
+    logged_in_users = set()
 
     async def connect(self):
         await self.accept()
-        chat_modes = await self.get_user_info()
+        chat_modes, no_tracker_saving, messages = await self.get_user_info()
+        self.no_tracker_saving = no_tracker_saving
         self.consumer_api = ConsumerAPI(self, chat_modes)
 
         # await self.consumer_api.new_chat()
         for i in self.consumer_api.get_active_conversation():
             await self.consumer_api.display_in_chat(tracker_entry=i)
+        current_chat_mode = self.consumer_api.chat_modes[self.consumer_api.selected_chat_mode]
+        if not current_chat_mode["first_message"] and current_chat_mode["background_message"]:
+            await self.send(json.dumps({"role": "intro", "text": current_chat_mode["background_message"]}))
+        else:
+            await self.send(json.dumps({"role": "intro", "text": settings.DEFAULT_BACKGROUND_MESSAGE}))
 
         with connection_lock:
             ChatConsumer.active_connections += 1
+            self.logged_in_users.add(self.scope["user"].username)
+
         self.msg_count = 0
         self.start_time = datetime.now()
         self.is_admin = self.scope["user"].is_staff
+        self.last_msg_sent = datetime.now()
+        self.allow_send_msg = True
 
+
+        msg_txt = ""
+        for i in messages:
+            msg_txt += f"# {i.title}\n"
+            msg_txt += f"{i.content}\n"
+        if msg_txt:
+            await self.consumer_api.show_modal(msg_txt, title="News")
 
     @database_sync_to_async
     def get_user_info(self):
         if not self.scope["user"].is_authenticated:
             if not settings.DEBUG:
                 return
-            else:
-                self.scope["user"] = get_user_model().objects.get(username="finnadmin")
+            #EVIL. Only uncomment for DDOS testing (allows for unauthenticated users)
+            # else:
+            #     self.scope["user"] = get_user_model().objects.get(username="finnadmin")
         chat_config = self.scope["user"].rixauser.configurations_read.all()
         chat_config = set(chat_config)
+        no_tracker_saving = self.scope["user"].rixauser.no_tracker_saving
         globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True))
         chat_config = chat_config.union(globally_available_configs)
         chat_config = list(chat_config)
@@ -69,14 +90,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
                      "plugins": config.included_plugins, "use_function_calls": config.use_function_calls,
                      "tags": list(config.included_scopes.all().values_list('name', flat=True)),
                      "system_msg": config.system_message,
-                     "first_message": config.first_message if config.first_message != "" else None}
+                     "first_message": config.first_message if config.first_message != "" else None,
+                     "background_message": config.background_message if config.background_message != "" else None,
+                     "chat_title": config.chat_title,
+                    "preferred_chat_backend": config.preferred_chat_backend,
+                     }
 
             chat_modes[config.name] = entry
             # plugins_in_chat_mode[config.name] = config.included_plugins#[i.included_plugins for i in config.included_plugins]
         # tags_in_chat_mode = {}
         # for config in chat_config:
         #     tags_in_chat_mode[config.name] = list(config.included_scopes.all().values_list('name', flat=True))
-        return chat_modes
+
+        profile = self.scope["user"].rixauser
+        messages = Message.objects.filter(
+            Q(expiration_date__gt=timezone.now()) | Q(expiration_date__isnull=True)
+        ).exclude(
+            id__in=profile.seen_messages.values_list('id', flat=True)
+        )
+
+        # Mark these messages as seen by the user
+        profile.seen_messages.add(*messages)
+
+        return chat_modes, no_tracker_saving, list(messages)
 
 
     async def api_dispatcher(self, event):
@@ -100,19 +136,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         with connection_lock:
             ChatConsumer.active_connections -= 1
+            ChatConsumer.logged_in_users.discard(self.scope["user"].username)
         await self.write_to_user()
+        await self.consumer_api.disconnect()
+
 
     @database_sync_to_async
     def write_to_user(self):
         if not self.scope["user"].is_authenticated:
             return
         try:
+            # return
             self.scope["user"].rixauser.total_messages += self.msg_count
             self.scope["user"].rixauser.total_time_spent += (datetime.now() - self.start_time).seconds//60
             self.scope["user"].rixauser.total_sessions += 1
             messages_per_session_json = json.loads(self.scope["user"].rixauser.messages_per_session) if self.scope["user"].rixauser.messages_per_session else []
             messages_per_session_json.append(self.msg_count)
             self.scope["user"].rixauser.messages_per_session = json.dumps(messages_per_session_json)
+            # self.scope["user"].rixauser.no_tracker_saving = self.no_tracker_saving
             self.scope["user"].rixauser.save()
 
             # SessionStatistics.register_infos(self.scope["user"].username, self.msg_count, (datetime.now() - self.start_time).seconds//60)
@@ -121,7 +162,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     async def websocket_receive(self, message):
-        # print(self.scope["user"].get_user_permissions())
         message = json.loads(message["text"])
         req_type = message["type"]
 
@@ -155,6 +195,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             )
         elif req_type == "usr_msg":
+            if not self.allow_send_msg:
+                if not self.last_msg_sent + timedelta(minutes=1) < datetime.now():
+                    await self.consumer_api.show_message("Can't send new message until old one is processed", theme="error")
+            self.allow_send_msg = False
+            self.last_msg_sent = datetime.now()
             self.msg_count += 1
             ChatConsumer.sent_messages += 1
             tracker = self.consumer_api.get_active_conversation()
@@ -166,11 +211,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "args": (tracker.to_yaml(),),
                     "tags": self.consumer_api.get_current_tags(),
                     "allowed_plugins": self.consumer_api.get_current_plugins(),
-                "plugin_variables": self.consumer_api.get_plugin_variables(),
+                    "plugin_variables": self.consumer_api.get_plugin_variables(),
                     "kwargs": {"enable_function_calling": self.consumer_api.is_function_calls_enabled(),
                                "enable_knowledge_retrieval": self.consumer_api.is_knowledge_enabled(),
                                 "knowledge_retrieval_domain" : self.consumer_api.get_knowledge_retrieval_domain(),
-                               "username": self.scope["user"].username, "system_msg": self.consumer_api.get_system_msg()
+                               "username": self.scope["user"].username, "system_msg": self.consumer_api.get_system_msg(),
                                }
                 }
             await self.channel_layer.send(
@@ -185,13 +230,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.consumer_api.enable_knowledge_retrieval = message["value"]
                 if message["setting"] == "selected_chat_mode":
                     self.consumer_api.selected_chat_mode = message["value"]
-                    # HARDCODED
+                    current_chat_mode = self.consumer_api.chat_modes[self.consumer_api.selected_chat_mode]
+                    if not current_chat_mode["first_message"] and current_chat_mode["background_message"]:
+                        await self.send(json.dumps({"role": "intro", "text": current_chat_mode["background_message"]}))
+                    else:
+                        await self.send(json.dumps({"role": "intro","text": settings.DEFAULT_BACKGROUND_MESSAGE}))
                     if message["value"] == "anmol":
                         await self.send(json.dumps({"role": "global_settings", "content": {"show_banner": True}}))
                     await self.consumer_api.new_chat()
                     for i in self.consumer_api.get_active_conversation():
                         await self.consumer_api.display_in_chat(tracker_entry=i)
-
                 await sync_to_async(self.scope["session"].save)()
             except Exception as e:
                 user_logger.exception("Error while changing settings")
@@ -232,9 +280,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     total_text += f"Client connection: {client}\n"
                     total_text += f"User settings:\n{pprint.pformat(user_settings, indent=4)}"
                     total_text += f"\n\nConversation tracker:\n{current_conv_tracker}"
-                    total_text += "\n\nAuxiliary info\n-----\n\n"
-                    total_text += f"Headers:\n{pprint.pformat(headers, indent=4)}\n\n"
-                    total_text += f"Client infos:\n{pprint.pformat(message, indent=4)}"
+
                     f.write(total_text)
 
             except Exception as e:
@@ -259,6 +305,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     for varkey, varval in val.items():
                         if varkey in plugin_settings[key]:
                             plugin_settings[key][varkey]["value"] = varval
+            print(plugin_settings)
             await self.send(json.dumps({"role": "plugin_settings", "content": plugin_settings}))
         elif req_type == "user_settings":
             # settings unrelated to any specific plugin
@@ -269,7 +316,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             enable_function_calls = user_settings.get("enable_function_calls", True)
             enable_knowledge_retrieval = user_settings.get("enable_knowledge_retrieval", True)
             selected_chat_mode = user_settings.get("selected_chat_mode", "default")
-            show_onboarding = user_settings.get("show_onboarding", True)
+            show_onboarding = user_settings.get("show_onboarding", True) and not self.is_admin
 
 
             settings_dict = {"enable_function_calls": enable_function_calls, "enable_knowledge_retrieval": enable_knowledge_retrieval,
@@ -278,6 +325,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # HARDCODED
             if selected_chat_mode == "anmol":
                 await self.send(json.dumps({"role": "global_settings", "content": {"show_banner":True}}))
+                await self.channel_layer.send(
+                    "plugin_interface",
+                    {
+                        "type": "call_plugin_function",
+                        "channel_name": self.channel_name,
+                        "function_name": "show_datapoint",
+                        "tags": self.consumer_api.get_current_tags(),
+                        "allowed_plugins": self.consumer_api.get_current_plugins(),
+                        "plugin_variables": self.consumer_api.get_plugin_variables(),
+                        "args": message.get("args", []),
+                        "kwargs": message.get("kwargs", {}),
+                    }
+
+                )
         elif req_type == "get_utilization_info":
             executor_work = (_memory.executor.get_active_task_count() / _memory.executor.get_max_task_count()) * 100
             task_queue_count = _memory.executor.get_queued_task_count()
@@ -288,7 +349,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             "database_engine": database_engine, "globally_available_plugins": globally_available_plugins}
             await self.send(json.dumps({"role": "utilization_info", "content": util_dict}))
         elif req_type == "get_global_settings":
-            await self.send(json.dumps({"role": "global_settings", "content": {
+            await self.send(json.dumps({"role": "global_settings", "content": {"telemetry": settings.ENABLE_CHAT_TELEMETRY,
                                                                                 # "chat_disabled": settings.DISABLE_CHAT,
                                                                              # "website_title": settings.WEBSITE_TITLE,
                                                                              # "chat_title": settings.CHAT_TITLE,
@@ -320,8 +381,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "args": message.get("args", []),
                     "kwargs": message.get("kwargs", {}),
                 }
-
             )
+            await self.send(json.dumps({"role": "clear_chat"}))
+            await self.consumer_api.new_chat()
+            for i in self.consumer_api.get_active_conversation():
+                await self.consumer_api.display_in_chat(tracker_entry=i)
+            await sync_to_async(self.scope["session"].save)()
         elif req_type == "upload_tracker":
             if not self.is_admin:
                 return
@@ -348,6 +413,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 user_settings["show_onboarding"] = False
                 self.scope["session"]["settings"] = user_settings
                 await sync_to_async(self.scope["session"].save)()
+        elif req_type == "user_interaction":
+            if message["subtype"] == "left_tab" or message["subtype"] == "returned_tab":
+                if not settings.ENABLE_TAB_SWITCH_TELEMETRY:
+                    return
+            await self.consumer_api.add_telemetry_data(message)
         else:
             user_logger.error(f"Received unknown message type: {req_type} from user {self.scope['user'].username}")
 

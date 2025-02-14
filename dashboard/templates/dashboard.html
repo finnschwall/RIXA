@@ -1,0 +1,46 @@
+{% load i18n %}
+<!doctype html>
+{% load static %}
+{% load bootstrap5 %}
+{% load plots %}
+<head>
+    {#    meta stuff#}
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <title>{{ website_title }}</title>
+
+    {#    css#}
+    <link href="{% static 'favicon.ico' %}" rel="shortcut icon" type="image/png"/>
+    <link rel="stylesheet" id="stylesheet" href="{% static 'css/bootstrap.main.css' %}">
+    <link href="{% static 'css/font/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'dashboard/bot_gui/css/style.css' %}" rel="stylesheet" type="text/css"/>
+
+    {#scripts#}
+    {#    these could be fetched over public CDN#}
+    {% bootstrap_javascript %}
+    <script src="{% static 'js/jquery-3.6.3.min.js' %}"></script>
+    <script src="{% static 'js/showdown.min.js' %}"></script>
+    <script src="{% static 'js/plotly-2.20.0.min.js' %}" charset="utf-8"></script>
+    {#<script type="text/javascript" src="https://www.maths.nottingham.ac.uk/plp/pmadw/LaTeXMathML.js"></script>#}
+    {#    own scripts#}
+    <script src="{% static 'js/LaTeXMathML.js' %}"></script>
+    <script src="{% static 'js/jshelpers.js' %}"></script>
+    <script>function getPath(path) {
+            path = path.replace("./static/", "{% static 'dashboard/bot_gui/' %}")
+            return path
+        }</script>
+
+        <script>
+    $(function(){
+      $("#includedContent").load("{% static 'js/dashboard.html' %}");
+    });
+    </script>
+    <script src="{% static 'js/dashboard.js' %}"></script>
+     <script src="{% static 'dashboard/bot_gui/js/serverCommunication.js' %}"></script>
+{#    <script src="{% static 'dashboard/bot_gui/js/script.js' %}"></script>#}
+    <script src="{% static 'dashboard/bot_gui/js/chat.js' %}"></script>
+</head>
+
+<div id="includedContent"></div>
+
+

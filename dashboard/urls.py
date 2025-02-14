@@ -9,5 +9,6 @@ urlpatterns = [
     path(r'edit_chat_configuration', views.edit_chat_configuration, name='edit_chat_configuration'),
     path(r'about', views.about, name='about'),
     path(r'test', views.test, name='test'),
+    path(r'dashboard', views.dashboard, name='dashboard'),
     path('', RedirectView.as_view(url=r'home'))
 ]

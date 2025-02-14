@@ -67,8 +67,10 @@ class ChatConfiguration(models.Model):
     # tags = models.ManyToManyField(SelectionTag)
     available_to_all = models.BooleanField(default=False)
     chat_title = models.CharField(max_length=70, blank=True)
-    system_message = models.TextField(blank=True)
-    first_message = models.TextField(blank=True)
+    system_message = models.TextField(blank=True, help_text="Custom instructions for the chatbot")
+    first_message = models.TextField(blank=True, help_text="Displayed as the first message in the chat")
+    background_message = models.TextField(blank=True, help_text="Displayed if no first message is given and no message is in the chat history")
+    preferred_chat_backend = models.CharField(max_length=100, blank=True, help_text="Preferred chat backend")
     included_scopes = models.ManyToManyField(PluginScope, blank=True)
     use_function_calls = models.BooleanField(default=False)
     included_plugins = models.JSONField(default=generate_default_plugins, blank=True)
@@ -100,6 +102,8 @@ class Conversation(models.Model):
         null=True,
         help_text="Identifier of the LLM used"
     )
+    chat_mode = models.CharField(blank=True, max_length=100)
+
 
     def clean(self):
         try:
@@ -144,8 +148,8 @@ class Conversation(models.Model):
 
 @admin.register(Conversation)
 class ConversationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'timestamp', 'model_name', 'short_conversation')
-    list_filter = ('user', 'model_name', 'timestamp')
+    list_display = ('id', 'user', 'timestamp', 'model_name', 'chat_mode', 'short_conversation')
+    list_filter = ('user', 'model_name', 'timestamp', "chat_mode")
     # fields = ("tracker_yaml",)
     readonly_fields = ('id', 'user', 'timestamp', 'model_name', 'readable_conversation')
 

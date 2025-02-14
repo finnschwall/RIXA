@@ -98,6 +98,11 @@ GONE SKYNET?: NO(t yet)<br>"""
                "plugin_settings":json.dumps(plugin_settings)}
     return render(request, 'home.html', context)
 
+@login_required(login_url="about")
+def dashboard(request):
+    context = {}
+    return render(request, 'dashboard.html', context)
+
 
 @login_required(login_url="about")
 def home_old(request):
@@ -135,7 +140,6 @@ GONE SKYNET?: NO(t yet)<br>"""
             for varkey, varval in val.items():
                 if varkey in plugin_settings[key]:
                     plugin_settings[key][varkey]["value"] = varval
-
     context = {"chat_disabled": settings.DISABLE_CHAT, "website_title": settings.WEBSITE_TITLE,
                "chat_title": settings.CHAT_TITLE, "always_maximize_chat": settings.ALWAYS_MAXIMIZE_CHAT,
                "theme":settings.BOOTSTRAP_THEME, "enable_function_calls": enable_function_calls,

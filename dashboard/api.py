@@ -1,9 +1,9 @@
 import math
-from datetime import time
+from datetime import time, datetime
 
 import rixaplugin.internal.api as plugin_api
 import json
-
+import copy
 from channels.db import database_sync_to_async
 from pyalm import ConversationTracker
 # class ChannelsAPI(plugin_api.BaseAPI):
@@ -17,6 +17,7 @@ from asgiref.sync import sync_to_async, async_to_sync
 from RIXAWebserver import settings
 
 logger = logging.getLogger("ServerAPI")
+
 
 class ChannelBridgeAPI(plugin_api.BaseAPI):
     """
@@ -62,6 +63,7 @@ class ChannelBridgeAPI(plugin_api.BaseAPI):
 
 class ConsumerAPI(plugin_api.BaseAPI):
     total_tokens = 0
+
     def __init__(self, consumer=None, chat_modes=None):
         self.consumer = consumer
         self.scope = consumer.scope
@@ -96,22 +98,57 @@ class ConsumerAPI(plugin_api.BaseAPI):
             'str': str,
             'bool': bool
         }
-        if "type" in plugin_settings[plugin_id][setting_id] and plugin_settings[plugin_id][setting_id]["type"] in type_mapping:
+        if "type" in plugin_settings[plugin_id][setting_id] and plugin_settings[plugin_id][setting_id][
+            "type"] in type_mapping:
             if type(value) != type_mapping[plugin_settings[plugin_id][setting_id]["type"]]:
-                raise ValueError(f"Setting '{setting_id}' for plugin '{plugin_id}' must be of type {plugin_settings[plugin_id][setting_id]['type']}")
+                raise ValueError(
+                    f"Setting '{setting_id}' for plugin '{plugin_id}' must be of type {plugin_settings[plugin_id][setting_id]['type']}")
             # raise ValueError(f"Setting '{setting_id}' for plugin '{plugin_id}' must be of type {plugin_settings[plugin_id][setting_id]['type']}")
-        if "options" in plugin_settings[plugin_id][setting_id] and plugin_settings[plugin_id][setting_id]["options"] and\
+        if "options" in plugin_settings[plugin_id][setting_id] and plugin_settings[plugin_id][setting_id]["options"] and \
                 value not in plugin_settings[plugin_id][setting_id]["options"]:
-            raise ValueError(f"Setting '{setting_id}' for plugin '{plugin_id}' must be one of the following options: {plugin_settings[plugin_id][setting_id]['options']}")
+            raise ValueError(
+                f"Setting '{setting_id}' for plugin '{plugin_id}' must be one of the following options: {plugin_settings[plugin_id][setting_id]['options']}")
 
         if plugin_id not in self.scope["session"]["plugin_variables"]:
             self.scope["session"]["plugin_variables"][plugin_id] = {setting_id: value}
         else:
             self.scope["session"]["plugin_variables"][plugin_id][setting_id] = value
 
-    def get_plugin_variables(self):
-        return self.scope["session"]["plugin_variables"]
+    async def disconnect(self):
+        tracker_yaml = self.scope["session"]["chat_histories"][self.selected_chat]
+        tracker = ConversationTracker.from_yaml(tracker_yaml)
+        if len(tracker)==0:
+            return
+        await self.write_chat_to_db(tracker_yaml, tracker)
 
+    async def add_telemetry_data(self, data):
+        telem_type = data.get("subtype", "")
+        if telem_type == "":
+            logger.error("Telemetry data submitted without subtype")
+            return
+        data["type"] = data.pop("subtype")
+        data["iso_time"] = datetime.now().isoformat()
+        tracker_yaml = self.scope["session"]["chat_histories"][self.selected_chat]
+        tracker = ConversationTracker.from_yaml(tracker_yaml)
+        if len(tracker) == 0:
+            return
+        existing_telem = tracker[-1].get("telemetry", [])
+        existing_telem.append(data)
+        tracker[-1]["telemetry"] = existing_telem
+        self.scope["session"]["chat_histories"][self.selected_chat] = tracker.to_yaml()
+
+    def get_plugin_variables(self):
+        plugin_variables = copy.deepcopy(self.scope["session"]["plugin_variables"])
+        preferred_chat_backend = self.chat_modes.get(self.selected_chat_mode, {}).get("preferred_chat_backend")
+        if preferred_chat_backend:
+            if "alm_plugin" in plugin_variables:
+                if "nlp_engine" not in plugin_variables["alm_plugin"]:
+                    plugin_variables["alm_plugin"].update({"nlp_engine": preferred_chat_backend})
+                elif plugin_variables["alm_plugin"]["nlp_engine"] == "auto":
+                    plugin_variables["alm_plugin"]["nlp_engine"] = preferred_chat_backend
+            else:
+                plugin_variables.update({"alm_plugin": {"nlp_engine": preferred_chat_backend}})
+        return plugin_variables
 
     def get_system_msg(self):
         return self.chat_modes[self.selected_chat_mode]["system_msg"]
@@ -134,6 +171,8 @@ class ConsumerAPI(plugin_api.BaseAPI):
     def get_current_plugins(self):
         return self.chat_modes[self.selected_chat_mode]["plugins"]
 
+    def get_preferred_chat_backend(self):
+        return self.chat_modes[self.selected_chat_mode].get("preferred_chat_backend")
 
     @property
     def selected_chat_mode(self):
@@ -175,7 +214,6 @@ class ConsumerAPI(plugin_api.BaseAPI):
         tracker = ConversationTracker()
         self.scope["session"]["chat_histories"][self.selected_chat] = tracker.to_yaml()
 
-
     def get_active_conversation(self):
         tracker_yaml = self.scope["session"]["chat_histories"][self.selected_chat]
         tracker = ConversationTracker.from_yaml(tracker_yaml)
@@ -188,42 +226,70 @@ class ConsumerAPI(plugin_api.BaseAPI):
             await self.display_in_chat(tracker_entry=i, flags="enable_chat")
         await sync_to_async(self.consumer.scope["session"].save)()
 
-
     async def update_and_display_tracker_entry(self, tracker_yaml):
+        old_tracker = self.scope["session"]["chat_histories"][self.selected_chat]
+        old_tracker = ConversationTracker.from_yaml(old_tracker)
+        unsaved_telemetry = None
+        if len(old_tracker) != 0:
+            unsaved_telemetry = old_tracker[-1].get("telemetry", None)
         self.scope["session"]["chat_histories"][self.selected_chat] = tracker_yaml
         tracker = ConversationTracker.from_yaml(tracker_yaml)
+        if unsaved_telemetry:
+            tracker[-2]["telemetry"] = unsaved_telemetry
         assistant_msg = tracker[-1]
         # await sync_to_async(self.consumer.scope["session"].save)()
         ConsumerAPI.total_tokens += assistant_msg["metadata"].get("total_tokens", 0)
         await self.write_chat_to_db(tracker_yaml, tracker)
         await self.display_in_chat(tracker_entry=assistant_msg, flags="enable_chat")
+        self.consumer.allow_send_msg = True
 
     @database_sync_to_async
     def write_chat_to_db(self, tracker_yaml, tracker):
+        if self.consumer.no_tracker_saving:
+            return
         from .models import Conversation
         self.consumer.scope["session"].save()
 
         chat = Conversation.objects.update_or_create(id=self.scope["session"]["settings"]["current_chat_id"],
-        defaults={"user":self.scope["user"], "tracker_yaml":tracker_yaml,"model_name":tracker.metadata.get("model_name","UNKNOWN")})
+                                                     defaults={"user": self.scope["user"], "tracker_yaml": tracker_yaml,
+                                                               "model_name": tracker.metadata.get("model_name",
+                                                                                                  "UNKNOWN"),
+                                                               "chat_mode": self.selected_chat_mode})
         # chat.save()
 
     async def new_chat(self):
-        #delete tracker and create a new one. Add directly the first message if it exists
+        # delete tracker and create a new one. Add directly the first message if it exists
         self.scope["session"]["settings"]["current_chat_id"] = self.generate_chat_id()
         tracker = ConversationTracker()
         if self.get_first_message():
             tracker.add_entry(self.get_first_message(), "assistant")
+        tracker.metadata["chat_mode"] = self.selected_chat_mode
         self.scope["session"]["chat_histories"] = [tracker.to_yaml()]
         await sync_to_async(self.consumer.scope["session"].save)()
 
-    async def add_tracker_entry(self, role, content, metadata=None, function_calls=None, feedback=None, sentiment=None, add_keys=None):
+    async def add_tracker_entry(self, role, content, metadata=None, function_calls=None, feedback=None, sentiment=None,
+                                add_keys=None):
         tracker = ConversationTracker()
         tracker.load_from_yaml(self.scope["session"]["chat_histories"][-1], is_file=False)
         tracker.add_entry(content, role, metadata, function_calls, feedback, sentiment, add_keys)
         tracker_yaml = tracker.to_yaml()
         self.scope["session"]["chat_histories"][-1] = tracker_yaml
 
+    async def show_modal(self, message, title="Message"):
+        """
+        Show a modal to the user.
 
+        Content can be in markdown format.
+        :param message:
+        :param title:
+        :return:
+        """
+        return await self.consumer.send(
+            text_data=json.dumps({
+                "role": "info",
+                "title": title,
+                "content": message,
+            }))
 
     async def clear_conversations(self):
         tracker = ConversationTracker()
@@ -232,7 +298,7 @@ class ConsumerAPI(plugin_api.BaseAPI):
     async def save_usr_obj(self, key, val, expires="never"):
         self.scope["session"]["plugin_memory"][key] = val
 
-    async def test_message(self,*args,**kwargs):
+    async def test_message(self, *args, **kwargs):
         print(args)
         print(kwargs)
 
@@ -245,7 +311,7 @@ class ConsumerAPI(plugin_api.BaseAPI):
     async def sync_session_storage_db(self):
         await sync_to_async(self.scope["session"].save)()
 
-    async def show_message(self, message,  theme="info", timeout=5000):
+    async def show_message(self, message, theme="info", timeout=5000):
         # Generated from ../rixawebserver/dashboard/static/dashboard/bot_gui/js/script.js:5
         return await self.consumer.send(
             text_data=json.dumps({"function": "showMessage", "type": "f_call", "arguments": [message, timeout, theme]}))
@@ -253,7 +319,7 @@ class ConsumerAPI(plugin_api.BaseAPI):
     async def send_custom_message(self, message):
         await self.consumer.send(text_data=json.dumps(message))
 
-    async def display(self, html=None, json_str=None, plotly_obj=None, text=None, custom_msg =None):
+    async def display(self, html=None, json_str=None, plotly_obj=None, text=None, custom_msg=None):
         if html:
             html = html.replace("\\n", "<br>")
             html = html.replace("\\t", "&nbsp;")
@@ -276,14 +342,16 @@ class ConsumerAPI(plugin_api.BaseAPI):
         else:
             raise Exception("No valid object specified for displaying!")
 
-    async def display_in_chat(self,tracker_entry=None, text=None, html=None, plotly_obj=None,
-                              role="assistant", citations=None, index=-1,flags=None):
+    async def display_in_chat(self, tracker_entry=None, text=None, html=None, plotly_obj=None,
+                              role="assistant", citations=None, index=-1, flags=None):
         data = {}
         if flags:
             if type(flags) is not list:
                 flags = [flags]
             data["flags"] = flags
         if tracker_entry:
+            if not "content" in tracker_entry:
+                return
             data["role"] = "tracker_entry"
             tracker_entry["role"] = str(tracker_entry["role"]).lower()
             data["tracker"] = tracker_entry
@@ -296,12 +364,14 @@ class ConsumerAPI(plugin_api.BaseAPI):
             await self.consumer.send(text_data=json.dumps(data))
             # await self.consumer.send(text_data=json.dumps({"role": "HTML", "content": html, "location": "inline"}))
         elif plotly_obj:
-            plotly_html = plotly_obj#plotly_obj.to_html(include_plotlyjs=False, include_mathjax=False, full_html=False)
+            plotly_html = plotly_obj  # plotly_obj.to_html(include_plotlyjs=False, include_mathjax=False, full_html=False)
             await self.consumer.send(
                 text_data=json.dumps({"role": "HTML", "content": plotly_html, "location": "inline"}))
         elif text:
-            data.update({"role": role, "content": f"{text}", "forced_position": False, "index": index, "citations": citations if citations else ""})
+            data.update({"role": role, "content": f"{text}", "forced_position": False, "index": index,
+                         "citations": citations if citations else ""})
             await self.consumer.send(text_data=json.dumps(data, ensure_ascii=True))
         else:
-            await self.consumer.send(text_data=json.dumps({"role":role, "content": "Warning: An API call was made to display something in the chat. However no content was supplied."}, ensure_ascii=True))
-
+            await self.consumer.send(text_data=json.dumps({"role": role,
+                                                           "content": "Warning: An API call was made to display something in the chat. However no content was supplied."},
+                                                          ensure_ascii=True))
