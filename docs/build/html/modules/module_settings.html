@@ -10,8 +10,8 @@
 <title>Settings Documentation | RIXA 0.2.1 documentation</title>
 <meta content="Settings Documentation | RIXA 0.2.1 documentation" property="og:title"/>
 <meta content="Settings Documentation | RIXA 0.2.1 documentation" name="twitter:title"/>
-<link href="../_static/pygments.css?v=8d216cef" rel="stylesheet" type="text/css"/>
-<link href="../_static/theme.css?v=edd7d3d2" rel="stylesheet" type="text/css"/>
+<link href="../_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
+<link href="../_static/theme.css?v=42baaae4" rel="stylesheet" type="text/css"/>
 <link href="../_static/bugfix.css?v=ad93a5b4" rel="stylesheet" type="text/css"/>
 <link href="../search.html" rel="search" title="Search"/>
 <link href="../genindex.html" rel="index" title="Index"/>
@@ -157,6 +157,22 @@ or use a more complicated setup for imports.
 Be aware that should you have missing imports and this activated the server will be in a unsafe state.</p>
 </dd></dl>
 <dl class="py data">
+<dt class="sig sig-object py" id="RIXAWebserver.settings.ENABLE_CHAT_TELEMETRY">
+<span class="sig-prename descclassname"><span class="pre">RIXAWebserver.settings.</span></span><span class="sig-name descname"><span class="pre">ENABLE_CHAT_TELEMETRY</span></span><a class="headerlink" href="#RIXAWebserver.settings.ENABLE_CHAT_TELEMETRY" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#RIXAWebserver.settings.ENABLE_CHAT_TELEMETRY'">¶</a></dt>
+<dd><p>Write telemetry into chat histories</p>
+</dd></dl>
+<dl class="py data">
+<dt class="sig sig-object py" id="RIXAWebserver.settings.ENABLE_ONBOARDING">
+<span class="sig-prename descclassname"><span class="pre">RIXAWebserver.settings.</span></span><span class="sig-name descname"><span class="pre">ENABLE_ONBOARDING</span></span><a class="headerlink" href="#RIXAWebserver.settings.ENABLE_ONBOARDING" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#RIXAWebserver.settings.ENABLE_ONBOARDING'">¶</a></dt>
+<dd><p>Show onboarding defined in static/assets/onboarding.json</p>
+</dd></dl>
+<dl class="py data">
+<dt class="sig sig-object py" id="RIXAWebserver.settings.ENABLE_TAB_SWITCH_TELEMETRY">
+<span class="sig-prename descclassname"><span class="pre">RIXAWebserver.settings.</span></span><span class="sig-name descname"><span class="pre">ENABLE_TAB_SWITCH_TELEMETRY</span></span><a class="headerlink" href="#RIXAWebserver.settings.ENABLE_TAB_SWITCH_TELEMETRY" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#RIXAWebserver.settings.ENABLE_TAB_SWITCH_TELEMETRY'">¶</a></dt>
+<dd><p>Log additionally tab switches by user/defocussing of window.
+Use only for small user sizes as this adds a huge amount of data.</p>
+</dd></dl>
+<dl class="py data">
 <dt class="sig sig-object py" id="RIXAWebserver.settings.IGNORE_PLUGIN_WARNINGS">
 <span class="sig-prename descclassname"><span class="pre">RIXAWebserver.settings.</span></span><span class="sig-name descname"><span class="pre">IGNORE_PLUGIN_WARNINGS</span></span><a class="headerlink" href="#RIXAWebserver.settings.IGNORE_PLUGIN_WARNINGS" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#RIXAWebserver.settings.IGNORE_PLUGIN_WARNINGS'">¶</a></dt>
 <dd><p>Disable this if you suspect faulty behaviour could be missing due to a missing warning. Will add some annoying mesages.</p>
@@ -241,9 +257,14 @@ None means the chat only supports manual commands.</p>
 <dd><p>Make site work without SSL</p>
 </dd></dl>
 <dl class="py data">
+<dt class="sig sig-object py" id="RIXAWebserver.settings.SHOW_SETTINGS">
+<span class="sig-prename descclassname"><span class="pre">RIXAWebserver.settings.</span></span><span class="sig-name descname"><span class="pre">SHOW_SETTINGS</span></span><a class="headerlink" href="#RIXAWebserver.settings.SHOW_SETTINGS" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#RIXAWebserver.settings.SHOW_SETTINGS'">¶</a></dt>
+<dd><p>Whether or not to show settings in standard UI. Does not block websocket requests to change settings</p>
+</dd></dl>
+<dl class="py data">
 <dt class="sig sig-object py" id="RIXAWebserver.settings.STATISTICS_COLLECTION_INTERVAL">
 <span class="sig-prename descclassname"><span class="pre">RIXAWebserver.settings.</span></span><span class="sig-name descname"><span class="pre">STATISTICS_COLLECTION_INTERVAL</span></span><a class="headerlink" href="#RIXAWebserver.settings.STATISTICS_COLLECTION_INTERVAL" title="Link to this definition" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#RIXAWebserver.settings.STATISTICS_COLLECTION_INTERVAL'">¶</a></dt>
-<dd><p>Interval in minutes in which the server collects statistics about user activity.</p>
+<dd><p>Interval in seconds in which the server collects statistics about user activity.</p>
 </dd></dl>
 </section>
 </div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
@@ -256,6 +277,9 @@ None means the chat only supports manual commands.</p>
 <li><a :data-current="activeSection === '#RIXAWebserver.settings.CSRF_COOKIE_SECURE'" class="reference internal" href="#RIXAWebserver.settings.CSRF_COOKIE_SECURE"><code class="docutils literal notranslate"><span class="pre">CSRF_COOKIE_SECURE</span></code></a></li>
 <li><a :data-current="activeSection === '#RIXAWebserver.settings.DATABASES'" class="reference internal" href="#RIXAWebserver.settings.DATABASES"><code class="docutils literal notranslate"><span class="pre">DATABASES</span></code></a></li>
 <li><a :data-current="activeSection === '#RIXAWebserver.settings.DISABLE_PLUGIN_MODULE_CHECK'" class="reference internal" href="#RIXAWebserver.settings.DISABLE_PLUGIN_MODULE_CHECK"><code class="docutils literal notranslate"><span class="pre">DISABLE_PLUGIN_MODULE_CHECK</span></code></a></li>
+<li><a :data-current="activeSection === '#RIXAWebserver.settings.ENABLE_CHAT_TELEMETRY'" class="reference internal" href="#RIXAWebserver.settings.ENABLE_CHAT_TELEMETRY"><code class="docutils literal notranslate"><span class="pre">ENABLE_CHAT_TELEMETRY</span></code></a></li>
+<li><a :data-current="activeSection === '#RIXAWebserver.settings.ENABLE_ONBOARDING'" class="reference internal" href="#RIXAWebserver.settings.ENABLE_ONBOARDING"><code class="docutils literal notranslate"><span class="pre">ENABLE_ONBOARDING</span></code></a></li>
+<li><a :data-current="activeSection === '#RIXAWebserver.settings.ENABLE_TAB_SWITCH_TELEMETRY'" class="reference internal" href="#RIXAWebserver.settings.ENABLE_TAB_SWITCH_TELEMETRY"><code class="docutils literal notranslate"><span class="pre">ENABLE_TAB_SWITCH_TELEMETRY</span></code></a></li>
 <li><a :data-current="activeSection === '#RIXAWebserver.settings.IGNORE_PLUGIN_WARNINGS'" class="reference internal" href="#RIXAWebserver.settings.IGNORE_PLUGIN_WARNINGS"><code class="docutils literal notranslate"><span class="pre">IGNORE_PLUGIN_WARNINGS</span></code></a></li>
 <li><a :data-current="activeSection === '#RIXAWebserver.settings.LANGUAGES'" class="reference internal" href="#RIXAWebserver.settings.LANGUAGES"><code class="docutils literal notranslate"><span class="pre">LANGUAGES</span></code></a></li>
 <li><a :data-current="activeSection === '#RIXAWebserver.settings.MAINTENANCE_MODE'" class="reference internal" href="#RIXAWebserver.settings.MAINTENANCE_MODE"><code class="docutils literal notranslate"><span class="pre">MAINTENANCE_MODE</span></code></a></li>
@@ -272,6 +296,7 @@ None means the chat only supports manual commands.</p>
 <li><a :data-current="activeSection === '#RIXAWebserver.settings.SESSION_COOKIE_AGE'" class="reference internal" href="#RIXAWebserver.settings.SESSION_COOKIE_AGE"><code class="docutils literal notranslate"><span class="pre">SESSION_COOKIE_AGE</span></code></a></li>
 <li><a :data-current="activeSection === '#RIXAWebserver.settings.SESSION_COOKIE_SAMESITE'" class="reference internal" href="#RIXAWebserver.settings.SESSION_COOKIE_SAMESITE"><code class="docutils literal notranslate"><span class="pre">SESSION_COOKIE_SAMESITE</span></code></a></li>
 <li><a :data-current="activeSection === '#RIXAWebserver.settings.SESSION_COOKIE_SECURE'" class="reference internal" href="#RIXAWebserver.settings.SESSION_COOKIE_SECURE"><code class="docutils literal notranslate"><span class="pre">SESSION_COOKIE_SECURE</span></code></a></li>
+<li><a :data-current="activeSection === '#RIXAWebserver.settings.SHOW_SETTINGS'" class="reference internal" href="#RIXAWebserver.settings.SHOW_SETTINGS"><code class="docutils literal notranslate"><span class="pre">SHOW_SETTINGS</span></code></a></li>
 <li><a :data-current="activeSection === '#RIXAWebserver.settings.STATISTICS_COLLECTION_INTERVAL'" class="reference internal" href="#RIXAWebserver.settings.STATISTICS_COLLECTION_INTERVAL"><code class="docutils literal notranslate"><span class="pre">STATISTICS_COLLECTION_INTERVAL</span></code></a></li>
 </ul>
 </div>
@@ -289,6 +314,6 @@ None means the chat only supports manual commands.</p>
 <script src="../_static/documentation_options.js?v=37f418d5"></script>
 <script src="../_static/doctools.js?v=9bcbadda"></script>
 <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-<script defer="defer" src="../_static/theme.js?v=1808ab49"></script>
+<script defer="defer" src="../_static/theme.js?v=073f68d9"></script>
 </body>
 </html>

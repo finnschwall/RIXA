@@ -147,6 +147,11 @@ def launch():
             ) from exc
         # print(sys.argv)
         execute_from_command_line(sys.argv)
+    elif len(sys.argv) > 1 and sys.argv[1]=="stress_test":
+        from .stress_test import run
+        if sys.argv[1]=="stress_test":
+            sys.argv.pop(1)
+        run()
     else:
         from .plugin_configurator import plug_conf
         plug_conf(sys.argv[1:])

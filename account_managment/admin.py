@@ -20,7 +20,7 @@ class InvitationAdmin(admin.ModelAdmin):
     list_display = ['code', "name", 'max_uses', 'uses', 'created_at', 'is_available']
     search_fields = ['code']
     list_filter = ['created_at']  # , 'is_available']
-    readonly_fields = ['uses', 'created_at', 'url']
+    readonly_fields = ['created_at', 'url']
 
     def save_model(self, request, obj, form, change):
         if not change:

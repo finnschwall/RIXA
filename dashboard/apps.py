@@ -157,7 +157,7 @@ async def plugin_interface():
                 request_id = ChannelBridgeAPI.get_request_id(obj["function_name"], args = obj["args"], kwargs=obj["kwargs"])
                 client_api = ChannelBridgeAPI(channel_layer, obj["channel_name"], request_id= request_id, scope=scope,
                                               plugin_variables=plugin_variables)
-                future = await rixaplugin.async_execute(obj["function_name"], args=obj["args"], api_obj=client_api,
+                future = await rixaplugin.async_execute(obj["function_name"], args=obj["args"], api_obj=client_api, kwargs=obj["kwargs"],
                                                         return_future=True)
                 asyncio.create_task(await_future_execution(future, client_api, suppres_return=True))
             if obj["type"] == "execute_plugin_code":

@@ -12,7 +12,7 @@ from django.contrib.auth import logout
 from django.urls import reverse
 
 from account_managment.models import RixaUser
-from dashboard.models import PluginScope, Conversation
+from dashboard.models import PluginScope, Conversation, ChatConfiguration
 from .models import User, Invitation
 from django.conf import settings
 from django.utils import translation
@@ -229,7 +229,7 @@ def account_managment(request):
     if request.method == 'POST':
         if "delete_account" in request.POST:
             request.user.delete()
-            return HttpResponse("Account deleted. Other fun activity on the internet includes e.g. <a href='https://random.cat'>random cats</a>.")
+            return HttpResponse("Account deleted. Other fun activities on the internet include e.g. <a href='https://random.cat'>random cats</a>.")
         if "deactivate_account" in request.POST:
             request.user.is_active = False
             request.user.save()
@@ -307,6 +307,85 @@ def register_user(request):
             if user.is_active:
                 rixa_user = RixaUser(user=user)
                 rixa_user.save()
+                if invitation.code=="march_int_1" and settings.USERSTUDY=="innovation":
+                    #HARDCODED
+                    user_count = RixaUser.objects.filter(user__is_active=True).count()
+
+                    if user_count % 2 == 0:
+                        config = ChatConfiguration.objects.get(name="mode1")
+                    else:
+                        config = ChatConfiguration.objects.get(name="mode3")
+
+                    # Add the configuration to the rixa_user
+                    rixa_user.configurations_read.add(config)
+                else:
+                    if invitation.configurations_read.exists():
+                        rixa_user.configurations_read.add(*invitation.configurations_read.all())
+                    if invitation.configuration_write.exists():
+                        rixa_user.configuration_write.add(*invitation.configuration_write.all())
+                    if invitation.scope_write.exists():
+                        rixa_user.scope_write.add(*invitation.scope_write.all())
+                    if invitation.scope_read.exists():
+                        rixa_user.scope_read.add(*invitation.scope_read.all())
+
+                invitation.uses += 1
+                rixa_user.save()
+                invitation.save()
+                login(request, user)
+                return HttpResponseRedirect(reverse("home"))
+            else:
+                user.save()
+                invitation.uses += 1
+                invitation.save()
+                messages.warning(request, "Thanks for registering!\nYour account should get activated within a day.")
+                return HttpResponseRedirect(reverse("game_home"))
+        else:
+            messages.error(request, "Something went wrong...")
+            return render(request, 'register.html', {'form': UserCreationForm})
+    else:
+        if not request.is_secure():
+            messages.warning(request, "Do not use a password you use on another site under any circumstances! "
+                                      "The server can not verify the security of the connection.")
+        return render(request, 'register.html', {'form': UserCreationForm})
+
+@ensure_csrf_cookie
+def register_user_legacy(request):
+    if request.user.is_authenticated:
+        messages.info(request, "You are already logged in.")
+        return HttpResponseRedirect(reverse("account_main"))
+
+    if request.method == 'POST':
+        code = request.POST["registration_id"]
+        try:
+            invitation = Invitation.objects.get(code=code)
+        except Invitation.DoesNotExist:
+            return HttpResponse("Invalid invitation code!", status=400)
+
+        if not invitation.is_available:
+            return HttpResponse("This invitation link has been exhausted.", status=400)
+
+
+        if request.POST['password1'] != request.POST['password2']:
+            messages.error(request, "Passwords don't match")
+            return render(request, 'register_old.html', {'form': UserCreationForm})
+
+        username = request.POST['username']
+        user_exists = True
+        try:
+            User.objects.get_by_natural_key(username)
+        except:
+            user_exists = False
+        if user_exists:
+            messages.error(request, "Username already exists")
+            return render(request, 'register_old.html', {'form': UserCreationForm})
+        password = request.POST['password1']
+
+        user = User.objects.create_user(username, password=password)
+
+        if user is not None:
+            if user.is_active:
+                rixa_user = RixaUser(user=user)
+                rixa_user.save()
                 if invitation.configurations_read.exists():
                     rixa_user.configurations_read.add(*invitation.configurations_read.all())
                 if invitation.configuration_write.exists():
@@ -329,12 +408,12 @@ def register_user(request):
                 return HttpResponseRedirect(reverse("game_home"))
         else:
             messages.error(request, "Something went wrong...")
-            return render(request, 'register.html', {'form': UserCreationForm})
+            return render(request, 'register_old.html', {'form': UserCreationForm})
     else:
-        if not request.is_secure():
-            messages.warning(request, "Do not use a password you use on another site under any circumstances! "
-                                      "The server can not verify the security of the connection.")
-        return render(request, 'register.html', {'form': UserCreationForm})
+        # if not request.is_secure():
+        #     messages.warning(request, "Do not use a password you use on another site under any circumstances! "
+        #                               "The server can not verify the security of the connection.")
+        return render(request, 'register_old.html', {'form': UserCreationForm})
 
 def help_view(request):
     return render(request, 'help.html', {})
@@ -375,6 +454,30 @@ def user_login(request):
             return render(request, 'login.html', {'form': AuthenticationForm})
     else:
         return render(request, 'login.html', {'form': AuthenticationForm})
+
+
+def user_login_old(request):
+    if request.user.is_authenticated:
+        messages.info(request, "You are already logged in.")
+        return HttpResponseRedirect(reverse("account_main"))
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                if "next" in request.GET:
+                    return HttpResponseRedirect(request.GET.get('next'))
+                return HttpResponseRedirect(reverse("home"))
+            else:
+                messages.error(request, "Your account is currently deactivated. This may be due to an undergoing study or maintenance.")
+                return render(request, 'login_old.html', {'form': AuthenticationForm})
+        else:
+            messages.error(request, "Invalid username or password")
+            return render(request, 'login_old.html', {'form': AuthenticationForm})
+    else:
+        return render(request, 'login_old.html', {'form': AuthenticationForm})
 
 
 def update_session(request):

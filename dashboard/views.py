@@ -28,7 +28,7 @@ for root, dirs, files in os.walk(".."):
 
 # @conditional_decorator(login_required(login_url="about"), settings.REQUIRE_LOGIN_CHAT)
 @login_required(login_url="about")
-def edit_chat_configuration(request,):
+def edit_chat_configuration(request, ):
     query_params = request.GET
     template_id = query_params.get("template_id", None)
     if template_id:
@@ -48,7 +48,8 @@ def edit_chat_configuration(request,):
         else:
             form = ChatConfigurationForm(instance=chat_config)
 
-        return render(request, 'edit_chat_configuration.html', {'is_form':True, 'form': form, "config_name":chat_config.name})
+        return render(request, 'edit_chat_configuration.html',
+                      {'is_form': True, 'form': form, "config_name": chat_config.name})
     else:
         names = ChatConfiguration.objects.values_list('name', flat=True)
         names_list = list(names)
@@ -67,7 +68,7 @@ def home(request):
         enable_function_calls = True
         enable_knowledge_retrieval = True
         selected_chat_mode = "default"
-    executor_work = (_memory.executor.get_active_task_count()/_memory.executor.get_max_task_count())*100
+    executor_work = (_memory.executor.get_active_task_count() / _memory.executor.get_max_task_count()) * 100
     task_queue_count = _memory.executor.get_queued_task_count()
     server_status = f"""Last updated (webserver): {datetime.fromtimestamp(latest_time).strftime('%Y-%m-%d %H:%M:%S')}<br>
 DB: {"SQLITE" if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3" else "OK"}<br>
@@ -76,7 +77,8 @@ QUEUED TASKS: {task_queue_count}<br>
 LLM BACKENDS: MISSING<br>
 CALLABLE PLUGINS: {_memory.get_all_plugin_names()}<br>
 GONE SKYNET?: NO(t yet)<br>"""
-    globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True).values_list('name', flat=True))
+    globally_available_configs = set(
+        ChatConfiguration.objects.filter(available_to_all=True).values_list('name', flat=True))
     user_available_chat_modes = set(request.user.rixauser.configurations_read.values_list('name', flat=True))
     available_chat_modes = list(globally_available_configs.union(user_available_chat_modes))
 
@@ -90,17 +92,25 @@ GONE SKYNET?: NO(t yet)<br>"""
 
     context = {"chat_disabled": settings.DISABLE_CHAT, "website_title": settings.WEBSITE_TITLE,
                "chat_title": settings.CHAT_TITLE, "always_maximize_chat": settings.ALWAYS_MAXIMIZE_CHAT,
-               "theme":settings.BOOTSTRAP_THEME, "enable_function_calls": enable_function_calls,
-                "enable_knowledge_retrieval": enable_knowledge_retrieval,
-               "available_chat_modes": available_chat_modes, "selected_chat": str(request.session.get("selected_chat", 0)),
-               "selected_chat_mode" :selected_chat_mode,
+               "theme": settings.BOOTSTRAP_THEME, "enable_function_calls": enable_function_calls,
+               "enable_knowledge_retrieval": enable_knowledge_retrieval,
+               "available_chat_modes": available_chat_modes,
+               "selected_chat": str(request.session.get("selected_chat", 0)),
+               "selected_chat_mode": selected_chat_mode,
                "server_status": server_status,
-               "plugin_settings":json.dumps(plugin_settings)}
+               "plugin_settings": json.dumps(plugin_settings)}
     return render(request, 'home.html', context)
+
 
 @login_required(login_url="about")
 def dashboard(request):
-    context = {}
+    context = {"chat": False}
+    return render(request, 'dashboard.html', context)
+
+
+@login_required(login_url="about")
+def dashboard2(request):
+    context = {"chat": True}
     return render(request, 'dashboard.html', context)
 
 
@@ -116,7 +126,7 @@ def home_old(request):
         enable_function_calls = True
         enable_knowledge_retrieval = True
         selected_chat_mode = "default"
-    executor_work = (_memory.executor.get_active_task_count()/_memory.executor.get_max_task_count())*100
+    executor_work = (_memory.executor.get_active_task_count() / _memory.executor.get_max_task_count()) * 100
     task_queue_count = _memory.executor.get_queued_task_count()
     server_status = f"""Last updated (webserver): {datetime.fromtimestamp(latest_time).strftime('%Y-%m-%d %H:%M:%S')}<br>
 DB: {"SQLITE" if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3" else "OK"}<br>
@@ -125,13 +135,11 @@ QUEUED TASKS: {task_queue_count}<br>
 LLM BACKENDS: MISSING<br>
 CALLABLE PLUGINS: {_memory.get_all_plugin_names()}<br>
 GONE SKYNET?: NO(t yet)<br>"""
-    globally_available_configs = set(ChatConfiguration.objects.filter(available_to_all=True).values_list('name', flat=True))
+    globally_available_configs = set(
+        ChatConfiguration.objects.filter(available_to_all=True).values_list('name', flat=True))
 
     user_available_chat_modes = set(request.user.rixauser.configurations_read.values_list('name', flat=True))
     available_chat_modes = list(globally_available_configs.union(user_available_chat_modes))
-
-
-
 
     plugin_settings = _memory.get_all_variables()
     user_settings = request.session.get("plugin_variables", {})
@@ -142,12 +150,13 @@ GONE SKYNET?: NO(t yet)<br>"""
                     plugin_settings[key][varkey]["value"] = varval
     context = {"chat_disabled": settings.DISABLE_CHAT, "website_title": settings.WEBSITE_TITLE,
                "chat_title": settings.CHAT_TITLE, "always_maximize_chat": settings.ALWAYS_MAXIMIZE_CHAT,
-               "theme":settings.BOOTSTRAP_THEME, "enable_function_calls": enable_function_calls,
-                "enable_knowledge_retrieval": enable_knowledge_retrieval,
-               "available_chat_modes": available_chat_modes, "selected_chat": str(request.session.get("selected_chat", 0)),
-               "selected_chat_mode" :selected_chat_mode,
+               "theme": settings.BOOTSTRAP_THEME, "enable_function_calls": enable_function_calls,
+               "enable_knowledge_retrieval": enable_knowledge_retrieval,
+               "available_chat_modes": available_chat_modes,
+               "selected_chat": str(request.session.get("selected_chat", 0)),
+               "selected_chat_mode": selected_chat_mode,
                "server_status": server_status,
-               "plugin_settings":json.dumps(plugin_settings)}
+               "plugin_settings": json.dumps(plugin_settings)}
     return render(request, 'home_old.html', context)
 
 
@@ -156,9 +165,10 @@ def about(request):
     return render(request, 'about.html', context)
 
 
+def impressum(request):
+    return render(request, 'impressum.html')
+
+
 def test(request):
     context = {}
     return render(request, 'test.html', context)
-
-
-

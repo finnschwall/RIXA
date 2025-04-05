@@ -75,11 +75,23 @@ class ConsumerAPI(plugin_api.BaseAPI):
                                                  "selected_chat_mode": "default",
                                                  "enable_function_calls": True,
                                                  "enable_knowledge_retrieval": True,
-                                                 "current_chat_id": self.generate_chat_id()
+                                                 "current_chat_id": self.generate_chat_id(),
+                                                 "show_onboarding": settings.ENABLE_ONBOARDING
                                                  }
         if not self.scope["session"].get("plugin_variables"):
             self.scope["session"]["plugin_variables"] = {}
         self.chat_modes = chat_modes
+
+        #HARDCODED
+        if settings.USERSTUDY == "innovation":
+            if "mode1" in chat_modes:
+                self.scope["session"]["settings"]["selected_chat_mode"] = "mode1"
+            if "mode2" in chat_modes:
+                self.scope["session"]["settings"]["selected_chat_mode"] = "mode2"
+            if "mode3" in chat_modes:
+                self.scope["session"]["settings"]["selected_chat_mode"] = "mode3"
+        if settings.USERSTUDY == "xai1":
+            self.scope["session"]["settings"]["selected_chat_mode"] = "anmol"
 
     def generate_chat_id(self):
         from datetime import datetime
@@ -275,7 +287,7 @@ class ConsumerAPI(plugin_api.BaseAPI):
         tracker_yaml = tracker.to_yaml()
         self.scope["session"]["chat_histories"][-1] = tracker_yaml
 
-    async def show_modal(self, message, title="Message"):
+    async def show_modal(self, message, title="Message", can_close= True):
         """
         Show a modal to the user.
 
@@ -289,6 +301,7 @@ class ConsumerAPI(plugin_api.BaseAPI):
                 "role": "info",
                 "title": title,
                 "content": message,
+                "can_close": can_close,
             }))
 
     async def clear_conversations(self):
@@ -335,8 +348,12 @@ class ConsumerAPI(plugin_api.BaseAPI):
             await self.consumer.send(text_data=json.dumps(
                 {"role": "HTML", "content": f"<p>{text}</p>"}))
         elif custom_msg:
-            if settings.DEBUG or True:
+            if settings.DEBUG:
                 await self.consumer.send(text_data=custom_msg)
+            elif settings.USERSTUDY == "xai1":
+                await self.consumer.send(text_data=custom_msg)
+                if "**LAST_DATAPOINT**" in custom_msg:
+                    await self.show_modal("There are currently no further bookings to process. Please contact the examiner to proceed with the experiment.", can_close=False)
             else:
                 logger.error("Custom messages are only allowed in debug mode")
         else:

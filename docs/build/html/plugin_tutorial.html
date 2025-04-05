@@ -10,8 +10,8 @@
 <title>Plugin programming quickstart | RIXA 0.2.1 documentation</title>
 <meta content="Plugin programming quickstart | RIXA 0.2.1 documentation" property="og:title"/>
 <meta content="Plugin programming quickstart | RIXA 0.2.1 documentation" name="twitter:title"/>
-<link href="_static/pygments.css?v=8d216cef" rel="stylesheet" type="text/css"/>
-<link href="_static/theme.css?v=edd7d3d2" rel="stylesheet" type="text/css"/>
+<link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
+<link href="_static/theme.css?v=42baaae4" rel="stylesheet" type="text/css"/>
 <link href="_static/bugfix.css?v=ad93a5b4" rel="stylesheet" type="text/css"/>
 <link href="search.html" rel="search" title="Search"/>
 <link href="genindex.html" rel="index" title="Index"/>
@@ -134,8 +134,8 @@ are on your own.</p>
 </span></code></pre></div>
 </div>
 <p>To execute and work with the code you have to use the Pluginloader from the server.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">import</span> <span class="nn">RIXAWebserver.plugins</span>
-</span><span id="line-2"><span class="kn">from</span> <span class="nn">RIXAWebserver.plugins.plugin_manager</span> <span class="kn">import</span> <span class="n">_PluginLoader</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">import</span><span class="w"> </span><span class="nn">RIXAWebserver.plugins</span>
+</span><span id="line-2"><span class="kn">from</span><span class="w"> </span><span class="nn">RIXAWebserver.plugins.plugin_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">_PluginLoader</span>
 </span><span id="line-3"><span class="n">plugin_loader</span> <span class="o">=</span> <span class="n">_PluginLoader</span><span class="p">(</span><span class="n">jupyter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span><span id="line-4"><span class="n">plugin_loader</span><span class="o">.</span><span class="n">parse_plugin</span><span class="p">(</span><span class="n">FILENAME</span><span class="p">,</span> <span class="n">PATH_TO_FILE</span><span class="p">)</span>
 </span><span id="line-5"><span class="n">plugin_loader</span><span class="o">.</span><span class="n">load_discovered_plugins</span><span class="p">()</span>
@@ -194,7 +194,7 @@ to make the connection to the server.</p>
 It could look like this</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">standard_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"data_path"</span><span class="p">:</span> <span class="s2">"raw_data/train.xls"</span><span class="p">,</span> <span class="s2">"explanation_path"</span><span class="p">:</span> <span class="s2">"raw_data/explanations.txt"</span><span class="p">}</span>
 </span><span id="line-2"><span class="nd">@plugin_init</span><span class="p">(</span><span class="n">namespace</span><span class="o">=</span><span class="s2">"CoolData"</span><span class="p">,</span> <span class="n">venv</span><span class="o">=</span><span class="s2">"/usr/data_venv"</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">standard_config</span><span class="p">,</span> <span class="n">config_is_server_managed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="line-3"><span class="k">def</span> <span class="nf">cool_data</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">meta_config</span><span class="p">):</span>
+</span><span id="line-3"><span class="k">def</span><span class="w"> </span><span class="nf">cool_data</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">meta_config</span><span class="p">):</span>
 </span><span id="line-4">    <span class="n">do_data_stuff</span><span class="p">()</span>
 </span></code></pre></div>
 </div>
@@ -206,7 +206,7 @@ It could look like this</p>
 Now let’s add some functionality. Suppose we want to be able to show the user datapoints. That would be as simple as</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nd">@cool_data</span><span class="o">.</span><span class="n">plugin_method</span><span class="p">()</span>
 </span><span id="line-2"><span class="nd">@argument</span><span class="p">(</span><span class="s1">'index'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">api</span><span class="o">.</span><span class="n">arg_type</span><span class="o">.</span><span class="n">INT</span><span class="p">)</span>
-</span><span id="line-3"><span class="k">def</span> <span class="nf">get_data_point</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+</span><span id="line-3"><span class="k">def</span><span class="w"> </span><span class="nf">get_data_point</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
 </span><span id="line-4">    <span class="n">row</span> <span class="o">=</span> <span class="n">get_row_somehow</span><span class="p">(</span><span class="n">cool_data</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
 </span><span id="line-5">    <span class="n">api</span><span class="o">.</span><span class="n">display_html</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">to_html</span><span class="p">())</span>
 </span></code></pre></div>
@@ -245,6 +245,6 @@ Now let’s add some functionality. Suppose we want to be able to show the user 
 <script src="_static/documentation_options.js?v=37f418d5"></script>
 <script src="_static/doctools.js?v=9bcbadda"></script>
 <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-<script defer="defer" src="_static/theme.js?v=1808ab49"></script>
+<script defer="defer" src="_static/theme.js?v=073f68d9"></script>
 </body>
 </html>

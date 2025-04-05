@@ -69,6 +69,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if msg_txt:
             await self.consumer_api.show_modal(msg_txt, title="News")
 
+
     @database_sync_to_async
     def get_user_info(self):
         if not self.scope["user"].is_authenticated:
@@ -93,7 +94,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                      "first_message": config.first_message if config.first_message != "" else None,
                      "background_message": config.background_message if config.background_message != "" else None,
                      "chat_title": config.chat_title,
-                    "preferred_chat_backend": config.preferred_chat_backend,
+                        "preferred_chat_backend": config.preferred_chat_backend,
                      }
 
             chat_modes[config.name] = entry
@@ -164,7 +165,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def websocket_receive(self, message):
         message = json.loads(message["text"])
         req_type = message["type"]
-
         if req_type == "execute_plugin_code":
 
             await self.channel_layer.send(
@@ -305,7 +305,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     for varkey, varval in val.items():
                         if varkey in plugin_settings[key]:
                             plugin_settings[key][varkey]["value"] = varval
-            print(plugin_settings)
             await self.send(json.dumps({"role": "plugin_settings", "content": plugin_settings}))
         elif req_type == "user_settings":
             # settings unrelated to any specific plugin
@@ -350,6 +349,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send(json.dumps({"role": "utilization_info", "content": util_dict}))
         elif req_type == "get_global_settings":
             await self.send(json.dumps({"role": "global_settings", "content": {"telemetry": settings.ENABLE_CHAT_TELEMETRY,
+                                                                               "show_banner": False,
+                                                                               # always show settings for admins
+                                                                               "hide_settings": settings.HIDE_SETTINGS and not self.scope["user"].is_staff,
                                                                                 # "chat_disabled": settings.DISABLE_CHAT,
                                                                              # "website_title": settings.WEBSITE_TITLE,
                                                                              # "chat_title": settings.CHAT_TITLE,
@@ -379,7 +381,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "allowed_plugins": self.consumer_api.get_current_plugins(),
                     "plugin_variables": self.consumer_api.get_plugin_variables(),
                     "args": message.get("args", []),
-                    "kwargs": message.get("kwargs", {}),
+                    "kwargs": {"username": self.scope["user"].username, "datapoint_choice": req_type},
                 }
             )
             await self.send(json.dumps({"role": "clear_chat"}))
@@ -387,6 +389,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             for i in self.consumer_api.get_active_conversation():
                 await self.consumer_api.display_in_chat(tracker_entry=i)
             await sync_to_async(self.scope["session"].save)()
+
+            # await self.consumer_api.show_modal("test", title="News")
+
         elif req_type == "upload_tracker":
             if not self.is_admin:
                 return

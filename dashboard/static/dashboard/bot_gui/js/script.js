@@ -123,11 +123,19 @@ const timeString = now.toLocaleTimeString("de-DE", { hour: '2-digit', minute: '2
 function openChat(){
     $("#profile_pic").fadeOut();
     $(".widget").fadeIn();
+    if(standalone){
+        $("#chat_container").css("z-index","9999")
+    }
+
 }
 
 function closeChat(){
     $("#profile_pic").fadeIn();
     $(".widget").fadeOut();
+    if(standalone){
+        $("#chat_container").css("z-index","0")
+    }
+
 }
 
 
@@ -145,14 +153,19 @@ function switchCSS(name){
 
 let isMaximized = false;
 function toggleMaxChat(){
+    console.log("test")
     if(isMaximized){
+
         // $("#chat_top_bar").css("display","")
         $("#textareaContainer").css("height","70%")
         $("#sendButtonDiv").css({"height": "2.5em", "width": "2.5em"})
         $("#sendButton").css("font-size","1.5em")
+
+
         // $("#userInput").css({"margin-top": "0.1em", "margin-left": "0.1em"})
  }
     else {
+        console.log("HELLo")
         // $("#chat_top_bar").css("display","none")
         // $("#textareaContainer").css("height","90%")
         $("#sendButtonDiv").css({"height": "4em", "width": "5em"})

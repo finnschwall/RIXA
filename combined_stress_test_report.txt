@@ -1,0 +1,21 @@
+
+    ===== CHATBOT STRESS TEST COMBINED REPORT =====
+    Date: 2025-04-01 14:11:17
+
+    TEST SUMMARY:
+    - Number of users: 4
+    - Total messages sent: 40
+    - Messages with complete responses: 40 (100.00%)
+
+    RESPONSE TIME METRICS:
+    - Average response time: 6.87 seconds
+    - Median response time: 7.43 seconds
+    - Minimum response time: 1.21 seconds
+    - Maximum response time: 10.50 seconds
+    
+PER-USER STATISTICS:
+- test_3: 10 messages, avg response time: 7.02 seconds
+- test_1: 10 messages, avg response time: 6.20 seconds
+- test_4: 10 messages, avg response time: 7.08 seconds
+- test_2: 10 messages, avg response time: 7.18 seconds
+===============================================

@@ -10,5 +10,7 @@ urlpatterns = [
     path(r'about', views.about, name='about'),
     path(r'test', views.test, name='test'),
     path(r'dashboard', views.dashboard, name='dashboard'),
+    path(r'dashboard2', views.dashboard2, name='dashboard2'),
+    path(r"impressum", views.impressum, name="impressum"),
     path('', RedirectView.as_view(url=r'home'))
 ]

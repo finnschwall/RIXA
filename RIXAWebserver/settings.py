@@ -66,6 +66,7 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())
 Needs to be properly configured before deploying.
 """
 
+
 PRIMARY_URL = config("PRIMARY_URL", default="localhost:8000")
 
 STATISTICS_COLLECTION_INTERVAL = config("STATISTICS_COLLECTION_INTERVAL", default=10, cast=int)
@@ -241,125 +242,6 @@ PATCH_USER_MODEL = config("PATCH_USER_MODEL", default=False, cast=bool)
 
 from rixaplugin.settings import *
 
-# logfile_path = config("LOG_LOC", default="log/main")
-# """Where logfile is located. Without starting `/` it is considered relative to the working directory.
-# """
-# LOG_FILE_TYPE = config("LOG_FILE_TYPE", default="html", cast=Choices(["none", "html", "txt"]))
-# """Either none, html or txt. None means no log files are created. html supports color formatting while.
-# """
-# if LOG_FILE_TYPE != "none" and logfile_path[0] != "/":
-#     logfile_path = os.path.abspath(os.path.join(config_dir, logfile_path + f".{LOG_FILE_TYPE}"))
-#
-# DISABLED_LOGGERS = config("DISABLED_LOGGERS", cast=Csv(), default='')
-# """Loggers that will be excluded on all outputs
-# """
-#
-# DISABLED_LOGGERS += ['daphne.http_protocol', 'daphne.server', 'daphne.ws_protocol', 'django.channels.server',
-#                      'asyncio', 'openai', "urllib3", "matplotlib", "sentence_transformers.SentenceTransformer"]
-# disabled_logger_conf = {i: {'level': 'WARNING'} for i in DISABLED_LOGGERS}
-#
-# LOG_FMT = config("LOG_FMT",
-#                  default="%(levelname)s '%(message)s' -%(asctime)s-%(name)s-(File \"%(pathname)s\", line %(lineno)d)")
-# """Format to be used for logging. See https://docs.python.org/3/library/logging.html#logrecord-attributes
-# There is an additional session_id attribute. It's behaviour is defined by LOG_UID_MODE
-# """
-#
-# LOG_UID_MODE = config("LOG_UID_MODE", default="username", cast=Choices(["none", "session", "username"]))
-# """Either none, session or username. None means attribute will stay empty. session means filling with session identifier.
-# username with username.
-# """
-#
-# CONSOLE_USE_COLORS = config("CONSOLE_USE_COLORS", default =True, cast=bool)
-# """Wether to print in colors to console. On some systems that isn't supported in which case you will get flooded
-# with control sequences. Use this to deactivate colors in the console.
-# """
-#
-# MAX_LOG_SIZE = config("MAX_LOG_SIZE", default=16, cast=int)
-# """Max file size in kb before new logfile will be created. Normally there are 2 backup logfiles.
-# 1 kb~6-9 log messages for txt and ~4-7 for html
-# """
-# logging.setLoggerClass(plugins.log_helper.RIXALogger)
-#
-# LOG_TIME_FMT = config("LOG_TIME_FMT",default="%a %H:%M:%S")
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'formatters': {
-#         'RIXAConsole': {
-#             '()': 'plugins.log_helper.RIXAFormatter',
-#             "colormode": "console" if CONSOLE_USE_COLORS else "none",
-#             "fmt_string": LOG_FMT,
-#             "time_fmt": LOG_TIME_FMT
-#         },
-#
-#         'RIXAFile': {
-#             '()': 'plugins.log_helper.RIXAFormatter',
-#             "colormode": LOG_FILE_TYPE,
-#             "fmt_string": LOG_FMT,
-#             "time_fmt": LOG_TIME_FMT
-#         }
-#     },
-#     'filters': {
-#         'RIXAFilter': {
-#             '()': 'plugins.log_helper.RIXAFilter',
-#             "uid_mode": LOG_UID_MODE
-#         }
-#     },
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'filters': ['RIXAFilter'],
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'RIXAConsole'
-#         },
-#         'file': {
-#             'class': 'logging.handlers.RotatingFileHandler',
-#             'maxBytes': MAX_LOG_SIZE * 1024,
-#             'backupCount': 2,
-#             'filename': logfile_path,
-#             'level': 'DEBUG',
-#             'filters': ['RIXAFilter'],
-#             'formatter': 'RIXAFile',
-#         } if LOG_FILE_TYPE != "none" else {'class': "logging.NullHandler"}
-#     },
-#     'loggers': {
-#         'root': {
-#             'handlers': ['console', 'file'] if LOG_FILE_TYPE != "none" else ["console"],
-#             'level': config("ROOT_LOG_LEVEL", default = "INFO"),
-#             'class': "plugins.log_helper.RIXALogger"
-#         },
-#     }
-# }
-#
-# LOGGING['loggers'].update(disabled_logger_conf)
-#
-# GENERATE_INTERMEDIARY_FILES = config("GENERATE_INTERMEDIARY_FILES", default=False, cast=bool)
-# """Wether or not to dump all sorts of stuff into a new debug folder in the working dir.
-# Only really useful for development on the plugin system itself.
-# """
-#
-# if GENERATE_INTERMEDIARY_FILES:
-#     DEBUG_PATH = os.path.join(config_dir, "debug")
-#     if not os.path.exists(DEBUG_PATH):
-#         os.mkdir(DEBUG_PATH)
-#
-# additional_search_paths = [os.path.abspath(os.path.join(config_dir, i)) if i[0] != "/" else i
-#                            for i in config("PLUGIN_PATHS", cast=Csv())]
-# PLUGIN_PATHS = [os.path.abspath(os.path.join(__file__, "../..", "plugins/StandardPlugins"))] + additional_search_paths
-# """Where to search for plugins besides the current working directory
-# """
-#
-# SHOW_ALL_PLUGIN_EXCEPTIONS = config("SHOW_ALL_PLUGIN_EXCEPTIONS", default=False, cast=bool)
-# """If set to false exceptions occuring in plugins will vanish. Otherwise they are formatted and logged on the debug level.
-# """
-
-
-# import logging.config
-# logging.config.dictConfig(LOGGING)
-# logging.setLoggerClass(plugins.log_helper.RIXALogger)
-# plugins.log_helper.RIXALogger.
-
-
 PYENV_LOC = config("MANAGED_VENVS", default=False, cast=bool)
 """If set to an existing path with pyenv in it you allow the server to manage venvs on its own. 
 """
@@ -425,10 +307,27 @@ WEBSITE_TITLE = config("WEBSITE_TITLE", default="Home")
 CHAT_TITLE = config("CHAT_TITLE", default="XAI Buddy")
 ALWAYS_MAXIMIZE_CHAT = config("ALWAYS_MAXIMIZE_CHAT", default=False, cast=bool)
 
+
 # INTERCEPT_CHAT = config("INTERCEPT_CHAT", default=False, cast=bool)
 # delete when no errors are found
 
 ENABLE_CHAT_TELEMETRY = config("ENABLE_CHAT_TELEMETRY", cast=bool, default=True)
+"""Write telemetry into chat histories
+"""
 ENABLE_TAB_SWITCH_TELEMETRY = config("ENABLE_TAB_SWITCH_TELEMETRY", cast=bool, default=False)
+"""Log additionally tab switches by user/defocussing of window.
+Use only for small user sizes as this adds a huge amount of data.
+"""
+
+ENABLE_ONBOARDING = config("ENABLE_ONBOARDING", cast=bool, default=True)
+"""Show onboarding defined in static/assets/onboarding.json
+"""
+HIDE_SETTINGS = config("HIDE_SETTINGS", default=False, cast=bool)
+"""Whether or not to show settings in standard UI. Does not block websocket requests to change settings"""
+
+USERSTUDY = config("USERSTUDY", default="", cast=str)
+"""DO NOT USE! Activates various hardcoded segments for userstudies
+"xai1" for dashboard/chat/chatdashboard comparison
+"innovation" for RAG study"""
 
 ALL_SETTINGS = config.repository.data

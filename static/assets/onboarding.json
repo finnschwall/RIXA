@@ -5,16 +5,8 @@
     "content": "Welcome to RIXA, in the next steps we want to explain a bit about how you can use RIXA."
   },
   {
-    "target": "#report_bug",
-    "content": "If you encounter any issues, let us know! Use this to make a bug report, a feature suggestion or to leave some feedback."
-  },
-  {
     "target": "#delete_conversation",
-    "content": "This is where you can reset your conversation. Clearing the conversation, especially if you want to switch topic, makes the chatbot work faster and more reliable."
-  },
-  {
-    "target": "settings",
-    "content": "Here you can change basic settings, e.g. the current chat mode."
+    "content": "This is where you can reset your conversation with the chatbot. Keep in mind that clearing the conversation, if you want to switch topic, makes the chatbot work faster and more reliably."
   },
   {
     "target": "#account",

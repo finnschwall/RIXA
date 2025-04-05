@@ -1,17 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Dashboard</title>
-    <script src="dashboard.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interactive Dashboard</title>
+  <style>
+    /* Base Styles */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    
+    /* Fixed Banner */
+    #banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background-color: #f8f9fa;
+      color: black;
+      padding: 10px 20px;
+      height: 250px; /* Base height for larger screens */
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      width: 100vw;
+    }
+
+    /* Left column: Table & Summary stacked */
+    #leftBannerColumn {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    #tableContainer {
+      order: 1;
+      overflow-x: auto;  /* Allow horizontal scroll on small screens */
+    }
+    #featureTable {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #featureTable th,
+    #featureTable td {
+      border: 1px solid #ddd;
+      padding: 6px 8px;
+      text-align: left;
+      font-size: 0.9em;
+    }
+    #datapointSummary {
+      order: 2;
+      flex-basis: 100%;
+      text-align: left;
+      font-size: 0.9em;
+      color: #333;
+      margin-top: 6px;
+    }
+
+    /* Right column: Prediction Box */
+    #predictionBox {
+      order: 3;
+      text-align: right;
+    }
+    #predictionBox h3,
+    #predictionBox h4,
+    #predictionBox p,
+    #predictionBox button {
+      margin: 4px 0;
+    }
+
+    /* PDP Button (inside banner) */
+    #pdpButton {
+      position: absolute;
+      bottom: 10px;
+      left: 20px;
+      z-index: 1001;
+    }
+
+    /* Main Content */
+    #mainContent {
+      margin-top: 250px; /* Should match banner height */
+      height: calc(100vh - 250px);
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    /* PDP Options */
+    #pdpOptions {
+      position: fixed;
+      top: 230px;  /* Adjust as needed; will be overridden on small screens */
+      left: 20px;
+      width: calc(100% - 40px);
+      background-color: #fff;
+      padding: 20px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      z-index: 1001;
+    }
+
+    /* Plot Containers */
+    .plot-container {
+      position: relative;
+      min-height: 300px;
+      padding: 15px;
+      background-color: #ffffff;
+      text-align: center;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.7);
+    }
+    .loading img {
+      width: 50px;
+      height: 50px;
+    }
+
+    /* Buttons (general) */
+    #confirmButton {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s, transform 0.1s;
+    }
+    #confirmButton:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.1s;
+    }
+    button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Checkbox Group */
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+      width: 100%;
+    }
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      background: #f5f5f5;
+      border-radius: 4px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      word-break: break-word;
+    }
+    .checkbox-group label:hover {
+      background: #e8e8e8;
+    }
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 6px;
+    }
+
+    /* Modal Overlay & Content */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 500px;
+    }
+    .modal-buttons {
+      margin-top: 20px;
+    }
+    .modal-buttons button {
+      padding: 10px 20px;
+      margin: 0 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #modalConfirm {
+      background-color: #28a745;
+      color: #fff;
+    }
+    #modalCancel {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    /* Likert Scale Styling */
+    .likert-scale {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .likert-scale label {
+      margin-right: 10px;
+    }
+
+    /* Media Queries for Mobile Responsiveness */
+    @media (max-width: 800px) {
+      /* Stack banner sections vertically */
+      #banner {
+        flex-direction: column;
+        height: auto;
+        align-items: center;
+        padding: 10px;
+      }
+      #leftBannerColumn, #predictionBox {
+        width: 100%;
+        text-align: center;
+      }
+      /* Adjust PDP button to be relative inside the banner */
+      #pdpButton {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        margin-top: 10px;
+      }
+      /* Adjust main content margin */
+      #mainContent {
+        margin-top: auto;
+        padding-top: 10px;
+      }
+      /* Make Likert scale stack on smaller screens */
+      .likert-scale {
+        flex-direction: column;
+        align-items: center;
+      }
+      .likert-scale label {
+        margin: 5px 0;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      #featureTable th,
+      #featureTable td {
+        font-size: 0.75em;
+        padding: 4px;
+      }
+      button, #confirmButton {
+        padding: 8px 16px;
+        font-size: 0.8em;
+      }
+      .modal-content {
+        padding: 20px;
+      }
+      #pdpOptions {
+        top: 180px;
+        padding: 15px;
+      }
+    }
+  </style>
 </head>
 <body>
-    
-<h1>Hello</h1>
+  <!-- Fixed Banner -->
+  <div id="banner">
+    <!-- Left Column: Table and Summary -->
+    <div id="leftBannerColumn">
+      <div id="tableContainer">
+        <table id="featureTable">
+          <thead>
+            <tr id="featureHeader"></tr>
+            <tr id="featureValues"></tr>
+          </thead>
+        </table>
+      </div>
+      <div id="datapointSummary"></div>
+    </div>
+    <!-- Right Column: Prediction Box -->
+    <div id="predictionBox">
+      <h3>Model Prediction</h3>
+      <p id="predictionText">-</p>
+      <h4>Confidence</h4>
+      <p id="confidenceText">-</p>
+      <button id="confirmButton">Confirm</button>
+    </div>
+    <!-- PDP Button inside the banner -->
+    <button id="pdpButton">Show PDP Options</button>
+  </div>
 
-<div id="limeplot"></div>
-<div id="counterfactual"></div>
-<div id="shapelyplot"></div>
+  <!-- PDP Options Section (hidden by default) -->
+  <div id="pdpOptions" style="display: none;">
+    <h3>Select Features and Target Class</h3>
+    <div class="checkbox-group" id="featureCheckboxes"></div>
+    <br />
+    <label for="targetSelect">Select Target Class:</label>
+    <select id="targetSelect">
+      <option value="0">Canceled</option>
+      <option value="1">Check-Out</option>
+    </select>
+    <br />
+    <button id="generatePdpButton">Generate PDP Plot</button>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div id="mainContent">
+    <div class="plot-container">
+      <div id="pdpplot">
+        <!-- Dynamically updated PDP content -->
+      </div>
+    </div>
+    <div class="plot-container">
+      <div id="limeplot">
+        <div class="loading">
+          <img src="https://i.gifer.com/VAyR.gif" alt="Loading...">
+        </div>
+      </div>
+    </div>
+    <div class="plot-container">
+      <div id="counterfactualplot">
+        <div class="loading">
+          <img src="https://i.gifer.com/VAyR.gif" alt="Loading...">
+        </div>
+      </div>
+    </div>
+    <div class="plot-container">
+      <div id="shapelyplot">
+        <div class="loading">
+          <img src="https://i.gifer.com/VAyR.gif" alt="Loading...">
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Modal for Confirmation -->
+    <div id="customModal" class="modal">
+      <div class="modal-content">
+        <h3>Confirm Action</h3>
+        <p>Approve this booking for overbooking contingent?</p>
+        <div class="modal-buttons">
+          <button id="modalConfirm">Yes</button>
+          <button id="modalCancel">No</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Likert Scale Modal -->
+    <div id="likertModal" class="modal">
+      <div class="modal-content">
+        <h3>Feedback Questions</h3>
+        <form id="likertForm">
+          <p>Question 1: Lorem ipsum dolor sit amet?</p>
+          <div class="likert-scale">
+            <label><input type="radio" name="q1" value="1"> 1</label>
+            <label><input type="radio" name="q1" value="2"> 2</label>
+            <label><input type="radio" name="q1" value="3"> 3</label>
+            <label><input type="radio" name="q1" value="4"> 4</label>
+            <label><input type="radio" name="q1" value="5"> 5</label>
+          </div>
+          <p>Question 2: Consectetur adipiscing elit?</p>
+          <div class="likert-scale">
+            <label><input type="radio" name="q2" value="1"> 1</label>
+            <label><input type="radio" name="q2" value="2"> 2</label>
+            <label><input type="radio" name="q2" value="3"> 3</label>
+            <label><input type="radio" name="q2" value="4"> 4</label>
+            <label><input type="radio" name="q2" value="5"> 5</label>
+          </div>
+        </form>
+        <div class="modal-buttons">
+          <button id="likertDone" disabled>Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
