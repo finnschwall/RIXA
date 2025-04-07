@@ -25,11 +25,12 @@ logger = logging.getLogger("stress_test")
 # Shared data structure to track all messages across users
 all_message_responses = {}
 message_sequence = []  # To track message order for plotting
-
+user_fetch_files = []  # To track fetch times for each user
+user_total_fetch_times = []  # To track total fetch times for all users
 
 class ChatbotStressTest:
     def __init__(self, base_url="https://rixa.ai", username="test_user", password="test_password", use_ws=False,
-                 msg_file_path=None):
+                 msg_file_path=None, max_msgs=10):
         self.base_url = base_url
         self.username = username
         self.password = password
@@ -42,6 +43,9 @@ class ChatbotStressTest:
         self.last_msg_id = -2
         self.msg_file_path = msg_file_path
         self.message_counter = 0  # Track the message number for this user
+        self.total_fetch_time = 0  # Total time taken to fetch static files
+        self.total_fetched_files = 0  # Total number of static files fetched
+        self.max_msgs = max_msgs
 
     async def start(self):
         """Initialize the session and run the stress test"""
@@ -82,6 +86,9 @@ class ChatbotStressTest:
 
             self.csrf_token = csrf_input.get('value')
             logger.info(f"{self.username}: CSRF token extracted: {self.csrf_token[:5]}...")
+
+            # Fetch static files from login page
+            await self.fetch_static_files(soup, login_url)
 
         # Perform login
         login_data = {
@@ -129,35 +136,86 @@ class ChatbotStressTest:
                 logger.error(f"{self.username}: Failed to load dashboard with status code {response.status}")
                 raise ValueError(f"Failed to load dashboard with status code {response.status}")
 
-            # Extract WebSocket URL from the page
             html = await response.text()
             soup = BeautifulSoup(html, 'html.parser')
 
-            scripts = soup.find_all('script')
-            ws_url = None
+            # Fetch static files from dashboard page
+            await self.fetch_static_files(soup, dashboard_url)
 
-            for script in scripts:
-                if script.string and "websocket" in script.string.lower():
-                    # Simple regex or string search to find the WebSocket URL
-                    import re
-                    if self.use_ws:
-                        match = re.search(r'ws://[^"\']+', script.string)
-                    else:
-                        match = re.search(r'wss?://[^"\']+', script.string)
-                    if match:
-                        ws_url = match.group(0)
-                        break
-
-            if not ws_url:
-                # Fallback to a standard WebSocket URL format if not found
-                if self.use_ws:
-                    ws_url = f"ws://{self.base_url.split('//')[1]}/ws/chat/"
-                else:
-                    ws_url = f"wss://{self.base_url.split('//')[1]}/ws/chat/"
-                logger.warning(f"{self.username}: WebSocket URL not found in page, using fallback: {ws_url}")
-
+            if self.use_ws:
+                ws_url = f"ws://{self.base_url.split('//')[1]}/ws/chat/"
+            else:
+                ws_url = f"wss://{self.base_url.split('//')[1]}/ws/chat/"
             self.ws_url = ws_url
-            logger.info(f"{self.username}: WebSocket URL: {self.ws_url}")
+
+    async def fetch_static_files(self, soup, page_url):
+        """Fetch static files (CSS, JS, images) from a page to simulate browser behavior"""
+        static_files = []
+
+        # Find all CSS files
+        for css in soup.find_all('link', rel='stylesheet'):
+            if css.get('href'):
+                static_files.append(('CSS', css.get('href')))
+
+        # Find all JavaScript files
+        for script in soup.find_all('script'):
+            if script.get('src'):
+                static_files.append(('JS', script.get('src')))
+
+        # Find all images
+        for img in soup.find_all('img'):
+            if img.get('src'):
+                static_files.append(('IMG', img.get('src')))
+
+        # Find all favicon links
+        for favicon in soup.find_all('link', rel='icon'):
+            if favicon.get('href'):
+                static_files.append(('ICO', favicon.get('href')))
+
+        # logger.info(f"{self.username}: Found {len(static_files)} static files to fetch")
+
+        tasks = []
+        for file_type, file_path in static_files:
+            # Convert relative URLs to absolute
+            file_url = urljoin(page_url, file_path)
+            tasks.append(self.fetch_single_static(file_type, file_url))
+
+        # Execute all fetch tasks concurrently with a limit
+        max_concurrent = min(10, len(tasks))  # Limit concurrent requests
+
+        if tasks:
+            start_time = time.time()
+            # Use gather with semaphore to limit concurrency
+            sem = asyncio.Semaphore(max_concurrent)
+
+            async def fetch_with_semaphore(task):
+                async with sem:
+                    return await task
+
+            await asyncio.gather(*(fetch_with_semaphore(task) for task in tasks))
+            elapsed = time.time() - start_time
+            logger.info(f"{self.username}: Fetched {len(tasks)} static files in {elapsed:.2f} seconds")
+            self.total_fetch_time += elapsed
+            self.total_fetched_files += len(tasks)
+            user_fetch_files.append(len(tasks))
+            user_total_fetch_times.append(elapsed)
+
+    async def fetch_single_static(self, file_type, url):
+        """Fetch a single static file and log result"""
+        try:
+            start_time = time.time()
+            async with self.session.get(url, timeout=5) as response:
+                # Just read the response to complete the request
+                _ = await response.read()
+                elapsed = time.time() - start_time
+                if response.status == 200:
+                    logger.debug(f"{self.username}: Fetched {file_type} {url} in {elapsed:.2f}s")
+                else:
+                    logger.warning(f"{self.username}: Failed to fetch {file_type} {url}: {response.status}")
+                return elapsed, response.status
+        except Exception as e:
+            logger.warning(f"{self.username}: Error fetching {file_type} {url}: {str(e)}")
+            return None, None
 
     async def connect_websocket(self):
         """Establish WebSocket connection"""
@@ -279,7 +337,7 @@ class ChatbotStressTest:
             default_path = self.msg_file_path
 
         with open(default_path) as f:
-            test_messages = f.readlines()[:10]
+            test_messages = f.readlines()[:self.max_msgs]
 
         # Send messages with random delays between them
         for i, message in enumerate(test_messages):
@@ -318,7 +376,7 @@ class ChatbotStressTest:
 
 
 async def run_stress_test(username, password, base_url="https://rixa.ai", concurrent_users=1, use_ws=False,
-                          msg_file_path=None):
+                          msg_file_path=None, max_msgs=10):
     """Run multiple concurrent stress tests"""
     logger.info(f"Starting stress test with {concurrent_users} concurrent users")
     tasks = []
@@ -326,7 +384,7 @@ async def run_stress_test(username, password, base_url="https://rixa.ai", concur
     for i in range(concurrent_users):
         user_id = f"{username}_{i + 1}"
         test = ChatbotStressTest(base_url=base_url, username=user_id, password=password, use_ws=use_ws,
-                                 msg_file_path=msg_file_path)
+                                 msg_file_path=msg_file_path, max_msgs=max_msgs)
         tasks.append(test.start())
 
     await asyncio.gather(*tasks)
@@ -361,6 +419,11 @@ async def generate_combined_report(num_users):
     else:
         avg_response_time = min_response_time = max_response_time = median_response_time = float("inf")
 
+    # Fetch static files statistics
+    total_fetch_time = sum(user_total_fetch_times)
+    total_fetched_files = sum(user_fetch_files)
+    avg_fetch_time = total_fetch_time / total_fetched_files if total_fetched_files > 0 else 0
+
     # Group by user
     user_stats = defaultdict(list)
     for msg_id, data in all_message_responses.items():
@@ -383,13 +446,19 @@ async def generate_combined_report(num_users):
     - Median response time: {median_response_time:.2f} seconds
     - Minimum response time: {min_response_time:.2f} seconds
     - Maximum response time: {max_response_time:.2f} seconds
+    
+    STATIC FILES FETCHED:
+    - Total fetch time: {total_fetch_time:.2f} seconds
+    - Total fetched files: {total_fetched_files}
+    - Average fetch time: {avg_fetch_time:.2f} seconds per file
+    - Total fetch time per user: {total_fetch_time / num_users:.2f} seconds
     """
 
     # Add per-user statistics
-    report += "\nPER-USER STATISTICS:\n"
-    for username, times in user_stats.items():
-        avg_time = sum(times) / len(times)
-        report += f"- {username}: {len(times)} messages, avg response time: {avg_time:.2f} seconds\n"
+    # report += "\nPER-USER STATISTICS:\n"
+    # for username, times in user_stats.items():
+    #     avg_time = sum(times) / len(times)
+    #     report += f"- {username}: {len(times)} messages, avg response time: {avg_time:.2f} seconds\n"
 
     report += "==============================================="
 
@@ -500,6 +569,7 @@ def run():
     parser.add_argument("--users", type=int, default=1, help="Number of concurrent users to simulate")
     parser.add_argument("--use-ws", help="Use ws instead of wss", action="store_true")
     parser.add_argument("--msg_file_path", default=None, help="Path to the file containing messages to send")
+    parser.add_argument("--max-msgs", type=int, default=10, help="Maximum number of messages to send")
 
     args = parser.parse_args()
 
@@ -509,5 +579,6 @@ def run():
         base_url=args.base_url,
         concurrent_users=args.users,
         use_ws=args.use_ws,
-        msg_file_path=args.msg_file_path
+        msg_file_path=args.msg_file_path,
+        max_msgs=args.max_msgs
     ))

@@ -352,8 +352,8 @@ class ConsumerAPI(plugin_api.BaseAPI):
                 await self.consumer.send(text_data=custom_msg)
             elif settings.USERSTUDY == "xai1":
                 await self.consumer.send(text_data=custom_msg)
-                if "**LAST_DATAPOINT**" in custom_msg:
-                    await self.show_modal("There are currently no further bookings to process. Please contact the examiner to proceed with the experiment.", can_close=False)
+                # if "LAST_DATAPOINT" in custom_msg:
+                #     await self.show_modal("There are currently no further bookings to process. Please contact the examiner to proceed with the experiment.", can_close=False)
             else:
                 logger.error("Custom messages are only allowed in debug mode")
         else:

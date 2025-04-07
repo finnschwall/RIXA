@@ -381,7 +381,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "allowed_plugins": self.consumer_api.get_current_plugins(),
                     "plugin_variables": self.consumer_api.get_plugin_variables(),
                     "args": message.get("args", []),
-                    "kwargs": {"username": self.scope["user"].username, "datapoint_choice": req_type},
+                    "kwargs": {"username": self.scope["user"].username, "datapoint_choice": req_type, "answers": message["answers"]},
                 }
             )
             await self.send(json.dumps({"role": "clear_chat"}))
