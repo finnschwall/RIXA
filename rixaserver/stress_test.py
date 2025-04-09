@@ -439,7 +439,7 @@ async def generate_combined_report(num_users):
     TEST SUMMARY:
     - Number of users: {num_users}
     - Total messages sent: {total_messages}
-    - Received answer rate: {completion_rate:.2f}%)
+    - Received answer rate: {completion_rate:.2f}%
 
     RESPONSE TIME METRICS:
     - Average response time: {avg_response_time:.2f} seconds
@@ -474,9 +474,6 @@ async def generate_combined_report(num_users):
 
 
 async def generate_plots():
-    """Generate and save requested plots"""
-    logger.info("Generating plots")
-
     # 1. Histogram of response times
     response_times = [data.get("elapsed") for data in all_message_responses.values()
                       if data.get("completed", False) and "elapsed" in data]
@@ -489,8 +486,6 @@ async def generate_plots():
     plt.grid(True, alpha=0.3)
     plt.savefig('response_time_histogram.png')
     plt.close()
-
-    logger.info("Response time histogram saved to response_time_histogram.png")
 
     # 2. Response time over messages
     # Sort message data by sequence
@@ -525,8 +520,6 @@ async def generate_plots():
     plt.savefig('response_time_vs_message.png')
     plt.close()
 
-    logger.info("Response time vs message plot saved to response_time_vs_message.png")
-
     # Additional plot: Rolling average response time to show trends
     plt.figure(figsize=(12, 7))
 
@@ -556,7 +549,16 @@ async def generate_plots():
     plt.savefig('response_time_trend.png')
     plt.close()
 
-    logger.info("Response time trend plot saved to response_time_trend.png")
+    # histogram static files
+    plt.figure(figsize=(10, 6))
+    plt.hist(user_total_fetch_times, alpha=0.7, color='green')
+    plt.xlabel('Fetch Time (seconds)')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of Fetch Times per User')
+    plt.grid(True, alpha=0.3)
+    plt.savefig('fetch_time_histogram.png')
+
+    logger.info("Generated plots")
 
 
 def run():
