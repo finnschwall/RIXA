@@ -30,7 +30,7 @@ user_total_fetch_times = []  # To track total fetch times for all users
 
 class ChatbotStressTest:
     def __init__(self, base_url="https://rixa.ai", username="test_user", password="test_password", use_ws=False,
-                 msg_file_path=None, max_msgs=10):
+                 msg_file_path=None, max_msgs=10, reload_times = 1):
         self.base_url = base_url
         self.username = username
         self.password = password
@@ -46,14 +46,16 @@ class ChatbotStressTest:
         self.total_fetch_time = 0  # Total time taken to fetch static files
         self.total_fetched_files = 0  # Total number of static files fetched
         self.max_msgs = max_msgs
+        self.reload_times = reload_times
 
     async def start(self):
         """Initialize the session and run the stress test"""
         self.session = aiohttp.ClientSession()
         try:
             # Login and navigate to dashboard
-            await self.login()
-            await self.load_dashboard()
+            for i in range(self.reload_times):
+                await self.login()
+                await self.load_dashboard()
 
             # Connect to WebSocket
             await self.connect_websocket()
@@ -345,7 +347,7 @@ class ChatbotStressTest:
                 logger.error(f"{self.username}: WebSocket disconnected, stopping test")
                 break
 
-            logger.info(f"{self.username}: Sending test message {i + 1}/{len(test_messages)}, '{message[:50]}'")
+            logger.info(f"{self.username}: Sending test message {i + 1}/{len(test_messages)}, '{message[:50].strip()}'")
             global_msg_id = await self.send_message(message)
 
             # Wait for the response to complete or timeout
@@ -376,7 +378,7 @@ class ChatbotStressTest:
 
 
 async def run_stress_test(username, password, base_url="https://rixa.ai", concurrent_users=1, use_ws=False,
-                          msg_file_path=None, max_msgs=10):
+                          msg_file_path=None, max_msgs=10, reload_times=1):
     """Run multiple concurrent stress tests"""
     logger.info(f"Starting stress test with {concurrent_users} concurrent users")
     tasks = []
@@ -384,7 +386,7 @@ async def run_stress_test(username, password, base_url="https://rixa.ai", concur
     for i in range(concurrent_users):
         user_id = f"{username}_{i + 1}"
         test = ChatbotStressTest(base_url=base_url, username=user_id, password=password, use_ws=use_ws,
-                                 msg_file_path=msg_file_path, max_msgs=max_msgs)
+                                 msg_file_path=msg_file_path, max_msgs=max_msgs, reload_times=reload_times)
         tasks.append(test.start())
 
     await asyncio.gather(*tasks)
@@ -403,21 +405,20 @@ async def generate_combined_report(num_users):
 
     if total_messages == 0:
         logger.warning("No messages were sent during the test")
-        return
-
-    completion_rate = (completed_messages / total_messages) * 100
-
-    # Calculate response time statistics
-    response_times = [data.get("elapsed", float("inf")) for data in all_message_responses.values()
-                      if data.get("completed", False) and "elapsed" in data]
-
-    if response_times:
-        avg_response_time = sum(response_times) / len(response_times)
-        min_response_time = min(response_times)
-        max_response_time = max(response_times)
-        median_response_time = sorted(response_times)[len(response_times) // 2]
     else:
-        avg_response_time = min_response_time = max_response_time = median_response_time = float("inf")
+        completion_rate = (completed_messages / total_messages) * 100
+
+        # Calculate response time statistics
+        response_times = [data.get("elapsed", float("inf")) for data in all_message_responses.values()
+                          if data.get("completed", False) and "elapsed" in data]
+
+        if response_times:
+            avg_response_time = sum(response_times) / len(response_times)
+            min_response_time = min(response_times)
+            max_response_time = max(response_times)
+            median_response_time = sorted(response_times)[len(response_times) // 2]
+        else:
+            avg_response_time = min_response_time = max_response_time = median_response_time = float("inf")
 
     # Fetch static files statistics
     total_fetch_time = sum(user_total_fetch_times)
@@ -435,7 +436,9 @@ async def generate_combined_report(num_users):
     report = f"""
     ===== CHATBOT STRESS TEST COMBINED REPORT =====
     Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
+"""
+    if total_messages>0:
+        report += f"""
     TEST SUMMARY:
     - Number of users: {num_users}
     - Total messages sent: {total_messages}
@@ -445,8 +448,8 @@ async def generate_combined_report(num_users):
     - Average response time: {avg_response_time:.2f} seconds
     - Median response time: {median_response_time:.2f} seconds
     - Minimum response time: {min_response_time:.2f} seconds
-    - Maximum response time: {max_response_time:.2f} seconds
-    
+    - Maximum response time: {max_response_time:.2f} seconds"""
+    report+=f"""
     STATIC FILES FETCHED:
     - Total fetch time: {total_fetch_time:.2f} seconds
     - Total fetched files: {total_fetched_files}
@@ -475,79 +478,80 @@ async def generate_combined_report(num_users):
 
 async def generate_plots():
     # 1. Histogram of response times
-    response_times = [data.get("elapsed") for data in all_message_responses.values()
-                      if data.get("completed", False) and "elapsed" in data]
+    if all_message_responses:
+        response_times = [data.get("elapsed") for data in all_message_responses.values()
+                          if data.get("completed", False) and "elapsed" in data]
 
-    plt.figure(figsize=(10, 6))
-    plt.hist(response_times, bins=20, alpha=0.7, color='blue')
-    plt.xlabel('Response Time (seconds)')
-    plt.ylabel('Frequency')
-    plt.title('Histogram of Response Times')
-    plt.grid(True, alpha=0.3)
-    plt.savefig('response_time_histogram.png')
-    plt.close()
+        plt.figure(figsize=(10, 6))
+        plt.hist(response_times, bins=20, alpha=0.7, color='blue')
+        plt.xlabel('Response Time (seconds)')
+        plt.ylabel('Frequency')
+        plt.title('Histogram of Response Times')
+        plt.grid(True, alpha=0.3)
+        plt.savefig('response_time_histogram.png')
+        plt.close()
 
-    # 2. Response time over messages
-    # Sort message data by sequence
-    message_data = []
-    for msg_id, data in all_message_responses.items():
-        if data.get("completed", False) and "elapsed" in data:
-            message_data.append({
-                "username": data.get("username"),
-                "message_number": data.get("message_number"),
-                "elapsed": data.get("elapsed")
-            })
+        # 2. Response time over messages
+        # Sort message data by sequence
+        message_data = []
+        for msg_id, data in all_message_responses.items():
+            if data.get("completed", False) and "elapsed" in data:
+                message_data.append({
+                    "username": data.get("username"),
+                    "message_number": data.get("message_number"),
+                    "elapsed": data.get("elapsed")
+                })
 
-    # Sort by message number
-    message_data.sort(key=lambda x: x["message_number"])
+        # Sort by message number
+        message_data.sort(key=lambda x: x["message_number"])
 
-    # Prepare data for plotting
-    usernames = set(item["username"] for item in message_data)
+        # Prepare data for plotting
+        usernames = set(item["username"] for item in message_data)
 
-    plt.figure(figsize=(12, 7))
+        plt.figure(figsize=(12, 7))
 
-    for username in usernames:
-        user_data = [item for item in message_data if item["username"] == username]
-        message_numbers = [item["message_number"] for item in user_data]
-        times = [item["elapsed"] for item in user_data]
-        plt.scatter(message_numbers, times, alpha=0.7, label=username)
+        for username in usernames:
+            user_data = [item for item in message_data if item["username"] == username]
+            message_numbers = [item["message_number"] for item in user_data]
+            times = [item["elapsed"] for item in user_data]
+            plt.scatter(message_numbers, times, alpha=0.7, label=username)
 
-    plt.xlabel('Message Sequence Number')
-    plt.ylabel('Response Time (seconds)')
-    plt.title('Response Time vs Message Sequence')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.savefig('response_time_vs_message.png')
-    plt.close()
+        plt.xlabel('Message Sequence Number')
+        plt.ylabel('Response Time (seconds)')
+        plt.title('Response Time vs Message Sequence')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.savefig('response_time_vs_message.png')
+        plt.close()
 
-    # Additional plot: Rolling average response time to show trends
-    plt.figure(figsize=(12, 7))
+        # Additional plot: Rolling average response time to show trends
+        plt.figure(figsize=(12, 7))
 
-    # Sort all data by timestamp for chronological view
-    all_data = sorted(
-        [item for item in message_data if "elapsed" in item],
-        key=lambda x: x["message_number"]
-    )
+        # Sort all data by timestamp for chronological view
+        all_data = sorted(
+            [item for item in message_data if "elapsed" in item],
+            key=lambda x: x["message_number"]
+        )
 
-    message_nums = [item["message_number"] for item in all_data]
-    response_times = [item["elapsed"] for item in all_data]
+        message_nums = [item["message_number"] for item in all_data]
+        response_times = [item["elapsed"] for item in all_data]
 
-    # Plot individual points
-    plt.scatter(message_nums, response_times, alpha=0.4, color='gray', label='Individual responses')
+        # Plot individual points
+        plt.scatter(message_nums, response_times, alpha=0.4, color='gray', label='Individual responses')
 
-    # Calculate rolling average if we have enough data
-    if len(response_times) > 5:
-        window = min(5, len(response_times) // 3)
-        rolling_avg = np.convolve(response_times, np.ones(window) / window, mode='valid')
-        plt.plot(message_nums[window - 1:], rolling_avg, 'r-', linewidth=2, label=f'{window}-message rolling average')
+        # Calculate rolling average if we have enough data
+        if len(response_times) > 5:
+            window = min(5, len(response_times) // 3)
+            rolling_avg = np.convolve(response_times, np.ones(window) / window, mode='valid')
+            plt.plot(message_nums[window - 1:], rolling_avg, 'r-', linewidth=2, label=f'{window}-message rolling average')
 
-    plt.xlabel('Message Sequence Number')
-    plt.ylabel('Response Time (seconds)')
-    plt.title('Response Time Trend')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.savefig('response_time_trend.png')
-    plt.close()
+        plt.xlabel('Message Sequence Number')
+        plt.ylabel('Response Time (seconds)')
+        plt.title('Response Time Trend')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.savefig('response_time_trend.png')
+        plt.close()
 
     # histogram static files
     plt.figure(figsize=(10, 6))
@@ -572,6 +576,7 @@ def run():
     parser.add_argument("--use-ws", help="Use ws instead of wss", action="store_true")
     parser.add_argument("--msg_file_path", default=None, help="Path to the file containing messages to send")
     parser.add_argument("--max-msgs", type=int, default=10, help="Maximum number of messages to send")
+    parser.add_argument("--reload-times", type=int, default=1, help="Number of times to reload the page")
 
     args = parser.parse_args()
 
@@ -582,5 +587,6 @@ def run():
         concurrent_users=args.users,
         use_ws=args.use_ws,
         msg_file_path=args.msg_file_path,
-        max_msgs=args.max_msgs
+        max_msgs=args.max_msgs,
+        reload_times=args.reload_times
     ))

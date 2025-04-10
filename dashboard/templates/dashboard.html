@@ -23,6 +23,8 @@
     <script src="{% static 'js/plotly-2.20.0.min.js' %}" charset="utf-8"></script>
     {#<script type="text/javascript" src="https://www.maths.nottingham.ac.uk/plp/pmadw/LaTeXMathML.js"></script>#}
     {#    own scripts#}
+
+    <script>let username = "{{ username }}"</script>
     <script src="{% static 'js/LaTeXMathML.js' %}"></script>
     <script src="{% static 'js/jshelpers.js' %}"></script>
     <script>function getPath(path) {

@@ -98,19 +98,20 @@ GONE SKYNET?: NO(t yet)<br>"""
                "selected_chat": str(request.session.get("selected_chat", 0)),
                "selected_chat_mode": selected_chat_mode,
                "server_status": server_status,
-               "plugin_settings": json.dumps(plugin_settings)}
+               "plugin_settings": json.dumps(plugin_settings),
+               }
     return render(request, 'home.html', context)
 
 
 @login_required(login_url="about")
 def dashboard(request):
-    context = {"chat": False}
+    context = {"chat": False, "username": request.user.username,}
     return render(request, 'dashboard.html', context)
 
 
 @login_required(login_url="about")
 def dashboard2(request):
-    context = {"chat": True}
+    context = {"chat": True, "username": request.user.username,}
     return render(request, 'dashboard.html', context)
 
 

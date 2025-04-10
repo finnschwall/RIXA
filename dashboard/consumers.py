@@ -319,7 +319,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
             settings_dict = {"enable_function_calls": enable_function_calls, "enable_knowledge_retrieval": enable_knowledge_retrieval,
-                             "selected_chat_mode": selected_chat_mode, "show_onboarding": show_onboarding, }
+                             "selected_chat_mode": selected_chat_mode, "show_onboarding": show_onboarding, "username": self.scope["user"].username}
             await self.send(json.dumps({"role": "user_settings", "content": settings_dict}))
             # HARDCODED
             if selected_chat_mode == "anmol":
@@ -384,6 +384,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "kwargs": {"username": self.scope["user"].username, "datapoint_choice": req_type, "answers": message["answers"]},
                 }
             )
+            with open(settings.WORKING_DIRECTORY + "/datapoint_answers.txt", "a") as f:
+                f.write(str({"username": self.scope["user"].username, "datapoint_choice": req_type, "answers": message["answers"]}))
+
             await self.send(json.dumps({"role": "clear_chat"}))
             await self.consumer_api.new_chat()
             for i in self.consumer_api.get_active_conversation():
