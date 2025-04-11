@@ -1,6 +1,8 @@
 import asyncio
 import json
 import time
+from os.path import exists
+
 import aiohttp
 import random
 import logging
@@ -10,23 +12,28 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from urllib.parse import urljoin
 from collections import defaultdict
+import os
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("stress_test.log"),
+        # logging.FileHandler("stress_test.log"),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger("stress_test")
+
+#path for reportstuff
+basepath = "report"
 
 # Shared data structure to track all messages across users
 all_message_responses = {}
 message_sequence = []  # To track message order for plotting
 user_fetch_files = []  # To track fetch times for each user
 user_total_fetch_times = []  # To track total fetch times for all users
+reload_times_g = 1
 
 class ChatbotStressTest:
     def __init__(self, base_url="https://rixa.ai", username="test_user", password="test_password", use_ws=False,
@@ -455,6 +462,7 @@ async def generate_combined_report(num_users):
     - Total fetched files: {total_fetched_files}
     - Average fetch time: {avg_fetch_time:.2f} seconds per file
     - Total fetch time per user: {total_fetch_time / num_users:.2f} seconds
+    - Average fetch time per user: {total_fetch_time / (num_users * reload_times_g):.2f} seconds
     """
 
     # Add per-user statistics
@@ -467,7 +475,7 @@ async def generate_combined_report(num_users):
 
     # Log and save the report
     logger.info(report)
-    with open("combined_stress_test_report.txt", "w") as f:
+    with open(basepath+"/"+"combined_stress_test_report.txt", "w") as f:
         f.write(report)
 
     logger.info("Combined stress test report saved to combined_stress_test_report.txt")
@@ -478,6 +486,8 @@ async def generate_combined_report(num_users):
 
 async def generate_plots():
     # 1. Histogram of response times
+    if not os.path.exists(basepath):
+        os.makedirs(basepath)
     if all_message_responses:
         response_times = [data.get("elapsed") for data in all_message_responses.values()
                           if data.get("completed", False) and "elapsed" in data]
@@ -488,8 +498,12 @@ async def generate_plots():
         plt.ylabel('Frequency')
         plt.title('Histogram of Response Times')
         plt.grid(True, alpha=0.3)
-        plt.savefig('response_time_histogram.png')
+        plt.savefig(f'{basepath}/response_time_histogram.png')
         plt.close()
+        hist,bins = np.histogram(response_times, bins=20)
+        import pandas as pd
+        hist_data = pd.DataFrame({'bin_edges': bins[:-1], 'counts': hist})
+        hist_data.to_csv(f'{basepath}/response_time_histogram.csv', index=False)
 
         # 2. Response time over messages
         # Sort message data by sequence
@@ -521,7 +535,7 @@ async def generate_plots():
         plt.title('Response Time vs Message Sequence')
         plt.legend()
         plt.grid(True, alpha=0.3)
-        plt.savefig('response_time_vs_message.png')
+        plt.savefig(f'{basepath}/response_time_vs_message.png')
         plt.close()
 
         # Additional plot: Rolling average response time to show trends
@@ -550,7 +564,7 @@ async def generate_plots():
         plt.title('Response Time Trend')
         plt.legend()
         plt.grid(True, alpha=0.3)
-        plt.savefig('response_time_trend.png')
+        plt.savefig(f'{basepath}/response_time_trend.png')
         plt.close()
 
     # histogram static files
@@ -560,12 +574,13 @@ async def generate_plots():
     plt.ylabel('Frequency')
     plt.title('Histogram of Fetch Times per User')
     plt.grid(True, alpha=0.3)
-    plt.savefig('fetch_time_histogram.png')
+    plt.savefig(f'{basepath}/fetch_time_histogram.png')
 
     logger.info("Generated plots")
 
 
 def run():
+    global reload_times_g
     import argparse
 
     parser = argparse.ArgumentParser(description="Run a stress test on a chatbot interface")
@@ -579,7 +594,7 @@ def run():
     parser.add_argument("--reload-times", type=int, default=1, help="Number of times to reload the page")
 
     args = parser.parse_args()
-
+    reload_times_g = args.reload_times
     asyncio.run(run_stress_test(
         username=args.username,
         password=args.password,
