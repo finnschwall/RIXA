@@ -21,14 +21,14 @@
       background-color: #f8f9fa;
       color: black;
       padding: 10px 20px;
-      height: 250px; /* Base height for larger screens */
+      height: auto; /* Base height for larger screens */
       display: flex;
       flex-wrap: nowrap;
       justify-content: space-between;
       align-items: flex-start;
       gap: 20px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
+      overflow: visible;
       width: 100vw;
     }
 
@@ -67,19 +67,44 @@
       order: 3;
       text-align: right;
     }
+
+    /* Smaller headings for labels */
     #predictionBox h3,
-    #predictionBox h4,
-    #predictionBox p,
+    #predictionBox h4 {
+      margin: 4px 0;
+      font-size: 16px;  /* reduced font-size for the labels */
+    }
+
+    /* Larger, bolder values */
+    #predictionBox p {
+      margin: 4px 0;
+      font-size: 22px;  /* increased font-size for the displayed values */
+      font-weight: bold;
+    }
+
+    /* Keep button styling as is (or adjust if needed) */
     #predictionBox button {
       margin: 4px 0;
     }
 
-    /* PDP Button (inside banner) */
-    #pdpButton {
+    /* Options Buttons Container */
+    #optionsButtons {
       position: absolute;
-      bottom: 10px;
+      bottom: 15px;
       left: 20px;
-      z-index: 1001;
+    }
+    #optionsButtons button {
+      display: inline-block;
+      margin-right: 10px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #optionsButtons button:last-child {
+      margin-right: 0;
     }
 
     /* Main Content */
@@ -94,6 +119,19 @@
     #pdpOptions {
       position: fixed;
       top: 230px;  /* Adjust as needed; will be overridden on small screens */
+      left: 20px;
+      width: calc(100% - 40px);
+      background-color: #fff;
+      padding: 20px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      z-index: 1001;
+    }
+
+    /* Histogram Options */
+    #histogramOptions {
+      position: fixed;
+      top: 230px;
       left: 20px;
       width: calc(100% - 40px);
       background-color: #fff;
@@ -179,7 +217,8 @@
     .checkbox-group label:hover {
       background: #e8e8e8;
     }
-    .checkbox-group input[type="checkbox"] {
+    .checkbox-group input[type="checkbox"],
+    .checkbox-group input[type="radio"] {
       margin-right: 6px;
     }
 
@@ -247,12 +286,10 @@
         width: 100%;
         text-align: center;
       }
-      /* Adjust PDP button to be relative inside the banner */
-      #pdpButton {
-        position: relative;
-        bottom: auto;
-        left: auto;
-        margin-top: 10px;
+      /* Adjust options buttons to stack vertically */
+      #optionsButtons button {
+        display: block;
+        margin: 5px 0;
       }
       /* Adjust main content margin */
       #mainContent {
@@ -282,7 +319,7 @@
       .modal-content {
         padding: 20px;
       }
-      #pdpOptions {
+      #pdpOptions, #histogramOptions {
         top: 180px;
         padding: 15px;
       }
@@ -306,14 +343,17 @@
     </div>
     <!-- Right Column: Prediction Box -->
     <div id="predictionBox">
-      <h3>Model Prediction</h3>
+      <h3>AI Prediction</h3>
       <p id="predictionText">-</p>
       <h4>Confidence</h4>
       <p id="confidenceText">-</p>
-      <button id="confirmButton">Confirm</button>
+      <button id="confirmButton">Decision</button>
     </div>
-    <!-- PDP Button inside the banner -->
-    <button id="pdpButton">Show PDP Options</button>
+    <!-- Options Buttons Container -->
+    <div id="optionsButtons">
+      <button id="pdpButton">Show PDP Options</button>
+      <button id="histogramButton">Show Histogram Options</button>
+    </div>
   </div>
 
   <!-- PDP Options Section (hidden by default) -->
@@ -323,20 +363,41 @@
     <br />
     <label for="targetSelect">Select Target Class:</label>
     <select id="targetSelect">
-      <option value="0">Canceled</option>
+      <option value="0">Cancellation</option>
       <option value="1">Check-Out</option>
     </select>
     <br />
     <button id="generatePdpButton">Generate PDP Plot</button>
   </div>
 
+  <!-- Histogram Options Section (hidden by default) -->
+  <!-- Histogram Options Section (hidden by default) -->
+<div id="histogramOptions" style="display: none;">
+  <h3>Select Feature and Options</h3>
+  <!-- The radio buttons will be dynamically inserted into this container -->
+  <div id="histogramFeatureRadios" class="checkbox-group"></div>
+  <br />
+  <label>
+    <input type="checkbox" id="splitByTarget"> Split by target
+  </label>
+  <br />
+  <button id="generateHistogramButton">Generate Histogram</button>
+</div>
+
+
   <!-- Scrollable Content -->
   <div id="mainContent">
-    <div class="plot-container">
+    <div id="pdpContainer" class="plot-container" style="display:none;">
       <div id="pdpplot">
         <!-- Dynamically updated PDP content -->
       </div>
     </div>
+    <div id="histogramContainer" class="plot-container" style="display:none;">
+      <div id="histogramplot">
+        <!-- Dynamically updated histogram content -->
+      </div>
+    </div>
+    
     <div class="plot-container">
       <div id="limeplot">
         <div class="loading">
@@ -362,11 +423,11 @@
     <!-- Custom Modal for Confirmation -->
     <div id="customModal" class="modal">
       <div class="modal-content">
-        <h3>Confirm Action</h3>
+        <h3>Overbooking</h3>
         <p>Approve this booking for overbooking contingent?</p>
         <div class="modal-buttons">
-          <button id="modalConfirm">Yes</button>
-          <button id="modalCancel">No</button>
+          <button id="modalConfirm">Approve</button>
+          <button id="modalCancel">Don't Approve</button>
         </div>
       </div>
     </div>
@@ -374,23 +435,19 @@
     <!-- Likert Scale Modal -->
     <div id="likertModal" class="modal">
       <div class="modal-content">
-        <h3>Feedback Questions</h3>
+        <h3>Survey Question</h3>
         <form id="likertForm">
-          <p>Question 1: Lorem ipsum dolor sit amet?</p>
+          <p>Confidence: How confident are you in your decision?</p>
           <div class="likert-scale">
-            <label><input type="radio" name="q1" value="1"> 1</label>
-            <label><input type="radio" name="q1" value="2"> 2</label>
-            <label><input type="radio" name="q1" value="3"> 3</label>
-            <label><input type="radio" name="q1" value="4"> 4</label>
-            <label><input type="radio" name="q1" value="5"> 5</label>
+            <label><input type="radio" name="confidence" value="1"> 1</label>
+            <label><input type="radio" name="confidence" value="2"> 2</label>
+            <label><input type="radio" name="confidence" value="3"> 3</label>
+            <label><input type="radio" name="confidence" value="4"> 4</label>
+            <label><input type="radio" name="confidence" value="5"> 5</label>
           </div>
-          <p>Question 2: Consectetur adipiscing elit?</p>
-          <div class="likert-scale">
-            <label><input type="radio" name="q2" value="1"> 1</label>
-            <label><input type="radio" name="q2" value="2"> 2</label>
-            <label><input type="radio" name="q2" value="3"> 3</label>
-            <label><input type="radio" name="q2" value="4"> 4</label>
-            <label><input type="radio" name="q2" value="5"> 5</label>
+          <div class="likert-scale-labels" style="display: flex; justify-content: space-between; font-size: 0.9em; margin-top: 5px;">
+            <span>Not confident at all</span>
+            <span>Very confident</span>
           </div>
         </form>
         <div class="modal-buttons">

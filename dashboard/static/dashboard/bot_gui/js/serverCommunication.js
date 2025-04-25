@@ -17,7 +17,7 @@ let chat_enabled = true
 
 initializeWebSocket()
 let standalone = false
-let standalone_with_chat = false
+// let standalone_with_chat = false
 
 try {
     $("#userInput").prop("disabled", true)
@@ -25,11 +25,11 @@ try {
 } catch (e) {
 
     standalone = true
-if ($('#chat_container').length > 0) {
-    standalone_with_chat = true
-} else {
-    standalone_with_chat = false
-}
+// if ($('#chat_container').length > 0) {
+//     standalone_with_chat = true
+// } else {
+//     standalone_with_chat = false
+// }
 }
 
 let timeout_id = -1
@@ -97,10 +97,13 @@ let firstDisplay = false
 function onMessageHandler(e) {
     const data = JSON.parse(e.data);
 
+    if ("role" in data && (data["role"]==="intro" || data["role"]==="global_settings")){
+        //features of new UI. not supported in old UI
+        return
+    }
     if (standalone) {
         try {
-            if("role" in data && data["role"] === "tracker_entry" ){
-
+            if("role" in data && data["role"] === "tracker_entry"){
             }
             else{
                 messageHandler(data)

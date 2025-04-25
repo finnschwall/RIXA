@@ -9,6 +9,10 @@
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
     <title>{{ website_title }}</title>
 
+<script>
+    let standalone_with_chat = {% if chat %}true{% else %}false{% endif %};
+</script>
+
     {#    css#}
     <link href="{% static 'favicon.ico' %}" rel="shortcut icon" type="image/png"/>
     <link rel="stylesheet" id="stylesheet" href="{% static 'css/bootstrap.main.css' %}">
@@ -117,9 +121,15 @@
                 </div>
 
             </div>
-     <img class="position-fixed bottom-0 end-0 shadow-lg rounded-circle mb-1 me-1 "
-     id="profile_pic" src="{% static 'dashboard/bot_gui/img/botAvatar.png' %}"
-     style="height: 10%; width: auto; z-index: 10">
+{#     <img class="position-fixed bottom-0 end-0 shadow-lg rounded-circle mb-1 me-1 "#}
+{#     id="profile_pic" src="{% static 'dashboard/bot_gui/img/botAvatar.png' %}"#}
+{#     style="height: 10%; width: auto; z-index: 10; margin: 15%">#}
+<div class="position-fixed bottom-0 end-0  rounded-circle mb-1 me-1"
+     style="height: 10%; width: auto; z-index: 10;padding: 1%; display: flex; align-items: center; justify-content: center;">
+    <img id="profile_pic"
+         src="{% static 'dashboard/bot_gui/img/chat.png' %}"
+         style="width: 100%; height: auto; max-height: 100%; object-fit: contain;transform: scaleX(-1);">
+</div>
      <script>
      $(".widget").hide()
 

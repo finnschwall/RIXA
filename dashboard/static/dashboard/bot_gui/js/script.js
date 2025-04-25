@@ -133,7 +133,7 @@ function closeChat(){
     $("#profile_pic").fadeIn();
     $(".widget").fadeOut();
     if(standalone){
-        $("#chat_container").css("z-index","0")
+        $("#chat_container").css("z-index","-1")
     }
 
 }
@@ -153,7 +153,6 @@ function switchCSS(name){
 
 let isMaximized = false;
 function toggleMaxChat(){
-    console.log("test")
     if(isMaximized){
 
         // $("#chat_top_bar").css("display","")
@@ -219,7 +218,9 @@ window.addEventListener('load', () => {
     openChat()
   });
 
+
   $("#close").click(() => {
+      console.log("test2")
     closeChat()
     scrollToBottomOfResults();
   });
