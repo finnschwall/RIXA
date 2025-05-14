@@ -399,6 +399,15 @@ def register_user_legacy(request):
                 rixa_user.save()
                 invitation.save()
                 login(request, user)
+
+                if request.method == 'POST' and 'reset_button' in request.POST:
+                    import rixaplugin
+                    try:
+                        rixaplugin.execute("reset")
+                        return HttpResponseRedirect(request.path)
+                    except:
+                        return HttpResponseRedirect(f"{request.path}?error=FAILURE+TO+RESET")
+
                 return HttpResponseRedirect(reverse("home"))
             else:
                 user.save()

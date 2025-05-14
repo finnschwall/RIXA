@@ -1,7 +1,7 @@
 import os
 
 from django.shortcuts import render, get_object_or_404, resolve_url
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse, HttpResponseRedirect
 import json
 from datetime import datetime
 from django.conf import settings
@@ -15,6 +15,9 @@ from django.http import HttpResponseNotFound
 
 from urllib.parse import urlparse
 import functools
+
+
+current_study_mode = "UNKNOWN"
 
 latest_time = os.path.getmtime("..")
 for root, dirs, files in os.walk(".."):
@@ -58,6 +61,8 @@ def edit_chat_configuration(request, ):
 
 @login_required(login_url="about")
 def home(request):
+    global current_study_mode
+    current_study_mode = "chat"
     user_settings = request.session.get("settings", None)
 
     if user_settings:
@@ -105,14 +110,45 @@ GONE SKYNET?: NO(t yet)<br>"""
 
 @login_required(login_url="about")
 def dashboard(request):
+    global current_study_mode
+    current_study_mode = "dashboard"
     context = {"chat": False, "username": request.user.username,}
     return render(request, 'dashboard.html', context)
 
 
 @login_required(login_url="about")
 def dashboard2(request):
+    global current_study_mode
+    current_study_mode = "dashboard_chat"
     context = {"chat": True, "username": request.user.username,}
     return render(request, 'dashboard.html', context)
+
+@login_required(login_url="about")
+def study_status(request):
+    current_index = "UNKNOWN"
+    last_choices = "FAILURE TO GET LAST CHOICES"
+    try:
+        with open("/home/ies/schwall/rixaplugin_symlink/study_index.txt","r") as f:
+            current_index=f.read()
+        import pandas as pd
+        last_choices = pd.read_csv("/home/ies/ashri/selections/ashri.txt", delimiter=";",
+                                   names=["Timestamp","current_study_mode","Username","Index","ID","DatapointChoice","survey"])
+        last_choices = last_choices.tail(20).to_html()
+
+    except Exception as e:
+        current_index = "Failure to get current index"
+
+
+    if request.method == 'POST' and 'reset_button' in request.POST:
+        import rixaplugin
+        try:
+            rixaplugin.execute("reset")
+            return HttpResponseRedirect(request.path)
+        except:
+            return HttpResponseRedirect(f"{request.path}?error=FAILURE+TO+RESET")
+
+    return render(request, 'study_status.html', {'current_index': current_index, "last_choices":last_choices})
+
 
 
 @login_required(login_url="about")

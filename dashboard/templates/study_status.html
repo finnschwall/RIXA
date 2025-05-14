@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div>
+        Current index: {{ current_index }}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="reset_button">RESET</button>
+    </form>
+<br><br>
+    <div>
+        Last choices:<br> {{ last_choices | safe}}
+    </div>
+</body>
+</html>

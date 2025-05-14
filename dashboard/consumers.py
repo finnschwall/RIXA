@@ -352,6 +352,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                                                                                "show_banner": False,
                                                                                # always show settings for admins
                                                                                "hide_settings": settings.HIDE_SETTINGS and not self.scope["user"].is_staff,
+                                                                               "show_bug_report_button" : not settings.HIDE_BUG_REPORT_BUTTON,
+                                                                               "show_user_button": not settings.HIDE_USER_PROFILE_BUTTON,
+
                                                                                 # "chat_disabled": settings.DISABLE_CHAT,
                                                                              # "website_title": settings.WEBSITE_TITLE,
                                                                              # "chat_title": settings.CHAT_TITLE,
@@ -371,6 +374,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             await self.send(json.dumps({"role": "plugin_startup_info", "content": chat_start_info}))
         elif req_type == "confirm_datapoint" or req_type == "decline_datapoint":
+            from dashboard import views
             await self.channel_layer.send(
                 "plugin_interface",
                 {
@@ -381,7 +385,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "allowed_plugins": self.consumer_api.get_current_plugins(),
                     "plugin_variables": self.consumer_api.get_plugin_variables(),
                     "args": message.get("args", []),
-                    "kwargs": {"username": self.scope["user"].username, "datapoint_choice": req_type, "answers": message["answers"]},
+                    "kwargs": {"username": self.scope["user"].username, "datapoint_choice": req_type, "answers": message["answers"], "current_study_mode":views.current_study_mode
+                               },
                 }
             )
             with open(settings.WORKING_DIRECTORY + "/datapoint_answers.txt", "a") as f:

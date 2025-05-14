@@ -17,19 +17,12 @@ let chat_enabled = true
 
 initializeWebSocket()
 let standalone = false
-// let standalone_with_chat = false
 
 try {
     $("#userInput").prop("disabled", true)
     const toastJS = bootstrap.Toast.getOrCreateInstance($("#liveToast"))
 } catch (e) {
-
     standalone = true
-// if ($('#chat_container').length > 0) {
-//     standalone_with_chat = true
-// } else {
-//     standalone_with_chat = false
-// }
 }
 
 let timeout_id = -1
@@ -180,7 +173,7 @@ function onMessageHandler(e) {
         } else if (data["role"] === "partial") {
             addPartialMessage(data)
         } else {
-            console.error("Unknown role. The following data has been received:")
+            console.warn("Unknown role. The following data has been received:")
             console.log(data)
 
             // hideBotTyping();
@@ -237,7 +230,11 @@ function onOpenHandler(e) {
         return
     }
     $("#userInput").prop("disabled", false)
-    openChat()
+    if(!standalone){
+        console.log("test")
+        openChat()
+    }
+
     if (reconnectTries > 0) {
         showMessage(`Connection to server re-established`, 2000, "success")
         resetUI()
@@ -259,3 +256,6 @@ function onCloseHandler(e) {
 }
 
 
+if(standalone&&standalone_with_chat){
+    closeChat()
+}

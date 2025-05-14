@@ -22,14 +22,77 @@ const PDP_HISTORY_KEY = 'pdpHistory';
 const HISTOGRAM_HISTORY_KEY = 'histogramHistory';
 let pendingRequests = 0;
 
-// Global variables for user and decision
-var currentUsername = username; 
+var currentUsername = username;
 var decisionChoice = "";
+
+function initLikertForm() {
+  const form = $("#likertForm");
+  form.empty();
+
+  if (standalone_with_chat) {
+    const questions = [
+      {
+        id: "q1",
+        text: "How confident are you in your decision?",
+        labelMin: "not confident at all",
+        labelMax: "very confident"
+      },
+      {
+        id: "q2",
+        text: "How useful did you find the AI assistant's responses?",
+        labelMin: "not useful at all",
+        labelMax: "very useful"
+      },
+      {
+        id: "q3",
+        text: "How satisfied were you with the overall support from the AI assistant?",
+        labelMin: "not satisfied at all",
+        labelMax: "very satisfied"
+      }
+    ];
+    questions.forEach(q => {
+      form.append(`<p>${q.text}</p>`);
+      const scaleDiv = $(`<div class="likert-scale"></div>`);
+      for (let i = 1; i <= 5; i++) {
+        scaleDiv.append(`
+          <label>
+            <input type="radio" name="${q.id}" value="${i}"> ${i}
+          </label>
+        `);
+      }
+      form.append(scaleDiv);
+      form.append(`
+        <div class="likert-scale-labels"
+             style="display:flex; justify-content:space-between; font-size:0.9em; margin-top:5px;">
+          <span>${q.labelMin}</span>
+          <span>${q.labelMax}</span>
+        </div>
+      `);
+    });
+  } else {
+    form.append(`<p>Confidence: How confident are you in your decision?</p>`);
+    const scaleDiv = $(`<div class="likert-scale"></div>`);
+    for (let i = 1; i <= 5; i++) {
+      scaleDiv.append(`
+        <label>
+          <input type="radio" name="confidence" value="${i}"> ${i}
+        </label>
+      `);
+    }
+    form.append(scaleDiv);
+    form.append(`
+      <div class="likert-scale-labels"
+           style="display:flex; justify-content:space-between; font-size:0.9em; margin-top:5px;">
+        <span>Not confident at all</span>
+        <span>Very confident</span>
+      </div>
+    `);
+  }
+}
 
 function generateBookingSummary(data) {
   console.log("generateBookingSummary data:", data);
 
-  // Extract each field by its display title
   const adults        = parseInt(data["Adults"].value, 10);
   const children      = parseInt(data["Children"].value, 10);
   const leadTime      = parseInt(data["Lead Time"].value, 10);
@@ -46,7 +109,6 @@ function generateBookingSummary(data) {
   const depositType   = data["Deposit Type"].value;
   const marketSeg     = data["Market Segment"].value;
 
-  // Pluralization helper
   const pluralize = (count, singular, plural) =>
     `${count} ${count === 1 ? singular : (plural || singular + "s")}`;
 
@@ -55,7 +117,6 @@ function generateBookingSummary(data) {
   const dayText    = pluralize(leadTime, "day");
   const nightText  = pluralize(totalNights, "night");
 
-  // Market‐segment phrase lookup
   const segmentMap = {
     "Groups":        "as part of a group reservation",
     "Corporate":     "under a corporate agreement",
@@ -65,19 +126,16 @@ function generateBookingSummary(data) {
   };
   const segmentPhrase = segmentMap[marketSeg] || `through ${marketSeg.toLowerCase()}`;
 
-  // Deposit phrasing
-  // New deposit phrasing logic:
   let depositPhrase;
   const d = depositType.toLowerCase();
   if (d.includes("no deposit")) {
-    depositPhrase = "no";
-  } else if (d.includes("non refund")) {
-    depositPhrase = "non‑refundable";
+    depositPhrase = "no deposit";
+  } else if (d.includes("non")) {
+    depositPhrase = "non-refundable";
   } else {
     depositPhrase = "refundable";
   }
 
-  // Build the narrative
   const summary =
     `The booking comprises ${adultText}${childText} and was placed ${dayText} prior to arrival ${segmentPhrase}. ` +
     `The guests plan to stay at the ${hotel} hotel for ${nightText} ` +
@@ -118,48 +176,30 @@ function populateFeatureCheckboxes() {
 }
 
 function populateHistogramRadios() {
-  // Check if the radio container exists; if not, create one.
   let container = document.getElementById("histogramFeatureRadios");
   if (!container) {
     container = document.createElement("div");
     container.id = "histogramFeatureRadios";
-
-    // — ADDED: Use the same CSS class as PDP options so radios get the grey boxes, grid gaps, etc.
     container.classList.add("checkbox-group");
-
-    // Replace the old <select> (if it exists) with this radio container
-    const oldSelect = document.getElementById("featureSelect");
-    if (oldSelect) {
-      oldSelect.parentNode.replaceChild(container, oldSelect);
-    } else {
-      document.getElementById("histogramOptions")
-        .insertBefore(container, document.getElementById("splitByTarget").parentNode);
-    }
+    const old = document.getElementById("featureSelect");
+    if (old) old.parentNode.replaceChild(container, old);
+    else document.getElementById("histogramOptions")
+      .insertBefore(container, document.getElementById("splitByTarget").parentNode);
   } else {
-    // Clear previous radios if already created.
     container.innerHTML = "";
   }
 
-  // Load the user's last selection
   const sessionState = JSON.parse(sessionStorage.getItem(HISTOGRAM_HISTORY_KEY)) || { selectedFeature: "" };
-
-  // Iterate over featureMapping in insertion order to create styled radio labels
-  for (const [userFriendly, backendName] of Object.entries(featureMapping)) {
-    const labelEl = document.createElement("label");
-
-    labelEl.innerHTML = `
-      <input 
-        type="radio" 
-        name="histogramFeature" 
-        value="${backendName}"
-        ${sessionState.selectedFeature === backendName ? "checked" : ""}
-      >
-      ${userFriendly}
+  for (const [label, value] of Object.entries(featureMapping)) {
+    const lbl = document.createElement("label");
+    lbl.innerHTML = `
+      <input type="radio" name="histogramFeature" value="${value}"
+        ${sessionState.selectedFeature === value ? "checked" : ""}>
+      ${label}
     `;
-    container.appendChild(labelEl);
+    container.appendChild(lbl);
   }
 }
-
 
 function showLoading(sel) {
   $(sel).html(`
@@ -204,64 +244,92 @@ function connectionEstablishedHandler() {
   $("#modalConfirm").click(() => {
     decisionChoice = "confirm_datapoint";
     $("#customModal").hide();
-    $("#likertModal").css("display", "flex");
+    initLikertForm();
     $("#likertForm")[0].reset();
     $("#likertDone").prop("disabled", true);
+    $("#likertModal").
+css("display", "flex");
   });
 
   $("#modalCancel").click(() => {
     decisionChoice = "decline_datapoint";
     $("#customModal").hide();
-    $("#likertModal").css("display", "flex");
+    initLikertForm();
     $("#likertForm")[0].reset();
     $("#likertDone").prop("disabled", true);
+    $("#likertModal").css("display", "flex");
   });
 
-  $("#likertForm input[type='radio']").change(() => {
-    const ok = $("#likertForm input[name='confidence']:checked").length > 0;
-    $("#likertDone").prop("disabled", !ok);
+  $("#likertModal").on("change", "input[type='radio']", () => {
+    const needed = standalone_with_chat ? 3 : 1;
+    const got    = $("#likertForm input[type='radio']:checked").
+length;
+    $("#likertDone").prop("disabled", got < needed);
   });
 
   $("#likertDone").click(() => {
     if (pendingRequests) return;
-    const ans = parseInt($("#likertForm input[name='confidence']:checked").val(), 10);
     $("#likertModal").hide();
     setLoadingState(true);
+
+    const answers = [];
+    if (standalone_with_chat) {
+      ["q1","q2","q3"].forEach(id => {
+        const val = parseInt($(`#likertForm input[name='${id}']:checked`).val(), 10);
+        answers.push({ id, answer: val });
+      });
+    } else {
+      const val = parseInt($("#likertForm input[name='confidence']:checked").val(), 10);
+      answers.push({ id: "q1", answer: val });
+    }
+
     callPluginFunction("confusion", "next_datapoint", [], {
       username: currentUsername,
       datapoint_choice: decisionChoice,
-      answers: [{ id: 'q1', answer: ans }]
+      answers: answers,
+      current_study_mode:standalone_with_chat ? "dashboard_chat" : "dashboard"
     });
     loadVisualizations();
   });
 
-  $("#pdpButton").click(() => {
-    if (pendingRequests) return;
-    $("#histogramOptions").hide();
-    $("#pdpOptions").toggle(() => {
-      if ($("#pdpOptions").is(":visible")) {
+  $('#pdpButton').click(() => {
+    if (pendingRequests > 0) return;
+    $('#histogramOptions').hide();
+    $('#pdpOptions').toggle(() => {
+      if ($('#pdpOptions').
+is(":visible")) {
         populateFeatureCheckboxes();
-        const off = $("#pdpButton").offset(), h = $("#pdpButton").outerHeight();
-        $("#pdpOptions").css("top", off.top + h + 10 + "px");
+        const off = $('#pdpButton').offset(), h = $('#pdpButton').outerHeight();
+        $('#pdpOptions').css("top", off.top + h + 10 + "px");
       }
     });
   });
 
-  $("#histogramButton").click(() => {
+  $('#histogramButton').
+click(() => {
     if (pendingRequests) return;
-    $("#pdpOptions").hide();
-    $("#histogramOptions").toggle(() => {
-      if ($("#histogramOptions").is(":visible")) {
+    $('#pdpOptions').hide();
+    $('#histogramOptions').
+toggle(() => {
+      if ($('#histogramOptions').is(":visible")) {
         populateHistogramRadios();
-        const off = $("#histogramButton").offset(), h = $("#histogramButton").outerHeight();
-        $("#histogramOptions").css("top", off.top + h + 10 + "px");
+        const off = $('#histogramButton').offset(), h = $('#histogramButton').outerHeight();
+        $('#histogramOptions').css("top", off.top + h + 10 + "px");
       }
     });
   });
 
-  $("#generatePdpButton").click(() => {
+  $('#counterfactualButton').click(() => {
+    if (pendingRequests > 0) return;
+    setLoadingState(true);
+    showLoading('#counterfactualplot');
+    callPluginFunction("confusion", "generate_counterfactual_explanations", [5], {});
+  });
+
+  $("#generatePdpButton").
+click(() => {
     if (pendingRequests) return;
-    const feats = $(".checkbox-group input:checked").map((i,el)=>el.value).get();
+    const feats = $(".checkbox-group input:checked").map((i,el) => el.value).get();
     const tgt   = $("#targetSelect").val();
     if (!feats.length) { alert("Please select at least one feature."); return; }
     sessionStorage.setItem(PDP_HISTORY_KEY, JSON.stringify({ features: feats, target: tgt }));
@@ -275,7 +343,8 @@ function connectionEstablishedHandler() {
   $("#generateHistogramButton").click(() => {
     if (pendingRequests) return;
     const feat  = $("input[name='histogramFeature']:checked").val();
-    const split = $("#splitByTarget").is(':checked');
+    const split = $("#splitByTarget").
+is(':checked');
     if (!feat) { alert("Please select a feature."); return; }
     sessionStorage.setItem(HISTOGRAM_HISTORY_KEY,
       JSON.stringify({ selectedFeature: feat, splitByTarget: split }));
@@ -288,10 +357,16 @@ function connectionEstablishedHandler() {
 }
 
 function messageHandler(msg) {
+
   const html = msg.content;
-  if (msg.role === "datapoint") {
+  if (msg.
+role === "datapoint") {
     updateDatapointDisplay(msg.content);
     setLoadingState(false);
+  if(standalone_with_chat){
+    resetChatMessages()
+  }
+    return
   }
   if (html.includes("SHAP")) {
     $("#shapelyplot").html(html); hideLoading("#shapelyplot"); setLoadingState(false);
@@ -311,7 +386,8 @@ function messageHandler(msg) {
 }
 
 function updateDatapointDisplay(datapointInfo) {
-  $("#pdpContainer, #histogramContainer").hide();
+  $("#pdpContainer, #histogramContainer").
+hide();
   console.log("updateDatapointDisplay called with:", datapointInfo);
   const { prediction, confidence, data } = datapointInfo;
   let headerHTML = "", valueHTML = "";
@@ -326,12 +402,10 @@ function updateDatapointDisplay(datapointInfo) {
   $("#predictionText").text(prediction);
   $("#confidenceText").text(`${confidence} %`);
 
-  // Use the narrative template for the summary
   const summaryText = generateBookingSummary(data);
   console.log("updateDatapointDisplay summary:", summaryText);
   $("#datapointSummary").text(summaryText);
 
-  // Auto‑resize banner & push content down
   const bannerEl = document.getElementById("banner");
   const mainEl   = document.getElementById("mainContent");
   bannerEl.style.height   = "auto";

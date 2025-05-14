@@ -324,10 +324,17 @@ ENABLE_ONBOARDING = config("ENABLE_ONBOARDING", cast=bool, default=True)
 """
 HIDE_SETTINGS = config("HIDE_SETTINGS", default=False, cast=bool)
 """Whether or not to show settings in standard UI. Does not block websocket requests to change settings"""
+HIDE_BUG_REPORT_BUTTON = config("HIDE_BUG_REPORT_BUTTON", default=False, cast=bool)
+"""Whether or not to show bug report button in settings. Does not block websocket requests to make bug report"""
+HIDE_USER_PROFILE_BUTTON = config("HIDE_USER_PROFILE_BUTTON", default=False, cast=bool)
+"""Whether or not to show user profile button in settings. Users can still reach page via URL"""
+
 
 USERSTUDY = config("USERSTUDY", default="", cast=str)
 """DO NOT USE! Activates various hardcoded segments for userstudies
 "xai1" for dashboard/chat/chatdashboard comparison
 "innovation" for RAG study"""
+
+
 
 ALL_SETTINGS = config.repository.data

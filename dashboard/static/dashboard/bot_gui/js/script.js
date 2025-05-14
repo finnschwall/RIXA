@@ -403,4 +403,3 @@ function deleteMessage(el){
     $("#userInput").prop("disabled",true)
     send({"content":`##tracker delete -m_id ${msgId}`})
 }
-

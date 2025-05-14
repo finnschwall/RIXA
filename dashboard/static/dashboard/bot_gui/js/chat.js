@@ -42,7 +42,6 @@ function showBotTyping() {
      $('#spinner_overlay').css('display', 'inline-flex');
 }
 
-
 /**
  * scroll to the bottom of the chats after new message has been added to chat
  */
