@@ -1,15 +1,18 @@
-<font size="6" color="red">Special branch for user study</b><br></font>
+<font size="10">Special branch for user study</b><br></font>
 Corresponding to the paper _**Coming soon**_.
+<br>
 This branch is solely to allow replication/comprehension of the paper.
 
 The following commits from the other RIXA projects are required:
 
 <a href="https://github.com/finnschwall/rixaplugin/commit/38f0f0b10ea6390e8e11fa2eda4f7e0b489f33b4">rixaplugin</a>
+<br>
 <a href="https://github.com/finnschwall/PyALM/commit/b385bcee5d85e83d1ae53735eb465c97d605f3f9">pyalm</a>
+<br>
 <a href="https://github.com/finnschwall/rixarag/commit/8520cc57d4da9c1f3aaffe783b12873c4522e47a">rixarag</a>
 
 <br><br><br><br><br><br>
-
+-----------------
 <font size="5">Welcome to <b>RIXA</b><br>
 "<b>R</b>eal t<b>I</b>me e<b>X</b>plainable <b>A</b>rtificial Intelligence"
 A project for end user focused XAI (and other stuff)</font>
