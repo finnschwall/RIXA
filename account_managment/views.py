@@ -332,13 +332,12 @@ def register_user(request):
                 rixa_user.save()
                 invitation.save()
                 login(request, user)
-                if request.method == 'POST' and 'reset_button' in request.POST:
-                    import rixaplugin
-                    try:
-                        rixaplugin.execute("reset")
-                        return HttpResponseRedirect(request.path)
-                    except:
-                        return HttpResponseRedirect(f"{request.path}?error=FAILURE+TO+RESET")
+
+                import rixaplugin
+                try:
+                    rixaplugin.execute("reset")
+                except:
+                    return HttpResponse("Error while resetting datapoints. Account has been created anyway!", status=400)
                 return HttpResponseRedirect(reverse("home"))
             else:
                 user.save()
