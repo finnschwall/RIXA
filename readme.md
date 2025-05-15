@@ -4,7 +4,7 @@ A project for end user focused XAI (and other stuff)</font>
 
 # Description
 RIXA is primarily a combination of dashboard and NLP for integration between XAI and a "natural" interface.
-The last paper is [this](ieeexplore.ieee.org/document/10411695).
+The last paper is [this](https://ieeexplore.ieee.org/document/10411695).
 Two more are currently pending.
 
 This readme aims to give a quick overview for getting started. All technical questions and advanced infos are in the
