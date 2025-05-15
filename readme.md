@@ -11,8 +11,12 @@ This readme aims to give a quick overview for getting started. All technical que
 [docs](https://finnschwall.github.io/RIXA/) .
 
 # Screenshots
+
+## RIXA based decision support system
 ![Screenshot](screenshots/xai_chat_histo_cfs.png)
+## RIXA chat with RAG and plot
 ![Screenshot](screenshots/rag_and_plot.png)
+## RIXA based dashboard
 ![Screenshot](screenshots/dashboard.png)
 
 See more in the [screenshots folder](https://github.com/finnschwall/RIXA/tree/main/screenshots).
