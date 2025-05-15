@@ -3,17 +3,26 @@
 A project for end user focused XAI (and other stuff)</font>
 
 # Description
-RIXA is primarily a combination of dashboard and NLP for integration between XAI code and a more "natural" interface.
-The underlying paper is _**Coming soon (~December)**_.
+RIXA is primarily a combination of dashboard and NLP for integration between XAI and a "natural" interface.
+The last paper is [this](ieeexplore.ieee.org/document/10411695).
+Two more are currently pending.
 
 This readme aims to give a quick overview for getting started. All technical questions and advanced infos are in the
 [docs](https://finnschwall.github.io/RIXA/) .
 
+# Screenshots
+![Screenshot](screenshots/xai_chat_histo_cfs.png)
+![Screenshot](screenshots/rag_and_plot.png)
+![Screenshot](screenshots/dashboard.png)
 
+See more in the [screenshots folder](https://github.com/finnschwall/RIXA/tree/main/screenshots).
 
+# EVERYTHING BELOW IS NO LONGER UP TO DATE
+
+<br><br><br>
 # Quickstart
 ## Demo
-There is no demo currently :(
+There is no _public_ demo currently :(
 ## Documentation
 [Here](https://finnschwall.github.io/RIXA/) for the latest main branch version.
 For all other versions (also locally) it is under docs/build/html. For branches other
@@ -22,12 +31,8 @@ than main you will have to build it.
 **Hardware requirements**
 
 Basically none for the pure server (<300 MB of RAM, negligible CPU time). The requirements come from the plugins
-and the chat backend. If you want to run the latter one locally they are substantial. For usable results near real time I would
-recommend at least 12 GB RAM, 8 GB VRAM and a decent CPU with AVX2 support. It also works with way less but
-the experience will be subpar.
-### As an enduser
-If you do not intend to develop plugins or don't have any idea how package management works you are probably better
-off with the integrated solution. It comes with a python/C environment and an automatic package manager.
+and the chat backend. If you want to use local LLMs I would
+recommend at least 12 GB RAM, 8 GB VRAM and a decent CPU with AVX2 support.
 
 **UNFINISHED**
 
