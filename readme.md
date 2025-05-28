@@ -7,8 +7,18 @@ RIXA is primarily a combination of dashboard and NLP for integration between XAI
 The last paper is [this](https://ieeexplore.ieee.org/document/10411695).
 Two more are currently pending.
 
-This readme aims to give a quick overview for getting started. All technical questions and advanced infos are in the
-[docs](https://finnschwall.github.io/RIXA/) .
+~~This readme aims to give a quick overview for getting started. All technical questions and advanced infos are in the
+[docs](https://finnschwall.github.io/RIXA/) .~~
+
+Currently there is no up-to-date readme or docs. The docs here are based on an entirely different (and obsolete) architecture approach.
+The most up to date info can be found in the subprojects that now make up most of RIXAs non-web-related-architecture:
+
+[rixaplugin](https://github.com/finnschwall/rixaplugin) for integrating (XAI) Code for usage in a dashboard or by an LLM
+
+[pyalm](https://github.com/finnschwall/PyALM) as backend for various (local) LLMs
+
+[rixarag](https://github.com/finnschwall/rixarag) for RAG (retrieval augmented generation) and vector databases
+
 
 # Screenshots
 
