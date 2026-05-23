@@ -1,3 +1,7 @@
+> [!WARNING]  
+> PROJECT HAS BEEN DISCONTINUED
+
+
 <font size="5">Welcome to <b>RIXA</b><br>
 "<b>R</b>eal t<b>I</b>me e<b>X</b>plainable <b>A</b>rtificial Intelligence"
 A project for end user focused XAI (and other stuff)</font>
